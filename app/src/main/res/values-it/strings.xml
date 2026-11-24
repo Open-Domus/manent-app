@@ -43,4 +43,12 @@
     <string name="app_transcriber_not_paired">questo telefono non è associato a un gateway</string>
     <string name="app_transcriber_dictation_off">la dettatura del gateway è disattivata</string>
     <string name="app_transcriber_phone_unsupported">non ancora disponibile in questa app; usa il gateway</string>
+    <!-- Sostituiscono stringhe di feature-recording: senza gateway non si carica nulla, le parti aspettano sul telefono -->
+    <plurals name="recording_status_uploading">
+        <item quantity="one">Sul telefono, %d parte non ancora inviata</item>
+        <item quantity="other">Sul telefono, %d parti non ancora inviate</item>
+    </plurals>
+    <!-- Sostituisce feature-recording: vero con o senza gateway -->
+    <string name="recording_start_body_wearable">Registra da %1$s che indossi. Continua a registrare anche con lo schermo del telefono spento e tiene la registrazione su questo telefono; se colleghi un gateway Omnesis, gliela invia e lui la trasforma in una trascrizione ricercabile.</string>
+    <string name="recording_start_body_phone">Appoggia il telefono sul tavolo. Continua a registrare anche a schermo spento e tiene la registrazione su questo telefono; se colleghi un gateway Omnesis, gliela invia e lui la trasforma in una trascrizione ricercabile.</string>
 </resources>

@@ -47,4 +47,12 @@
     <string name="app_transcriber_not_paired">this phone is not paired with a gateway</string>
     <string name="app_transcriber_dictation_off">gateway dictation is off</string>
     <string name="app_transcriber_phone_unsupported">not available in this app yet; use the gateway</string>
+    <!-- Overrides of feature-recording strings: without a gateway nothing is uploading, the parts wait on the phone -->
+    <plurals name="recording_status_uploading">
+        <item quantity="one">On this phone, %d part not sent yet</item>
+        <item quantity="other">On this phone, %d parts not sent yet</item>
+    </plurals>
+    <!-- Override of feature-recording: true with or without a gateway -->
+    <string name="recording_start_body_wearable">Records from the %1$s you are wearing. It keeps recording with the phone\'s screen off and keeps the recording on this phone; with an Omnesis gateway connected, it is sent there and turned into a searchable transcript.</string>
+    <string name="recording_start_body_phone">Put the phone on the table. It keeps recording with the screen off and keeps the recording on this phone; with an Omnesis gateway connected, it is sent there and turned into a searchable transcript.</string>
 </resources>

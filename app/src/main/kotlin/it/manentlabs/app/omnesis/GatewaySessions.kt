@@ -91,7 +91,7 @@ class GatewaySessions @Inject constructor(
         rebuild()
     }
 
-    /** Ask the gateway what it offers now; recordings wait until it says it takes them. */
+    /** Ask the gateway what it offers now; once paired, recordings wait until it says it takes them. */
     suspend fun refreshStatus(): GatewayStatus? {
         val current = session ?: return null
         val result = try {
@@ -121,7 +121,9 @@ class GatewaySessions @Inject constructor(
         if (pairing == null) {
             session = null
             availabilityMemory.forget()
-            _availability.value = RecordingAvailability.Availability.UNAVAILABLE
+            // Without a gateway recordings stay on the phone: the outbox keeps them,
+            // and the upload worker waits until a gateway is paired.
+            _availability.value = RecordingAvailability.Availability.AVAILABLE
             return
         }
         // A recording may start while the gateway is out of reach: start from the last answer.

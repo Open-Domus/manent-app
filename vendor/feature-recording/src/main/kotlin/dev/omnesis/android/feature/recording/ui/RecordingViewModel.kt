@@ -264,9 +264,10 @@ class RecordingViewModel @Inject constructor(
             }
             val gateway = sessions.gateway()
             val next = try {
+                // Not paired: recordings stay on the phone and there is no gateway list to show.
                 gateway?.recent(GATEWAY_RECENT_LIMIT)?.map { it.toGatewayRecording() }
                     ?.let { GatewayRecent.Loaded(it) }
-                    ?: GatewayRecent.Failed
+                    ?: GatewayRecent.Hidden
             } catch (_: GatewayException) {
                 GatewayRecent.Failed
             }
