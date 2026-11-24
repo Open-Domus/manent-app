@@ -170,9 +170,9 @@ class AssistPipelineClientTest {
         assertEquals(AssistOutcome.Failed("pipeline-not-found"), AssistPipelineClient(http).run(config(pipeline = "gone"), speech))
     }
 
-    @Test fun anInstanceThatNeverAnswersTimesOut() = runBlocking {
+    @Test fun anInstanceThatNeverAnswersTimesOutSayingHowFarItGot() = runBlocking {
         homeAssistant(Heard(), afterAudio = emptyList())
-        assertEquals(AssistOutcome.Failed("timeout"), AssistPipelineClient(http, timeoutMs = 1_000).run(config(), speech))
+        assertEquals(AssistOutcome.Failed("timeout after stt-start"), AssistPipelineClient(http, timeoutMs = 1_000).run(config(), speech))
     }
 
     @Test fun anUnreachableInstanceFails() = runBlocking {

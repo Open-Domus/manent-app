@@ -79,8 +79,10 @@ class AssistPipelineClient(
     /** Run [pcm], mono 16-bit at 16 kHz, through Home Assistant. */
     suspend fun run(config: AssistConfig, pcm: ShortArray): AssistOutcome {
         val socket = open(config) ?: return AssistOutcome.Failed("unreachable")
+        val seen = mutableListOf<String>()
         return try {
-            withTimeoutOrNull(timeoutMs) { converse(socket, config, pcm) } ?: AssistOutcome.Failed("timeout")
+            withTimeoutOrNull(timeoutMs) { converse(socket, config, pcm, seen) }
+                ?: AssistOutcome.Failed("timeout after ${seen.lastOrNull() ?: "nothing"}")
         } finally {
             socket.close()
         }
@@ -117,9 +119,10 @@ class AssistPipelineClient(
         }
     }
 
-    private suspend fun converse(socket: Socket, config: AssistConfig, pcm: ShortArray): AssistOutcome {
+    /** Runs the command; [seen] collects how far it got, for a run that times out. */
+    private suspend fun converse(socket: Socket, config: AssistConfig, pcm: ShortArray, seen: MutableList<String>): AssistOutcome {
         when (val auth = socket.signIn(config.token)) {
-            is SignIn.Ok -> Unit
+            is SignIn.Ok -> seen += "sign-in"
             SignIn.BadToken -> return AssistOutcome.Failed("bad token")
             is SignIn.Broken -> return AssistOutcome.Failed(auth.reason)
         }
@@ -143,6 +146,7 @@ class AssistPipelineClient(
                 "event" -> {
                     val event = message["event"] as? JsonObject ?: continue
                     val data = event["data"] as? JsonObject
+                    event.string("type")?.let { seen += it }
                     when (event.string("type")) {
                         "run-start" -> {
                             val id = (data?.get("runner_data") as? JsonObject)?.get("stt_binary_handler_id")?.jsonPrimitive?.intOrNull

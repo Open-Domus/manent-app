@@ -61,7 +61,9 @@ object AssistModule {
 
     @Provides
     @Singleton
-    fun provideClient(http: AssistHttp): AssistPipelineClient = AssistPipelineClient(http.client)
+    fun provideClient(http: AssistHttp): AssistPipelineClient =
+        // A pipeline whose agent is an LLM can take well over 20 s to answer a question.
+        AssistPipelineClient(http.client, timeoutMs = 60_000)
 
     @Provides
     @Singleton
