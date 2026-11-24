@@ -1,0 +1,130 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Lorenzo Farnararo
+
+// Root build script. Plugin versions are declared here (apply false) and applied
+// per-module. All versions live in gradle/libs.versions.toml (the single source of truth).
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.hilt) apply false
+    alias(libs.plugins.roborazzi) apply false
+}
+
+// Robolectric's SDK jars are runtime dependencies its Maven downloader otherwise
+// fetches inside each test JVM, outside Gradle's cache and retry handling. Resolve
+// and stage them once before tests so parallel modules never depend on that path.
+// These are the SDKs our tests exercise, using Robolectric 4.14.1's instrumented
+// versions; RobolectricRuntimeDependenciesTest checks its actual SDK resolver
+// against the staged files so a library upgrade cannot leave stale coordinates.
+val robolectricSdkConfigurations = mapOf(
+    26 to "8.0.0_r4-robolectric-r1-i7", // Default target for unannotated library tests.
+    28 to "9-robolectric-4913185-2-i7",
+    32 to "12.1-robolectric-8229987-i7",
+    33 to "13-robolectric-9030017-i7",
+    34 to "14-robolectric-10818077-i7",
+    35 to "15-robolectric-12650502-i7",
+).map { (api, version) ->
+    // Separate configurations prevent Gradle's version conflict resolution from
+    // retaining only the newest SDK of this same Maven artifact.
+    val sdk = configurations.create("robolectricSdk$api") {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+        isTransitive = false
+    }
+    dependencies.add(sdk.name, "org.robolectric:android-all-instrumented:$version")
+    sdk
+}
+val robolectricRuntimeJars = files(robolectricSdkConfigurations)
+val robolectricRuntimeDirectory = layout.buildDirectory.dir("robolectric-runtime")
+val prepareRobolectricRuntime = tasks.register<Sync>("prepareRobolectricRuntime") {
+    description = "Resolve and stage the Android SDK jars Robolectric uses without runtime network access."
+    from(robolectricRuntimeJars)
+    into(robolectricRuntimeDirectory)
+}
+subprojects {
+    tasks.withType<Test>().configureEach {
+        dependsOn(prepareRobolectricRuntime)
+        inputs.files(robolectricRuntimeJars)
+            .withPropertyName("robolectricRuntimeJars")
+            .withNormalizer(ClasspathNormalizer::class.java)
+        systemProperty("robolectric.dependency.dir", robolectricRuntimeDirectory.get().asFile.absolutePath)
+        systemProperty("robolectric.offline", "true")
+        systemProperty("robolectric.usePreinstrumentedJars", "true")
+        testLogging.exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
+
+// ── One time zone and locale for every JVM test ─────────────────────────────
+// Screenshots render dates and times through the JVM defaults, so a golden
+// recorded on one machine would drift on a machine in another zone. Every unit
+// test JVM runs in the zone and locale the committed goldens were recorded in.
+subprojects {
+    tasks.withType<Test>().configureEach {
+        systemProperty("user.timezone", "Europe/London")
+        systemProperty("user.language", "en")
+        systemProperty("user.country", "US")
+    }
+}
+
+// ── Roborazzi zero-capture guard ─────────────────────────────────────────────
+// A Roborazzi record/verify run that captured ZERO images is a silent no-op: the
+// committed goldens under src/test/roborazzi/ are still present, so neither the unit
+// test task nor verifyRoborazzi reddens — yet nothing was actually rendered (every
+// screenshot test skipped, a `--tests` filter matched nothing, or the capture lane
+// hung before writing). After each record/verify run, read Roborazzi's
+// results-summary.json and fail loud unless it captured at least one image, so the
+// screenshot lane can never pass while doing nothing. The summary-parsing decision
+// (`summary.total == 0` ⇒ fail) is unit-tested in
+// `app/src/test/.../RoborazziCaptureGateTest.kt`.
+subprojects {
+    plugins.withId("io.github.takahirom.roborazzi") {
+        val assertCaptured =
+            tasks.register("assertRoborazziCapturedImages") {
+                description = "Fail loud if the Roborazzi lane captured zero images (a silent no-op)."
+                doLast {
+                    val summary =
+                        layout.buildDirectory
+                            .file("test-results/roborazzi/results-summary.json")
+                            .get()
+                            .asFile
+                    if (!summary.exists()) {
+                        throw GradleException(
+                            "Roborazzi wrote no results-summary.json in ${project.path} — the " +
+                                "screenshot lane ran zero captures (silent no-op).",
+                        )
+                    }
+                    @Suppress("UNCHECKED_CAST")
+                    val parsed = groovy.json.JsonSlurper().parse(summary) as Map<String, Any?>
+                    val total = ((parsed["summary"] as Map<String, Any?>)["total"] as Number).toInt()
+                    if (total == 0) {
+                        throw GradleException(
+                            "Roborazzi captured 0 images in ${project.path} — the screenshot lane is a " +
+                                "silent no-op (skipped tests or a capture hang). Expected at least 1.",
+                        )
+                    }
+                    logger.lifecycle("Roborazzi captured $total image(s) in ${project.path}.")
+                }
+            }
+        tasks
+            .matching { it.name.startsWith("recordRoborazzi") || it.name.startsWith("verifyRoborazzi") }
+            .configureEach { finalizedBy(assertCaptured) }
+
+        // The committed goldens are what a verify run compares against, but the
+        // plugin only declares its own build output directory as a test input.
+        // Without this, a change to a golden alone leaves the test task's build
+        // cache key unchanged, and a verify replays the cached verdict against
+        // the previous goldens.
+        tasks.withType<Test>().configureEach {
+            inputs
+                .dir("src/test/roborazzi")
+                .optional()
+                .withPropertyName("roborazziGoldens")
+                .withPathSensitivity(PathSensitivity.RELATIVE)
+        }
+    }
+}
