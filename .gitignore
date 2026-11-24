@@ -15,3 +15,6 @@ captures/
 **/build/outputs/roborazzi-compare/
 **/build/outputs/roborazzi/
 **/build/outputs/roborazzi-compare/
+keystore.properties
+*.jks
+*.keystore
