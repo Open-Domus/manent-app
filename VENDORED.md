@@ -10,4 +10,4 @@ headers changed to MIT, then `patches/` is applied.
 | feature-assist, SharedWearableAudio | `baldarn/omi-assist-commands` | `bfd9dd65893536c05fc89690909f2b737bf330da` |
 
 Patches applied:
-
+- `0001-feature-omi-leave-wearable-binding-to-the-app.patch`

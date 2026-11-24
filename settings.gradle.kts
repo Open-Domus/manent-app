@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "OmiCompanion"
+rootProject.name = "Manent"
 
 include(":app")
 

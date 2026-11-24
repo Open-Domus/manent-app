@@ -37,6 +37,8 @@ for m in "${UPSTREAM_MODULES[@]}" "${ASSIST_MODULES[@]}"; do rm -rf "${VENDOR:?}
 mkdir -p "$VENDOR"
 extract "$upstream_sha" "${UPSTREAM_MODULES[@]}"
 extract "$assist_sha" "${ASSIST_MODULES[@]}" "${ASSIST_FILES[@]}"
+# Root build scripts the vendored modules apply.
+git -C "$FORK" show "$upstream_sha:android/logic-coverage.gradle.kts" > "$ROOT/logic-coverage.gradle.kts"
 
 # Upstream Omnesis is AGPL-3.0; the copies here are under MIT.
 grep -rlZ 'SPDX-License-Identifier: AGPL-3[.]0-or-later' "$VENDOR" "$ROOT/logic-coverage.gradle.kts" \
