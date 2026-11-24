@@ -18,6 +18,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import it.manentlabs.app.omnesis.GatewaySessions
+import it.manentlabs.app.speech.AnswerSpeaker
+import it.manentlabs.app.speech.SpokenAnswerSettings
 import dev.omnesis.android.designsystem.theme.OmnesisTheme
 import dev.omnesis.android.feature.omi.ui.OmiRecordingRow
 import dev.omnesis.android.feature.recording.ui.RecordingScreen
@@ -28,6 +30,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject lateinit var sessions: GatewaySessions
+    @Inject lateinit var spokenAnswers: SpokenAnswerSettings
+    @Inject lateinit var speaker: AnswerSpeaker
 
     private val notifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         // The foreground services still run without it; their notifications are just hidden.
@@ -41,19 +45,21 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             OmnesisTheme {
-                ManentNav(sessions)
+                ManentNav(sessions, spokenAnswers, speaker)
             }
         }
     }
 }
 
 @Composable
-private fun ManentNav(sessions: GatewaySessions) {
+private fun ManentNav(sessions: GatewaySessions, spokenAnswers: SpokenAnswerSettings, speaker: AnswerSpeaker) {
     val nav = rememberNavController()
     NavHost(nav, startDestination = "home") {
         composable("home") {
             HomeScreen(
                 sessions,
+                spokenAnswers,
+                speaker,
                 onOpenRecordings = { nav.navigate("recordings") },
                 onConnectOmnesis = { nav.navigate("omnesis/pair") },
             )

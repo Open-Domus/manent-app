@@ -1,0 +1,139 @@
+diff --git a/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/AssistPipelineClient.kt b/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/AssistPipelineClient.kt
+index eb88bc5..4e07cac 100644
+--- a/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/AssistPipelineClient.kt
++++ b/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/AssistPipelineClient.kt
+@@ -39,8 +39,11 @@ data class AssistConfig(
+ 
+ /** What Home Assistant made of a spoken command. */
+ sealed interface AssistOutcome {
+-    /** It carried the command out, or answered the question. */
+-    data class Done(val speech: String?) : AssistOutcome
++    /**
++     * It carried the command out, or answered the question: [answered] when
++     * [speech] is an answer to a question rather than a confirmation.
++     */
++    data class Done(val speech: String?, val answered: Boolean = false) : AssistOutcome
+ 
+     /** It heard nothing it could act on: no words, or words that match no intent. */
+     data class NotUnderstood(val reason: String) : AssistOutcome
+@@ -63,8 +66,8 @@ data class AssistPipeline(val id: String, val name: String, val language: String
+  * WebSocket API, the way its own companion app streams voice: sign in with
+  * the token, `assist_pipeline/run` from speech-to-text to intent, then the
+  * audio as binary messages tagged with the handler id the run hands back and
+- * an empty one to end it. Text-to-speech is not asked for; the outcome is all
+- * the wearer feels. Nothing is retried: a command that cannot run now is
++ * an empty one to end it. Text-to-speech is not asked for: the outcome carries
++ * Home Assistant's reply as text, for the app to speak if it wants to. Nothing is retried: a command that cannot run now is
+  * reported failed, never carried out later.
+  */
+ class AssistPipelineClient(
+@@ -163,7 +166,8 @@ class AssistPipelineClient(
+             ?: return AssistOutcome.Failed("no response")
+         val speech = (((response["speech"] as? JsonObject)?.get("plain")) as? JsonObject)?.string("speech")
+         return when (response.string("response_type")) {
+-            "action_done", "query_answer" -> AssistOutcome.Done(speech)
++            "action_done" -> AssistOutcome.Done(speech)
++            "query_answer" -> AssistOutcome.Done(speech, answered = true)
+             else -> AssistOutcome.NotUnderstood(
+                 ((response["data"] as? JsonObject)?.string("code")) ?: speech ?: "not understood",
+             )
+diff --git a/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/AssistRuntime.kt b/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/AssistRuntime.kt
+index 8fb10c7..80ac738 100644
+--- a/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/AssistRuntime.kt
++++ b/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/AssistRuntime.kt
+@@ -42,10 +42,18 @@ class AssistRuntime(
+         if (ready) ActiveRoute(route, word) else null
+     }
+ 
+-    /** Start or stop listening to [input] after any change to its readiness or the settings. */
+-    fun sync(input: WearableAudio, ready: Boolean, feedback: (CommandFeedback) -> Unit) {
++    /**
++     * Start or stop listening to [input] after any change to its readiness or
++     * the settings; [onOutcome] hears each command's outcome after [feedback].
++     */
++    fun sync(
++        input: WearableAudio,
++        ready: Boolean,
++        onOutcome: (AssistOutcome) -> Unit = {},
++        feedback: (CommandFeedback) -> Unit,
++    ) {
+         val active = if (ready && settings.state.value.enabled) activeRoutes() else emptyList()
+-        if (active.isNotEmpty()) commands.start(input, active, feedback) else commands.stop()
++        if (active.isNotEmpty()) commands.start(input, active, onOutcome, feedback) else commands.stop()
+     }
+ 
+     fun stop() = commands.stop()
+diff --git a/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/VoiceCommands.kt b/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/VoiceCommands.kt
+index 40d9c34..0cc6747 100644
+--- a/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/VoiceCommands.kt
++++ b/feature-assist/src/main/kotlin/dev/omnesis/android/feature/assist/VoiceCommands.kt
+@@ -59,10 +59,16 @@ class VoiceCommands(
+     /**
+      * Start listening to [input] for [active]'s wake words; false when it is
+      * not streaming now. Safe to call again: the same input and routes keep
+-     * listening as they are, anything else starts over.
++     * listening as they are, anything else starts over. [onOutcome] hears
++     * every command's outcome after its [feedback], with its destination's reply.
+      */
+     @Synchronized
+-    fun start(input: WearableAudio, active: List<ActiveRoute>, feedback: (CommandFeedback) -> Unit): Boolean {
++    fun start(
++        input: WearableAudio,
++        active: List<ActiveRoute>,
++        onOutcome: (AssistOutcome) -> Unit = {},
++        feedback: (CommandFeedback) -> Unit,
++    ): Boolean {
+         require(active.isNotEmpty()) { "Nothing to listen for" }
+         if (audio === input && routes == active) return true
+         stop()
+@@ -85,6 +91,7 @@ class VoiceCommands(
+                             val outcome = send(route, pcm)
+                             Log.i(TAG, "Voice command for ${active[word].word.phrase}: ${outcome::class.simpleName} (${pcm.size / 16} ms of audio)")
+                             feedback(if (outcome is AssistOutcome.Done) CommandFeedback.DONE else CommandFeedback.FAILED)
++                            onOutcome(outcome)
+                         }
+                     },
+                     onDiscarded = { Log.d(TAG, "Wake word with no command after it") },
+diff --git a/feature-assist/src/test/kotlin/dev/omnesis/android/feature/assist/AssistPipelineClientTest.kt b/feature-assist/src/test/kotlin/dev/omnesis/android/feature/assist/AssistPipelineClientTest.kt
+index ab67b82..15a271c 100644
+--- a/feature-assist/src/test/kotlin/dev/omnesis/android/feature/assist/AssistPipelineClientTest.kt
++++ b/feature-assist/src/test/kotlin/dev/omnesis/android/feature/assist/AssistPipelineClientTest.kt
+@@ -138,9 +138,9 @@ class AssistPipelineClientTest {
+         assertEquals("p2", run["pipeline"]!!.jsonPrimitive.content)
+     }
+ 
+-    @Test fun aQuestionAnsweredCountsAsDone() = runBlocking {
++    @Test fun aQuestionAnsweredCountsAsDoneAndKeepsTheAnswer() = runBlocking {
+         homeAssistant(Heard(), afterAudio = listOf(intentEnd("query_answer", "The front door is closed")))
+-        assertEquals(AssistOutcome.Done("The front door is closed"), AssistPipelineClient(http).run(config(), speech))
++        assertEquals(AssistOutcome.Done("The front door is closed", answered = true), AssistPipelineClient(http).run(config(), speech))
+     }
+ 
+     @Test fun wordsThatMatchNoIntentAreNotUnderstood() = runBlocking {
+diff --git a/feature-assist/src/test/kotlin/dev/omnesis/android/feature/assist/VoiceCommandsTest.kt b/feature-assist/src/test/kotlin/dev/omnesis/android/feature/assist/VoiceCommandsTest.kt
+index 47170d0..3913b29 100644
+--- a/feature-assist/src/test/kotlin/dev/omnesis/android/feature/assist/VoiceCommandsTest.kt
++++ b/feature-assist/src/test/kotlin/dev/omnesis/android/feature/assist/VoiceCommandsTest.kt
+@@ -107,6 +107,22 @@ class VoiceCommandsTest {
+         assertEquals(listOf("home"), sentTo)
+     }
+ 
++    @Test fun theOutcomeIsHandedOnAfterItIsFelt() {
++        val pendant = Pendant()
++        val c = commands()
++        val heard = mutableListOf<String>()
++        answer = AssistOutcome.Done("Boiler at 52 degrees", answered = true)
++        c.start(pendant, home, onOutcome = { heard += "outcome:$it" }) { heard += "feedback:$it" }
++        pendant.say(0, 400)
++        pendant.say(WAKE, 80)
++        pendant.say(SPEECH, 1_000)
++        pendant.say(0, 1_200)
++        assertEquals(
++            listOf("feedback:LISTENING", "feedback:DONE", "outcome:${AssistOutcome.Done("Boiler at 52 degrees", answered = true)}"),
++            heard,
++        )
++    }
++
+     @Test fun eachWakeWordSendsToItsOwnRoute() {
+         val pendant = Pendant()
+         val c = commands()

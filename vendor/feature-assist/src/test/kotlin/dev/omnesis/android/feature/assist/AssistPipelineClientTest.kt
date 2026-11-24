@@ -138,9 +138,9 @@ class AssistPipelineClientTest {
         assertEquals("p2", run["pipeline"]!!.jsonPrimitive.content)
     }
 
-    @Test fun aQuestionAnsweredCountsAsDone() = runBlocking {
+    @Test fun aQuestionAnsweredCountsAsDoneAndKeepsTheAnswer() = runBlocking {
         homeAssistant(Heard(), afterAudio = listOf(intentEnd("query_answer", "The front door is closed")))
-        assertEquals(AssistOutcome.Done("The front door is closed"), AssistPipelineClient(http).run(config(), speech))
+        assertEquals(AssistOutcome.Done("The front door is closed", answered = true), AssistPipelineClient(http).run(config(), speech))
     }
 
     @Test fun wordsThatMatchNoIntentAreNotUnderstood() = runBlocking {

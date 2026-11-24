@@ -39,8 +39,11 @@ data class AssistConfig(
 
 /** What Home Assistant made of a spoken command. */
 sealed interface AssistOutcome {
-    /** It carried the command out, or answered the question. */
-    data class Done(val speech: String?) : AssistOutcome
+    /**
+     * It carried the command out, or answered the question: [answered] when
+     * [speech] is an answer to a question rather than a confirmation.
+     */
+    data class Done(val speech: String?, val answered: Boolean = false) : AssistOutcome
 
     /** It heard nothing it could act on: no words, or words that match no intent. */
     data class NotUnderstood(val reason: String) : AssistOutcome
@@ -63,8 +66,8 @@ data class AssistPipeline(val id: String, val name: String, val language: String
  * WebSocket API, the way its own companion app streams voice: sign in with
  * the token, `assist_pipeline/run` from speech-to-text to intent, then the
  * audio as binary messages tagged with the handler id the run hands back and
- * an empty one to end it. Text-to-speech is not asked for; the outcome is all
- * the wearer feels. Nothing is retried: a command that cannot run now is
+ * an empty one to end it. Text-to-speech is not asked for: the outcome carries
+ * Home Assistant's reply as text, for the app to speak if it wants to. Nothing is retried: a command that cannot run now is
  * reported failed, never carried out later.
  */
 class AssistPipelineClient(
@@ -163,7 +166,8 @@ class AssistPipelineClient(
             ?: return AssistOutcome.Failed("no response")
         val speech = (((response["speech"] as? JsonObject)?.get("plain")) as? JsonObject)?.string("speech")
         return when (response.string("response_type")) {
-            "action_done", "query_answer" -> AssistOutcome.Done(speech)
+            "action_done" -> AssistOutcome.Done(speech)
+            "query_answer" -> AssistOutcome.Done(speech, answered = true)
             else -> AssistOutcome.NotUnderstood(
                 ((response["data"] as? JsonObject)?.string("code")) ?: speech ?: "not understood",
             )

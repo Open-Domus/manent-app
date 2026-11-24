@@ -107,6 +107,22 @@ class VoiceCommandsTest {
         assertEquals(listOf("home"), sentTo)
     }
 
+    @Test fun theOutcomeIsHandedOnAfterItIsFelt() {
+        val pendant = Pendant()
+        val c = commands()
+        val heard = mutableListOf<String>()
+        answer = AssistOutcome.Done("Boiler at 52 degrees", answered = true)
+        c.start(pendant, home, onOutcome = { heard += "outcome:$it" }) { heard += "feedback:$it" }
+        pendant.say(0, 400)
+        pendant.say(WAKE, 80)
+        pendant.say(SPEECH, 1_000)
+        pendant.say(0, 1_200)
+        assertEquals(
+            listOf("feedback:LISTENING", "feedback:DONE", "outcome:${AssistOutcome.Done("Boiler at 52 degrees", answered = true)}"),
+            heard,
+        )
+    }
+
     @Test fun eachWakeWordSendsToItsOwnRoute() {
         val pendant = Pendant()
         val c = commands()

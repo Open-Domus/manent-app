@@ -59,10 +59,16 @@ class VoiceCommands(
     /**
      * Start listening to [input] for [active]'s wake words; false when it is
      * not streaming now. Safe to call again: the same input and routes keep
-     * listening as they are, anything else starts over.
+     * listening as they are, anything else starts over. [onOutcome] hears
+     * every command's outcome after its [feedback], with its destination's reply.
      */
     @Synchronized
-    fun start(input: WearableAudio, active: List<ActiveRoute>, feedback: (CommandFeedback) -> Unit): Boolean {
+    fun start(
+        input: WearableAudio,
+        active: List<ActiveRoute>,
+        onOutcome: (AssistOutcome) -> Unit = {},
+        feedback: (CommandFeedback) -> Unit,
+    ): Boolean {
         require(active.isNotEmpty()) { "Nothing to listen for" }
         if (audio === input && routes == active) return true
         stop()
@@ -85,6 +91,7 @@ class VoiceCommands(
                             val outcome = send(route, pcm)
                             Log.i(TAG, "Voice command for ${active[word].word.phrase}: ${outcome::class.simpleName} (${pcm.size / 16} ms of audio)")
                             feedback(if (outcome is AssistOutcome.Done) CommandFeedback.DONE else CommandFeedback.FAILED)
+                            onOutcome(outcome)
                         }
                     },
                     onDiscarded = { Log.d(TAG, "Wake word with no command after it") },

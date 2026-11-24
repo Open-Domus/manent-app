@@ -42,10 +42,18 @@ class AssistRuntime(
         if (ready) ActiveRoute(route, word) else null
     }
 
-    /** Start or stop listening to [input] after any change to its readiness or the settings. */
-    fun sync(input: WearableAudio, ready: Boolean, feedback: (CommandFeedback) -> Unit) {
+    /**
+     * Start or stop listening to [input] after any change to its readiness or
+     * the settings; [onOutcome] hears each command's outcome after [feedback].
+     */
+    fun sync(
+        input: WearableAudio,
+        ready: Boolean,
+        onOutcome: (AssistOutcome) -> Unit = {},
+        feedback: (CommandFeedback) -> Unit,
+    ) {
         val active = if (ready && settings.state.value.enabled) activeRoutes() else emptyList()
-        if (active.isNotEmpty()) commands.start(input, active, feedback) else commands.stop()
+        if (active.isNotEmpty()) commands.start(input, active, onOutcome, feedback) else commands.stop()
     }
 
     fun stop() = commands.stop()

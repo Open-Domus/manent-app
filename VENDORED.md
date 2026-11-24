@@ -11,3 +11,4 @@ headers changed to MIT, then `patches/` is applied.
 
 Patches applied:
 - `0001-feature-omi-leave-wearable-binding-to-the-app.patch`
+- `0002-feature-assist-hand-command-outcomes-to-the-app.patch`
