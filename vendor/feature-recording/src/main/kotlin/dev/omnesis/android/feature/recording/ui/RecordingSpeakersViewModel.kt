@@ -3,10 +3,12 @@
 
 package dev.omnesis.android.feature.recording.ui
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.omnesis.android.feature.recording.R
 import dev.omnesis.android.feature.recording.RecordingSessionProvider
 import dev.omnesis.android.transport.GatewayException
 import dev.omnesis.android.transport.dto.PersonSummary
@@ -38,12 +40,12 @@ data class RecordingSpeakersUiState(
     /** Speakers with a change on its way to the gateway; their actions wait. */
     val saving: Set<Int> = emptySet(),
     /** A change that did not save, shown once. */
-    val message: String? = null,
+    @StringRes val message: Int? = null,
     val picker: PersonPickerState? = null,
 ) {
     sealed interface Load {
         data object Loading : Load
-        data class Failed(val message: String) : Load
+        data class Failed(@StringRes val message: Int) : Load
         data object Loaded : Load
     }
 }
@@ -84,10 +86,10 @@ class RecordingSpeakersViewModel @Inject constructor(
                 _state.update { it.copy(load = RecordingSpeakersUiState.Load.Loaded, speakers = speakers) }
             } catch (_: GatewayException.NotFound) {
                 _state.update {
-                    it.copy(load = RecordingSpeakersUiState.Load.Failed("This recording is no longer on the gateway."))
+                    it.copy(load = RecordingSpeakersUiState.Load.Failed(R.string.recording_speakers_recording_gone))
                 }
             } catch (_: GatewayException) {
-                _state.update { it.copy(load = RecordingSpeakersUiState.Load.Failed("Speakers could not be loaded.")) }
+                _state.update { it.copy(load = RecordingSpeakersUiState.Load.Failed(R.string.recording_speakers_load_failed)) }
             }
         }
     }
@@ -185,10 +187,10 @@ class RecordingSpeakersViewModel @Inject constructor(
             } catch (_: NotConnected) {
                 NOT_CONNECTED
             } catch (_: GatewayException.NotFound) {
-                "This speaker is no longer on the gateway."
+                R.string.recording_speakers_speaker_gone
             } catch (e: GatewayException.ServerError) {
                 if (e.status == 400 && mapping is SpeakerMapping.Person) {
-                    "That person is no longer known to the gateway."
+                    R.string.recording_speakers_person_gone
                 } else {
                     SAVE_FAILED
                 }
@@ -214,22 +216,30 @@ class RecordingSpeakersViewModel @Inject constructor(
         const val ARG_TITLE = "title"
         const val SEARCH_DEBOUNCE_MS = 300L
         const val SEARCH_LIMIT = 20
-        private const val NOT_CONNECTED = "Reconnect to the gateway and try again."
-        private const val SAVE_FAILED = "The change could not be saved. Try again."
+        private val NOT_CONNECTED = R.string.recording_speakers_not_connected
+        private val SAVE_FAILED = R.string.recording_speakers_save_failed
     }
 }
 
-/** "You", the speaker's name, or "Speaker N". */
-internal fun speakerLabel(speaker: RecordingSpeakerDto): String =
-    if (speaker.isSelf) "You" else speaker.name?.takeIf { it.isNotBlank() } ?: "Speaker ${speaker.speaker}"
+/** How a speaker is called: "You", the speaker's name, or "Speaker N". */
+sealed interface SpeakerLabel {
+    data object You : SpeakerLabel
+    data class Named(val name: String) : SpeakerLabel
+    data class Numbered(val speaker: Int) : SpeakerLabel
+}
 
-/** How long someone spoke: "Under a minute", "4 min", "1 h 5 min". */
-internal fun formatTalkTime(ms: Long): String {
-    val minutes = ((ms + 30_000) / 60_000).coerceAtLeast(0)
-    return when {
-        ms < 60_000 -> "Under a minute"
-        minutes < 60 -> "$minutes min"
-        minutes % 60 == 0L -> "${minutes / 60} h"
-        else -> "${minutes / 60} h ${minutes % 60} min"
+internal fun speakerLabel(speaker: RecordingSpeakerDto): SpeakerLabel =
+    if (speaker.isSelf) {
+        SpeakerLabel.You
+    } else {
+        speaker.name?.takeIf { it.isNotBlank() }?.let { SpeakerLabel.Named(it) } ?: SpeakerLabel.Numbered(speaker.speaker)
     }
+
+/** How long someone spoke, rounded to the minute: null under a minute, else hours and minutes. */
+internal data class TalkTime(val hours: Long, val minutes: Long)
+
+internal fun talkTime(ms: Long): TalkTime? {
+    if (ms < 60_000) return null
+    val minutes = ((ms + 30_000) / 60_000).coerceAtLeast(0)
+    return TalkTime(minutes / 60, minutes % 60)
 }

@@ -3,6 +3,7 @@
 
 package dev.omnesis.android.feature.recording.ui
 
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +54,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -66,6 +69,7 @@ import dev.omnesis.android.designsystem.components.OmnesisCard
 import dev.omnesis.android.designsystem.components.PersonAvatar
 import dev.omnesis.android.designsystem.theme.OmSpacing
 import dev.omnesis.android.designsystem.theme.OmTheme
+import dev.omnesis.android.feature.recording.R
 import dev.omnesis.android.transport.dto.PersonSummary
 import dev.omnesis.android.transport.dto.RecordingSpeakerDto
 import dev.omnesis.android.transport.dto.SpeakerMapping
@@ -81,9 +85,10 @@ fun RecordingSpeakersScreen(
     val state by vm.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     var naming by rememberSaveable { mutableStateOf<Int?>(null) }
+    val res = resources()
     LaunchedEffect(state.message) {
         state.message?.let {
-            snackbar.showSnackbar(it)
+            snackbar.showSnackbar(res.getString(it))
             vm.dismissMessage()
         }
     }
@@ -94,7 +99,7 @@ fun RecordingSpeakersScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("Who spoke", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.recording_speakers_title), style = MaterialTheme.typography.titleMedium)
                         if (state.title.isNotBlank()) {
                             Text(
                                 state.title,
@@ -108,7 +113,7 @@ fun RecordingSpeakersScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.recording_back))
                     }
                 },
             )
@@ -169,11 +174,10 @@ fun RecordingSpeakersContent(
     val base = modifier.fillMaxSize().background(c.bgPrimary)
     when (val load = state.load) {
         RecordingSpeakersUiState.Load.Loading -> LoadingView(base)
-        is RecordingSpeakersUiState.Load.Failed -> ErrorView(load.message, base, onRetry = onRetry)
+        is RecordingSpeakersUiState.Load.Failed -> ErrorView(stringResource(load.message), base, onRetry = onRetry)
         RecordingSpeakersUiState.Load.Loaded -> if (state.speakers.isEmpty()) {
             EmptyView(
-                "Speakers were not told apart for this recording. The gateway's speaker setting is off, " +
-                    "or its transcriber gives no timings to tell voices apart.",
+                stringResource(R.string.recording_speakers_none),
                 base,
             )
         } else {
@@ -184,7 +188,7 @@ fun RecordingSpeakersContent(
             ) {
                 item {
                     Text(
-                        "Say who each voice is. People you choose become participants of the conversation.",
+                        stringResource(R.string.recording_speakers_intro),
                         style = MaterialTheme.typography.bodyMedium,
                         color = c.textSecondary,
                     )
@@ -215,7 +219,8 @@ private fun SpeakerCard(
     onClear: (Int) -> Unit,
 ) {
     val c = OmTheme.colors
-    val label = speakerLabel(speaker)
+    val res = resources()
+    val label = speakerLabel(res, speaker)
     OmnesisCard(modifier = Modifier.fillMaxWidth(), padding = OmSpacing.lg) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (speaker.isSelf) {
@@ -249,7 +254,7 @@ private fun SpeakerCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "${formatTalkTime(speaker.talkMs)} · ${mappingLine(speaker)}",
+                    "${formatTalkTime(res, speaker.talkMs)} · ${mappingLine(res, speaker)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = c.textMuted,
                     maxLines = 1,
@@ -279,29 +284,49 @@ private fun SpeakerCard(
             val padding = PaddingValues(horizontal = OmSpacing.sm, vertical = 0.dp)
             if (!speaker.isSelf) {
                 TextButton(onClick = { onSetSelf(speaker.speaker) }, enabled = !saving, contentPadding = padding) {
-                    Text("This is me")
+                    Text(stringResource(R.string.recording_speakers_this_is_me))
                 }
             }
             TextButton(onClick = { onChoosePerson(speaker.speaker) }, enabled = !saving, contentPadding = padding) {
-                Text("Choose person…")
+                Text(stringResource(R.string.recording_speakers_choose_person))
             }
             TextButton(onClick = { onName(speaker.speaker) }, enabled = !saving, contentPadding = padding) {
-                Text("Name…")
+                Text(stringResource(R.string.recording_speakers_name_action))
             }
             if (speaker.mapped) {
                 TextButton(onClick = { onClear(speaker.speaker) }, enabled = !saving, contentPadding = padding) {
-                    Text("Clear", color = if (saving) c.textMuted else c.danger)
+                    Text(stringResource(R.string.recording_speakers_clear), color = if (saving) c.textMuted else c.danger)
                 }
             }
         }
     }
 }
 
-private fun mappingLine(speaker: RecordingSpeakerDto): String = when {
-    speaker.isSelf -> "your voice"
-    speaker.personId != null -> "one of your people"
-    speaker.name != null -> "a name you gave"
-    else -> "not named yet"
+private fun mappingLine(res: Resources, speaker: RecordingSpeakerDto): String = res.getString(
+    when {
+        speaker.isSelf -> R.string.recording_speakers_mapping_self
+        speaker.personId != null -> R.string.recording_speakers_mapping_person
+        speaker.name != null -> R.string.recording_speakers_mapping_name
+        else -> R.string.recording_speakers_mapping_none
+    },
+)
+
+/** "You", the speaker's name, or "Speaker N". */
+internal fun speakerLabel(res: Resources, speaker: RecordingSpeakerDto): String =
+    when (val label = speakerLabel(speaker)) {
+        SpeakerLabel.You -> res.getString(R.string.recording_speakers_you)
+        is SpeakerLabel.Named -> label.name
+        is SpeakerLabel.Numbered -> res.getString(R.string.recording_speakers_numbered, label.speaker)
+    }
+
+/** How long someone spoke: "Under a minute", "4 min", "1 h 5 min". */
+internal fun formatTalkTime(res: Resources, ms: Long): String {
+    val time = talkTime(ms) ?: return res.getString(R.string.recording_talk_under_minute)
+    return when {
+        time.hours == 0L -> res.getString(R.string.recording_talk_minutes, time.minutes)
+        time.minutes == 0L -> res.getString(R.string.recording_talk_hours, time.hours)
+        else -> res.getString(R.string.recording_talk_hours_minutes, time.hours, time.minutes)
+    }
 }
 
 /** The person picker's body: a search field and the matching people. */
@@ -315,7 +340,7 @@ fun PersonPickerContent(
     val c = OmTheme.colors
     Column(modifier.fillMaxWidth().padding(bottom = OmSpacing.lg)) {
         Text(
-            "Who is speaker ${picker.speaker}?",
+            stringResource(R.string.recording_speakers_picker_title, picker.speaker),
             style = MaterialTheme.typography.titleMedium,
             color = c.textPrimary,
             modifier = Modifier.padding(horizontal = OmSpacing.lg),
@@ -324,7 +349,7 @@ fun PersonPickerContent(
         OutlinedTextField(
             value = picker.query,
             onValueChange = onQueryChange,
-            placeholder = { Text("Search people") },
+            placeholder = { Text(stringResource(R.string.recording_speakers_search)) },
             leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth().padding(horizontal = OmSpacing.lg),
@@ -335,7 +360,7 @@ fun PersonPickerContent(
                 picker.results.isEmpty() && picker.searching ->
                     OmSpinner(Modifier.align(Alignment.Center).size(24.dp), strokeWidth = 2.dp)
                 picker.results.isEmpty() -> Text(
-                    if (picker.failed) "People could not be searched. Try again." else "No one matches.",
+                    stringResource(if (picker.failed) R.string.recording_speakers_search_failed else R.string.recording_speakers_no_match),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (picker.failed) c.danger else c.textMuted,
                     modifier = Modifier.align(Alignment.Center).padding(OmSpacing.lg),
@@ -373,7 +398,7 @@ private fun PersonRow(person: PersonSummary, onPick: (PersonSummary) -> Unit) {
             )
             if (person.documentCount > 0) {
                 Text(
-                    "${person.documentCount} ${if (person.documentCount == 1) "item" else "items"}",
+                    pluralStringResource(R.plurals.recording_speakers_items, person.documentCount, person.documentCount),
                     style = MaterialTheme.typography.bodySmall,
                     color = c.textMuted,
                 )
@@ -393,28 +418,28 @@ private fun NameSpeakerDialog(
     val valid = text.trim().length in 1..SpeakerMapping.MAX_NAME_LENGTH
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Name speaker $speaker") },
+        title = { Text(stringResource(R.string.recording_speakers_name_title, speaker)) },
         text = {
             Column {
                 Text(
-                    "For someone who is not among your people in Omnesis.",
+                    stringResource(R.string.recording_speakers_name_body),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(OmSpacing.md))
                 OutlinedTextField(
                     value = text,
                     onValueChange = { text = it.take(SpeakerMapping.MAX_NAME_LENGTH) },
-                    label = { Text("Name") },
+                    label = { Text(stringResource(R.string.recording_speakers_name_label)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
         confirmButton = {
-            TextButton(onClick = { onSave(text) }, enabled = valid) { Text("Save") }
+            TextButton(onClick = { onSave(text) }, enabled = valid) { Text(stringResource(R.string.recording_save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.recording_cancel)) }
         },
     )
 }

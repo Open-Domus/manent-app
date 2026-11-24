@@ -3,6 +3,7 @@
 
 package dev.omnesis.android.feature.assist
 
+import androidx.annotation.StringRes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,10 +32,17 @@ data class WakeWord(
     val fileName: String,
     val download: WakeWordModelFile?,
     /** Where the model comes from and under which licence, as shown before it is fetched. */
-    val origin: String,
+    @StringRes val origin: Int,
 ) {
     val custom: Boolean get() = download == null
 }
+
+/** A model the user picked that is not kept; [reason] says why, as the card shows it, with [arg] if it takes one. */
+class ImportRefusedException(
+    @StringRes val reason: Int,
+    val arg: String? = null,
+    message: String,
+) : IOException(message)
 
 /**
  * The openWakeWord models the app can fetch. They are not shipped with the
@@ -51,8 +59,8 @@ object WakeWordModelCatalog {
     private const val RELEASE = "https://github.com/dscripka/openWakeWord/releases/download/v0.5.1"
     private const val COMMUNITY =
         "https://raw.githubusercontent.com/fwartner/home-assistant-wakewords-collection/1c6d6a82947ff1367d8e5e50cc999c00943ccb9c"
-    private const val OWW_ORIGIN = "openWakeWord project, non-commercial use only (CC BY-NC-SA 4.0)"
-    private const val COMMUNITY_ORIGIN = "Home Assistant community wake-word collection (MIT)"
+    private val OWW_ORIGIN = R.string.assist_origin_openwakeword
+    private val COMMUNITY_ORIGIN = R.string.assist_origin_community
 
     val MELSPECTROGRAM = WakeWordModelFile(
         "melspectrogram.onnx",
@@ -153,11 +161,22 @@ class WakeWordModelStore(
     suspend fun import(fileName: String, bytes: ByteArray): WakeWord = withContext(Dispatchers.IO) {
         val stem = fileName.substringAfterLast('/').removeSuffix(".onnx").removeSuffix(".ONNX")
         val safe = stem.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_')
-        if (safe.isEmpty()) throw IOException("the file needs a name")
-        if (bytes.size > MAX_CUSTOM_BYTES) throw IOException("the file is too large for a wake-word model")
-        validate(bytes)
+        if (safe.isEmpty()) throw ImportRefusedException(R.string.assist_import_no_name, message = "the file needs a name")
+        if (bytes.size > MAX_CUSTOM_BYTES) {
+            throw ImportRefusedException(R.string.assist_import_too_large, message = "the file is too large for a wake-word model")
+        }
+        try {
+            validate(bytes)
+        } catch (e: ImportRefusedException) {
+            throw e
+        } catch (e: IOException) {
+            throw ImportRefusedException(R.string.assist_import_not_classifier, message = e.message ?: "not a wake-word classifier")
+        }
         val target = File(customDir, "$safe.onnx")
-        if (target.exists()) throw IOException("a wake word named “${phraseOf(safe)}” already exists")
+        if (target.exists()) {
+            val phrase = phraseOf(safe)
+            throw ImportRefusedException(R.string.assist_import_exists, phrase, "a wake word named “$phrase” already exists")
+        }
         customDir.mkdirs()
         save(target, bytes)
         changed()
@@ -179,7 +198,7 @@ class WakeWordModelStore(
 
     private fun customWord(file: File): WakeWord {
         val stem = file.name.removeSuffix(".onnx")
-        return WakeWord("$CUSTOM_PREFIX${file.name}", phraseOf(stem), file.name, download = null, origin = "imported on this phone")
+        return WakeWord("$CUSTOM_PREFIX${file.name}", phraseOf(stem), file.name, download = null, origin = R.string.assist_origin_imported)
     }
 
     private fun fileOf(word: WakeWord) = if (word.custom) File(customDir, word.fileName) else File(directory, word.fileName)

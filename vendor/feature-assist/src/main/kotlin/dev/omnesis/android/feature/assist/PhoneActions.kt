@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import android.util.Log
+import androidx.annotation.StringRes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,18 +16,18 @@ import java.time.LocalDate
 
 /** The kinds of things a spoken command can ask this phone to do: the standard catalogue. */
 enum class PhoneActionKind(
-    val label: String,
+    @StringRes val label: Int,
     /** What to say, as the card shows it. */
     val example: String,
 ) {
-    TIMER("Timers", "“timer di 10 minuti”"),
-    ALARM("Alarms", "“sveglia alle 7:30”"),
-    NAVIGATE("Navigation", "“naviga verso la stazione”"),
-    MUSIC("Music", "“metti un po' di jazz”"),
-    OPEN_APP("Open an app", "“apri la fotocamera”"),
-    CALL("Calls", "“chiama Maya Reeves”"),
-    CALENDAR("Calendar events", "“appuntamento dal dentista domani alle 15”"),
-    SHARE("Notes and lists", "“aggiungi alla lista latte”"),
+    TIMER(R.string.assist_action_timer, "“timer di 10 minuti”"),
+    ALARM(R.string.assist_action_alarm, "“sveglia alle 7:30”"),
+    NAVIGATE(R.string.assist_action_navigate, "“naviga verso la stazione”"),
+    MUSIC(R.string.assist_action_music, "“metti un po' di jazz”"),
+    OPEN_APP(R.string.assist_action_open_app, "“apri la fotocamera”"),
+    CALL(R.string.assist_action_call, "“chiama Maya Reeves”"),
+    CALENDAR(R.string.assist_action_calendar, "“appuntamento dal dentista domani alle 15”"),
+    SHARE(R.string.assist_action_share, "“aggiungi alla lista latte”"),
     ;
 
     /** Whether the user picks the app among several, rather than taking the phone's default. */

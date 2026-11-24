@@ -32,9 +32,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.omnesis.android.designsystem.R
 
 /** Diameter used when the caller supplies no size, matching Material's circular indicator. */
 private val SpinnerDiameter = 40.dp
@@ -137,7 +139,7 @@ fun ErrorView(
         )
         if (onRetry != null) {
             Spacer(Modifier.height(16.dp))
-            Button(onClick = onRetry) { Text("Retry") }
+            Button(onClick = onRetry) { Text(stringResource(R.string.ds_retry)) }
         }
     }
 }

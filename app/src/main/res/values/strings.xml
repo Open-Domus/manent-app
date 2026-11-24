@@ -1,4 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Manent</string>
+    <string name="app_name" translatable="false">Manent</string>
+
+    <!-- Pairing screen -->
+    <string name="app_pair_title">Connect Omnesis</string>
+    <string name="app_back">Back</string>
+    <string name="app_pair_instructions">On the gateway host run:</string>
+    <string name="app_pair_payload_label">QR payload (JSON)</string>
+    <string name="app_pair_from_payload">Pair from payload</string>
+    <string name="app_pair_by_hand">Or by hand</string>
+    <string name="app_pair_gateway_url">Gateway URL</string>
+    <string name="app_pair_code">Pairing code</string>
+    <string name="app_pair_fingerprint">Certificate fingerprint (optional)</string>
+    <string name="app_pair">Pair</string>
+
+    <!-- Home -->
+    <string name="app_recordings">Recordings</string>
+
+    <!-- Spoken answers -->
+    <string name="app_spoken_answers_title">Spoken answers</string>
+    <string name="app_spoken_answers_description">The phone reads Home Assistant\'s reply aloud, through headphones when they are connected.</string>
+    <string name="app_spoken_answers_try">Try it</string>
+    <string name="app_spoken_answers_off">Off</string>
+    <string name="app_spoken_answers_questions">Answers to questions</string>
+    <string name="app_spoken_answers_always">Every reply</string>
+    <string name="app_spoken_answers_off_hint">The pendant\'s pulses only</string>
+    <string name="app_spoken_answers_questions_hint">“What temperature is the boiler?”</string>
+    <string name="app_spoken_answers_always_hint">Confirmations too: “Turned on the light”</string>
+    <!-- A reply like Home Assistant's, spoken by the Try it button. -->
+    <string name="app_spoken_answers_sample">The boiler is at 52 degrees.</string>
+
+    <!-- Omnesis connection -->
+    <string name="app_omnesis_not_connected">Not connected. Recordings stay on this phone until a gateway is connected.</string>
+    <string name="app_omnesis_connect">Connect</string>
+    <string name="app_omnesis_check">Check</string>
+    <string name="app_omnesis_disconnect">Disconnect</string>
+    <string name="app_status_checking">Checking…</string>
+    <!-- %1$s: the error the gateway probe failed with -->
+    <string name="app_status_unreachable">Not reachable: %1$s</string>
+    <string name="app_status_experimental_off">Experimental mode is off on the gateway (OMNESIS_EXPERIMENTAL=1)</string>
+    <string name="app_status_no_recordings">The gateway does not take recordings</string>
+    <string name="app_status_transcription_off">Gateway transcription is off</string>
+    <string name="app_status_takes_recordings">Takes recordings</string>
+
+    <!-- Why a voice-command transcriber cannot run, shown on the voice commands card -->
+    <string name="app_transcriber_not_paired">this phone is not paired with a gateway</string>
+    <string name="app_transcriber_dictation_off">gateway dictation is off</string>
+    <string name="app_transcriber_phone_unsupported">not available in this app yet; use the gateway</string>
 </resources>

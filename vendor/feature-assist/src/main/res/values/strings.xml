@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The voice-commands card -->
+    <string name="assist_intro">Say a wake word and a command, and the destination you chose for that word carries it out. The phone listens to the pendant for the wake words; only the command after one is sent, and nothing is recorded. Three short vibrations mean done, one long one that it did not work.</string>
+    <string name="assist_section_wake_words">Wake words</string>
+    <string name="assist_section_models">Models</string>
+    <string name="assist_section_phone_actions">Phone actions</string>
+    <string name="assist_section_transcription">Transcription</string>
+    <string name="assist_add_wake_word">Add a wake word</string>
+    <string name="assist_listen">Listen for wake words</string>
+    <string name="assist_listen_needs_setup">Set up at least one wake word first.</string>
+    <string name="assist_forget">Forget voice commands</string>
+    <string name="assist_allow">Allow</string>
+    <string name="assist_save">Save</string>
+
+    <!-- A route: a wake word and where its command goes -->
+    <string name="assist_choose_word">Choose a word</string>
+    <string name="assist_word_imported">“%1$s” · imported</string>
+    <string name="assist_remove_wake_word">Remove this wake word</string>
+    <string name="assist_destination_webhook">Webhook</string>
+    <string name="assist_destination_phone">This phone</string>
+    <string name="assist_phone_action_hint">Timers, alarms, navigation, music, calls and more: see Phone actions below.</string>
+    <string name="assist_problem_word_gone">Its wake-word model is gone; choose another.</string>
+    <string name="assist_problem_import_missing">Its imported model is missing; import it again.</string>
+    <string name="assist_problem_download">Download its model first.</string>
+    <string name="assist_problem_home_assistant">Set up Home Assistant first.</string>
+    <string name="assist_problem_webhook">Enter the webhook address.</string>
+    <string name="assist_overlay_needed">Allow display over other apps to carry out phone actions.</string>
+
+    <!-- Webhook destination -->
+    <string name="assist_webhook_address">Webhook address</string>
+    <string name="assist_webhook_secret_saved">Bearer secret (saved, type to replace)</string>
+    <string name="assist_webhook_secret">Bearer secret (optional)</string>
+    <string name="assist_webhook_hint">Receives the command\'s text as JSON.</string>
+
+    <!-- Wake-word models -->
+    <string name="assist_models_ready">Every wake word\'s model is on this phone.</string>
+    <string name="assist_models_explained">The models are not part of the app. They are downloaded to this phone from where they are published and checked before use:</string>
+    <string name="assist_model_origin">• “%1$s”: %2$s</string>
+    <string name="assist_downloading">Downloading…</string>
+    <string name="assist_download_models">Download the models</string>
+    <string name="assist_models_custom_hint">Any openWakeWord model works too: one you trained with Home Assistant\'s wake-word notebook, or one from a community collection.</string>
+    <string name="assist_import_model">Import a model (.onnx)</string>
+    <string name="assist_origin_openwakeword">openWakeWord project, non-commercial use only (CC BY-NC-SA 4.0)</string>
+    <string name="assist_origin_community">Home Assistant community wake-word collection (MIT)</string>
+    <string name="assist_origin_imported">imported on this phone</string>
+
+    <!-- Home Assistant destination -->
+    <string name="assist_home_assistant_hint">Home Assistant hears the command itself, with the assistant you choose.</string>
+    <string name="assist_home_assistant_address">Home Assistant address</string>
+    <string name="assist_home_assistant_token_saved">Access token (saved, type to replace)</string>
+    <string name="assist_home_assistant_token">Long-lived access token</string>
+    <string name="assist_home_assistant_token_placeholder">From your Home Assistant profile</string>
+    <string name="assist_save_and_test">Save and test</string>
+    <string name="assist_check_ok">Connected to Home Assistant.</string>
+    <string name="assist_check_ok_version">Connected to Home Assistant %1$s.</string>
+    <string name="assist_check_bad_token">Home Assistant refused the token.</string>
+    <string name="assist_check_unreachable">Home Assistant could not be reached (%1$s).</string>
+    <string name="assist_pipeline_label">Assistant:</string>
+    <string name="assist_pipeline_preferred">Preferred</string>
+    <string name="assist_pipeline_preferred_named">Preferred (%1$s)</string>
+
+    <!-- Transcription -->
+    <string name="assist_transcription_hint">Webhooks and phone actions get the command as text. Choose who transcribes it.</string>
+    <string name="assist_transcriber_gateway">Gateway</string>
+    <string name="assist_transcriber_phone">This phone, on-device</string>
+    <string name="assist_transcriber_gateway_detail">The audio goes to your gateway, which transcribes it.</string>
+    <string name="assist_transcriber_phone_detail">The audio stays on the phone.</string>
+    <string name="assist_transcriber_unavailable">Unavailable: %1$s</string>
+    <string name="assist_timing">Last command: %1$s for %2$s of audio.</string>
+    <string name="assist_timing_nothing_heard">Last command: %1$s for %2$s of audio, nothing heard.</string>
+    <string name="assist_seconds">%1$.1f s</string>
+
+    <!-- Phone actions -->
+    <string name="assist_phone_actions_hint">What the wake words for this phone can do, and with which app. An action no app on this phone takes is not available.</string>
+    <string name="assist_no_app">No app on this phone</string>
+    <plurals name="assist_app_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d apps</item>
+    </plurals>
+    <string name="assist_choose_app">Choose an app</string>
+    <string name="assist_choose_app_warning">Choose the app that takes it.</string>
+    <string name="assist_calling_needed">Allow contacts and calls to call people by name. Without it, spoken numbers open the dialer.</string>
+    <string name="assist_action_timer">Timers</string>
+    <string name="assist_action_alarm">Alarms</string>
+    <string name="assist_action_navigate">Navigation</string>
+    <string name="assist_action_music">Music</string>
+    <string name="assist_action_open_app">Open an app</string>
+    <string name="assist_action_call">Calls</string>
+    <string name="assist_action_calendar">Calendar events</string>
+    <string name="assist_action_share">Notes and lists</string>
+
+    <!-- Errors -->
+    <string name="assist_error_home_assistant_address">Enter the Home Assistant address as http://… or https://…</string>
+    <string name="assist_error_webhook_address">Enter the webhook address as http://… or https://…</string>
+    <string name="assist_error_download">The wake-word models could not be downloaded: %1$s</string>
+    <string name="assist_error_import">That file was not imported: %1$s</string>
+    <string name="assist_error_unreadable">That file could not be read.</string>
+    <string name="assist_import_not_onnx">choose an openWakeWord .onnx file</string>
+    <string name="assist_import_cannot_open">it could not be opened</string>
+    <string name="assist_import_no_name">the file needs a name</string>
+    <string name="assist_import_too_large">the file is too large for a wake-word model</string>
+    <string name="assist_import_exists">a wake word named “%1$s” already exists</string>
+    <string name="assist_import_not_classifier">it is not a wake-word model the phone can run</string>
+</resources>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="omi_pendant">Ciondolo Omi</string>
+
+    <!-- Status, on the card, the details sheet and the link notification -->
+    <string name="omi_status_not_paired">Nessun ciondolo associato</string>
+    <string name="omi_status_disconnected">Omi non connesso</string>
+    <string name="omi_status_connecting">Connessione a Omi…</string>
+    <string name="omi_status_connected">Omi connesso</string>
+    <string name="omi_status_connected_battery">Omi connesso · %1$d%%</string>
+    <string name="omi_status_unsupported">Firmware Omi non supportato</string>
+
+    <!-- Link notification -->
+    <string name="omi_notification_text">Tocca il ciondolo per avviare o interrompere una registrazione</string>
+    <string name="omi_notification_channel_description">Mostrata mentre Omnesis mantiene collegato il ciondolo</string>
+
+    <!-- Card -->
+    <string name="omi_error_nearby_permission">Per associare il ciondolo serve l\'accesso ai dispositivi nelle vicinanze.</string>
+    <string name="omi_intro">Registra con un Omi che indossi. Un tocco sul ciondolo avvia una registrazione, confermata da una breve vibrazione; un altro tocco la interrompe, con due vibrazioni.</string>
+    <string name="omi_intro_disconnect_app">Prima scollega il ciondolo dall\'app Omi: quell\'app invia l\'audio al proprio servizio e il ciondolo accetta una sola connessione alla volta.</string>
+    <string name="omi_pairing_unsupported">Questo telefono non può associare dispositivi companion</string>
+    <string name="omi_pairing_not_found">Nessun ciondolo trovato</string>
+    <string name="omi_looking">Ricerca del ciondolo…</string>
+    <string name="omi_link">Associa un Omi</string>
+    <string name="omi_capture_all_day">Registra tutto il giorno</string>
+    <string name="omi_capture_all_day_description">Ogni conversazione che il ciondolo sente viene registrata, una registrazione per conversazione. Un tocco segna un momento: circa 30 secondi prima e quello che segue, fino alla pausa successiva, vengono salvati come nota.</string>
+    <string name="omi_details">Dettagli</string>
+    <string name="omi_forget">Dimentica questo ciondolo</string>
+    <string name="omi_link_encrypted">Collegamento crittografato</string>
+    <string name="omi_link_not_encrypted">Collegamento non crittografato</string>
+    <string name="omi_detail_not_encrypted">Il collegamento non è crittografato: l\'associazione non è stata completata. Dimentica il ciondolo e associalo di nuovo.</string>
+    <string name="omi_detail_capturing">Registrazione per tutto il giorno. Tocca il ciondolo per segnare un momento.</string>
+    <string name="omi_detail_tap_mute">Tocca il ciondolo per avviare o interrompere una registrazione. Tra una registrazione e l\'altra il microfono è spento.</string>
+    <string name="omi_detail_tap_no_mute">Tocca il ciondolo per avviare o interrompere una registrazione. Il suo firmware non può spegnere il microfono: quando è collegato scarta ciò che sente, ma lontano dal telefono conserva l\'audio in memoria. Aggiorna il firmware per spegnere il microfono tra una registrazione e l\'altra.</string>
+    <string name="omi_detail_connecting">Collegamento e verifica del ciondolo in corso.</string>
+    <string name="omi_detail_disconnected">Accendi il ciondolo o avvicinalo. Si ricollega da solo.</string>
+    <string name="omi_detail_unsupported">Il firmware di questo ciondolo invia l\'audio in un formato che Omnesis non legge (%1$s). Aggiorna il firmware.</string>
+    <string name="omi_codec_unknown">sconosciuto</string>
+    <string name="omi_section_header">CIONDOLO OMI</string>
+
+    <!-- Row on the Recordings screen -->
+    <string name="omi_row_intro">Registra con un ciondolo Omi che indossi.</string>
+    <string name="omi_row_link_in_settings">Associa nelle impostazioni</string>
+    <string name="omi_row_manage">Gestisci</string>
+
+    <!-- Details sheet -->
+    <string name="omi_details_reading">Lettura dei dettagli del ciondolo…</string>
+    <string name="omi_details_when_connected">I dettagli del ciondolo compaiono quando è connesso.</string>
+    <string name="omi_details_device">Dispositivo</string>
+    <string name="omi_details_name">Nome</string>
+    <string name="omi_details_manufacturer">Produttore</string>
+    <string name="omi_details_model">Modello</string>
+    <string name="omi_details_hardware">Hardware</string>
+    <string name="omi_details_firmware">Firmware</string>
+    <string name="omi_details_serial">Numero di serie</string>
+    <string name="omi_details_address">Indirizzo Bluetooth</string>
+    <string name="omi_details_status">Stato</string>
+    <string name="omi_details_battery">Batteria</string>
+    <string name="omi_details_charging">In carica</string>
+    <string name="omi_details_yes">Sì</string>
+    <string name="omi_details_no">No</string>
+    <string name="omi_details_mute">Microfono spento tra le registrazioni</string>
+    <string name="omi_details_supported">Supportato</string>
+    <string name="omi_details_mute_unsupported">Non supportato da questo firmware</string>
+    <string name="omi_details_link">Collegamento</string>
+    <string name="omi_details_encryption">Crittografia</string>
+    <string name="omi_details_encrypted">Associato, crittografato</string>
+    <string name="omi_details_not_encrypted">Non crittografato</string>
+    <string name="omi_details_signal">Segnale</string>
+    <string name="omi_details_signal_value">%1$d dBm · %2$s</string>
+    <string name="omi_signal_strong">forte</string>
+    <string name="omi_signal_good">buono</string>
+    <string name="omi_signal_weak">debole</string>
+    <string name="omi_signal_very_weak">molto debole</string>
+    <string name="omi_details_packet_size">Dimensione pacchetto</string>
+    <string name="omi_details_audio">Audio</string>
+    <string name="omi_details_frames_lost">Frame persi in questa registrazione</string>
+    <string name="omi_details_settings">Impostazioni</string>
+    <string name="omi_details_led">Luminosità LED</string>
+    <string name="omi_details_mic_gain">Guadagno microfono</string>
+    <string name="omi_details_mic_gain_value">Livello %1$d su 8</string>
+    <string name="omi_details_storage">Memoria sul ciondolo</string>
+    <string name="omi_details_used">Usata</string>
+    <string name="omi_details_free">Libera</string>
+    <string name="omi_details_unread">Audio non ancora letto</string>
+    <string name="omi_details_clock">Orologio</string>
+    <string name="omi_details_clock_set">Impostato</string>
+    <string name="omi_details_clock_not_set">Non impostato</string>
+    <string name="omi_details_storage_note">Audio registrato dal ciondolo lontano dal telefono. Omnesis non lo scarica ancora.</string>
+    <string name="omi_details_features">Funzioni supportate dal firmware</string>
+    <string name="omi_details_nothing_reported">Nessuna informazione</string>
+    <string name="omi_details_find">Trova il ciondolo (vibra)</string>
+    <plurals name="omi_bytes">
+        <item quantity="one">%1$d byte</item>
+        <item quantity="other">%1$d byte</item>
+    </plurals>
+    <plurals name="omi_packets">
+        <item quantity="one">%1$d pacchetto</item>
+        <item quantity="other">%1$d pacchetti</item>
+    </plurals>
+
+    <!-- Firmware features, as the pendant reports them -->
+    <string name="omi_feature_speaker">Altoparlante</string>
+    <string name="omi_feature_accelerometer">Accelerometro</string>
+    <string name="omi_feature_button">Pulsante</string>
+    <string name="omi_feature_battery">Batteria</string>
+    <string name="omi_feature_usb">USB</string>
+    <string name="omi_feature_haptics">Vibrazione</string>
+    <string name="omi_feature_offline_storage">Memoria offline</string>
+    <string name="omi_feature_led_dimming">Regolazione LED</string>
+    <string name="omi_feature_mic_gain">Guadagno microfono</string>
+</resources>

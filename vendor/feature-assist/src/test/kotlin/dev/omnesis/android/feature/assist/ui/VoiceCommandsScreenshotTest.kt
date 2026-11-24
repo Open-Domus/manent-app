@@ -22,6 +22,7 @@ import dev.omnesis.android.feature.assist.CommandRoute
 import dev.omnesis.android.feature.assist.Destination
 import dev.omnesis.android.feature.assist.PhoneActionCatalog
 import dev.omnesis.android.feature.assist.PhoneActionKind
+import dev.omnesis.android.feature.assist.R
 import dev.omnesis.android.feature.assist.TranscriberKind
 import dev.omnesis.android.feature.assist.TranscriptionTiming
 import dev.omnesis.android.feature.assist.WakeWord
@@ -65,7 +66,7 @@ class VoiceCommandsScreenshotTest {
     private val home = CommandRoute("home", WakeWordModelCatalog.OK_HOME.id, Destination.HomeAssistant)
     private val hook = CommandRoute("hook", WakeWordModelCatalog.HEY_MYCROFT.id, Destination.Webhook("https://automation.example.com/hook/voice"))
     private val phone = CommandRoute("phone", WakeWordModelCatalog.ALEXA.id, Destination.PhoneAction)
-    private val custom = WakeWord("custom:ehi_casa.onnx", "ehi casa", "ehi_casa.onnx", download = null, origin = "imported on this phone")
+    private val custom = WakeWord("custom:ehi_casa.onnx", "ehi casa", "ehi_casa.onnx", download = null, origin = R.string.assist_origin_imported)
 
     private fun rows(installed: Boolean) = listOf(
         RouteRow(home, WakeWordModelCatalog.OK_HOME, installed),

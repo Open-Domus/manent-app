@@ -17,10 +17,12 @@ import dev.omnesis.android.designsystem.theme.OmnesisTheme
 import dev.omnesis.android.feature.omi.OmiDetails
 import dev.omnesis.android.feature.omi.OmiStatus
 import dev.omnesis.android.feature.omi.OmiStorage
+import dev.omnesis.android.feature.omi.R
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
@@ -106,10 +108,13 @@ class OmiCardScreenshotTest {
     @Test fun row_disconnected_light() = captureRow("omi_row_disconnected_light", false, OmiStatus.Disconnected)
 
     @Test fun formatsSignalAndSizes() {
-        assertEquals("strong", signalWord(-58))
-        assertEquals("weak", signalWord(-80))
-        assertEquals("3.4 MB", bytes(3_400_000))
-        assertEquals("512 bytes", bytes(512))
+        assertEquals(R.string.omi_signal_strong, signalWord(-58))
+        assertEquals(R.string.omi_signal_weak, signalWord(-80))
+        val res = RuntimeEnvironment.getApplication().resources
+        assertEquals("3.4 MB", bytes(res, 3_400_000))
+        assertEquals("512 bytes", bytes(res, 512))
+        assertEquals(R.string.omi_feature_haptics, featureLabel("Haptics"))
+        assertEquals(null, featureLabel("Teleporter"))
     }
 
     @Test fun not_linked_light() = capture("omi_not_linked_light", false, OmiCardState())

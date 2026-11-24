@@ -3,9 +3,11 @@
 
 package dev.omnesis.android.feature.recording.ui
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
 import dev.omnesis.android.designsystem.theme.OmnesisTheme
 import dev.omnesis.android.feature.recording.RecordingInput
@@ -82,13 +84,18 @@ class RecordingScreenshotTest {
         withGateway.copy(gatewayRecent = GatewayRecent.Failed),
     )
 
+    private val res = ApplicationProvider.getApplicationContext<Context>().resources
+
     @Test fun speakersLineCountsNamedSpeakers() {
         val base = GatewayRecording("g", "Design sync", "Wed 25 Feb, 14:00", "done", 3, 2)
-        assertEquals("2 of 3 speakers named", speakersLine(base))
-        assertEquals("All 3 speakers named", speakersLine(base.copy(namedSpeakers = 3)))
-        assertEquals(null, speakersLine(base.copy(speakers = 0, namedSpeakers = 0)))
-        assertEquals("Transcribing", gatewayStateLine("transcribing"))
-        assertEquals("Transcribed", gatewayStateLine("done"))
+        assertEquals("2 of 3 speakers named", speakersLine(res, base))
+        assertEquals("All 3 speakers named", speakersLine(res, base.copy(namedSpeakers = 3)))
+        assertEquals("1 speaker named", speakersLine(res, base.copy(speakers = 1, namedSpeakers = 1)))
+        assertEquals("0 of 1 speaker named", speakersLine(res, base.copy(speakers = 1, namedSpeakers = 0)))
+        assertEquals(null, speakersLine(res, base.copy(speakers = 0, namedSpeakers = 0)))
+        assertEquals("Transcribing", gatewayStateLine(res, "transcribing"))
+        assertEquals("Transcribed", gatewayStateLine(res, "done"))
+        assertEquals("Queued", gatewayStateLine(res, "queued"))
     }
 
     private val recent = listOf(
@@ -191,7 +198,9 @@ class RecordingScreenshotTest {
         assertEquals("0:05", formatElapsed(5_000))
         assertEquals("23:41", formatElapsed(23 * 60_000L + 41_000L))
         assertEquals("1:02:03", formatElapsed(3_723_000))
-        assertEquals("Uploading, 1 part left", statusLine(RecentRecording.Status.Uploading(1)))
-        assertEquals("Waiting to upload", statusLine(RecentRecording.Status.Uploading(0)))
+        assertEquals("Uploading, 1 part left", statusLine(res, RecentRecording.Status.Uploading(1)))
+        assertEquals("Uploading, 3 parts left", statusLine(res, RecentRecording.Status.Uploading(3)))
+        assertEquals("Waiting to upload", statusLine(res, RecentRecording.Status.Uploading(0)))
+        assertEquals("Not sent: too long", statusLine(res, RecentRecording.Status.Refused("too long")))
     }
 }

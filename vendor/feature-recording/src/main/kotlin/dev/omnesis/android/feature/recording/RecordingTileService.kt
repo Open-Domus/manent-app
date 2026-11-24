@@ -43,15 +43,17 @@ class RecordingTileService : TileService() {
         val tile = qsTile ?: return
         val on = recording()
         tile.state = if (on) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-        tile.label = LABEL
+        val label = getString(R.string.recording_tile_label)
+        tile.label = label
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            tile.subtitle = if (on) "Recording" else "Off"
+            tile.subtitle = getString(if (on) R.string.recording_tile_on else R.string.recording_tile_off)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            tile.contentDescription = LABEL
-            tile.stateDescription = if (on) "Recording. Tap to stop" else "Tap to start recording"
+            tile.contentDescription = label
+            tile.stateDescription = getString(if (on) R.string.recording_tile_state_on else R.string.recording_tile_state_off)
         } else {
-            tile.contentDescription = if (on) "$LABEL, recording. Tap to stop" else "$LABEL, tap to start recording"
+            tile.contentDescription =
+                getString(if (on) R.string.recording_tile_description_on else R.string.recording_tile_description_off, label)
         }
         tile.updateTile()
     }
@@ -79,8 +81,6 @@ class RecordingTileService : TileService() {
     }
 
     companion object {
-        const val LABEL = "Record conversation"
-
         fun component(context: Context) = ComponentName(context, RecordingTileService::class.java)
 
         /** Ask Quick Settings to redraw the tile, if it is showing. */

@@ -3,6 +3,7 @@
 
 package dev.omnesis.android.feature.recording.ui
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,11 +20,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
 import dev.omnesis.android.designsystem.theme.OmTheme
 import dev.omnesis.android.designsystem.theme.OmnesisTheme
+import dev.omnesis.android.feature.recording.R
 import dev.omnesis.android.transport.dto.PersonSummary
 import dev.omnesis.android.transport.dto.RecordingSpeakerDto
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -104,7 +108,7 @@ class RecordingSpeakersScreenshotTest {
     @Test fun empty_light() = capture("recording_speakers_empty_light", false) { content(empty) }
     @Test fun empty_dark() = capture("recording_speakers_empty_dark", true) { content(empty) }
 
-    private val failed = RecordingSpeakersUiState(load = RecordingSpeakersUiState.Load.Failed("Speakers could not be loaded."))
+    private val failed = RecordingSpeakersUiState(load = RecordingSpeakersUiState.Load.Failed(R.string.recording_speakers_load_failed))
 
     @Test fun error_light() = capture("recording_speakers_error_light", false) { content(failed) }
     @Test fun error_dark() = capture("recording_speakers_error_dark", true) { content(failed) }
@@ -142,4 +146,20 @@ class RecordingSpeakersScreenshotTest {
 
     @Test fun picker_light() = capture("recording_speakers_picker_light", false) { sheet(picker) }
     @Test fun picker_dark() = capture("recording_speakers_picker_dark", true) { sheet(picker) }
+
+    private val res = ApplicationProvider.getApplicationContext<Context>().resources
+
+    @Test fun formatsTalkTime() {
+        assertEquals("Under a minute", formatTalkTime(res, 5_000))
+        assertEquals("1 min", formatTalkTime(res, 61_000))
+        assertEquals("4 min", formatTalkTime(res, 240_000))
+        assertEquals("1 h", formatTalkTime(res, 3_600_000))
+        assertEquals("1 h 5 min", formatTalkTime(res, 3_900_000))
+    }
+
+    @Test fun labelsSpeakers() {
+        assertEquals("You", speakerLabel(res, RecordingSpeakerDto(1, isSelf = true, name = "Me")))
+        assertEquals("Jamie", speakerLabel(res, RecordingSpeakerDto(2, name = "Jamie")))
+        assertEquals("Speaker 3", speakerLabel(res, RecordingSpeakerDto(3)))
+    }
 }

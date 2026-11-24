@@ -39,6 +39,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -53,6 +54,7 @@ import dev.omnesis.android.feature.omi.OmiLink
 import dev.omnesis.android.feature.omi.OmiLinkService
 import dev.omnesis.android.feature.omi.OmiPairing
 import dev.omnesis.android.feature.omi.OmiStatus
+import dev.omnesis.android.feature.omi.R
 import dev.omnesis.android.feature.recording.RecordingSettings
 import dev.omnesis.android.feature.recording.ui.RecordingAvailability
 import javax.inject.Inject
@@ -103,7 +105,7 @@ class OmiViewModel @Inject constructor(
 
     fun onPermission(granted: Boolean, launch: (IntentSenderRequest) -> Unit) {
         if (!granted) {
-            local.update { it.copy(error = "Nearby devices access is needed to link the pendant.") }
+            local.update { it.copy(error = context.getString(R.string.omi_error_nearby_permission)) }
             return
         }
         local.update { it.copy(associating = true, error = null) }
@@ -183,21 +185,19 @@ fun OmiCardContent(
         when (val status = state.status) {
             OmiStatus.NotPaired -> {
                 Text(
-                    "Record from an Omi you wear. A tap on the pendant starts a recording, confirmed by one short " +
-                        "vibration; another tap stops it, with two.",
+                    stringResource(R.string.omi_intro),
                     style = MaterialTheme.typography.bodyMedium,
                     color = c.textSecondary,
                 )
                 Spacer(Modifier.height(OmSpacing.sm))
                 Text(
-                    "Disconnect the pendant from the Omi app first: that app sends its audio to its own service, " +
-                        "and the pendant takes one connection at a time.",
+                    stringResource(R.string.omi_intro_disconnect_app),
                     style = MaterialTheme.typography.bodySmall,
                     color = c.textMuted,
                 )
                 Spacer(Modifier.height(OmSpacing.md))
                 OutlinedButton(onClick = onAssociate, enabled = !state.associating, modifier = Modifier.fillMaxWidth()) {
-                    Text(if (state.associating) "Looking for the pendant…" else "Link an Omi")
+                    Text(stringResource(if (state.associating) R.string.omi_looking else R.string.omi_link))
                 }
             }
             else -> {
@@ -211,11 +211,9 @@ fun OmiCardContent(
                 Spacer(Modifier.height(OmSpacing.md))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("Capture all day", style = MaterialTheme.typography.bodyMedium, color = c.textPrimary)
+                        Text(stringResource(R.string.omi_capture_all_day), style = MaterialTheme.typography.bodyMedium, color = c.textPrimary)
                         Text(
-                            "Every conversation the pendant hears is recorded, one recording per conversation. " +
-                                "A tap marks a moment: about 30 seconds before it and what follows, up to the next " +
-                                "pause, are saved as a note.",
+                            stringResource(R.string.omi_capture_all_day_description),
                             style = MaterialTheme.typography.bodySmall,
                             color = c.textMuted,
                         )
@@ -225,9 +223,9 @@ fun OmiCardContent(
                 }
                 Spacer(Modifier.height(OmSpacing.sm))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedButton(onClick = onDetails) { Text("Details") }
+                    OutlinedButton(onClick = onDetails) { Text(stringResource(R.string.omi_details)) }
                     Spacer(Modifier.width(OmSpacing.sm))
-                    TextButton(onClick = onForget) { Text("Forget this pendant") }
+                    TextButton(onClick = onForget) { Text(stringResource(R.string.omi_forget)) }
                 }
             }
         }
@@ -250,7 +248,7 @@ private fun StatusRow(status: OmiStatus, modifier: Modifier = Modifier) {
         androidx.compose.foundation.layout.Box(Modifier.size(10.dp).background(dot, CircleShape))
         Spacer(Modifier.width(OmSpacing.sm))
         Text(
-            OmiLinkService.statusLine(status),
+            omiStatusLine(status),
             style = MaterialTheme.typography.bodyMedium,
             color = c.textPrimary,
             modifier = Modifier.weight(1f),
@@ -258,7 +256,7 @@ private fun StatusRow(status: OmiStatus, modifier: Modifier = Modifier) {
         if (status is OmiStatus.Ready) {
             Icon(
                 if (status.encrypted) Icons.Outlined.Lock else Icons.Outlined.LockOpen,
-                contentDescription = if (status.encrypted) "Encrypted link" else "Link not encrypted",
+                contentDescription = stringResource(if (status.encrypted) R.string.omi_link_encrypted else R.string.omi_link_not_encrypted),
                 tint = if (status.encrypted) c.textMuted else c.danger,
                 modifier = Modifier.size(18.dp),
             )
@@ -266,20 +264,26 @@ private fun StatusRow(status: OmiStatus, modifier: Modifier = Modifier) {
     }
 }
 
+/** The pendant's state in one line, as [OmiLinkService.statusLine] words it for the notification. */
+@Composable
+internal fun omiStatusLine(status: OmiStatus): String {
+    val battery = (status as? OmiStatus.Ready)?.battery
+    val res = OmiLinkService.statusLineRes(status)
+    return if (battery != null) stringResource(res, battery) else stringResource(res)
+}
+
+@Composable
 private fun detail(status: OmiStatus, alwaysOn: Boolean): String = when (status) {
     is OmiStatus.Ready -> when {
-        !status.encrypted -> "The link is not encrypted: pairing did not complete. Forget the pendant and link it again."
-        alwaysOn -> "Capturing all day. Tap the pendant to mark a moment."
-        status.canMute -> "Tap the pendant to start or stop a recording. Between recordings its microphone is off."
-        else ->
-            "Tap the pendant to start or stop a recording. Its firmware cannot switch the microphone off: " +
-                "while linked it discards what it hears, but away from the phone it keeps audio on itself. " +
-                "Update the firmware to turn the microphone off between recordings."
+        !status.encrypted -> stringResource(R.string.omi_detail_not_encrypted)
+        alwaysOn -> stringResource(R.string.omi_detail_capturing)
+        status.canMute -> stringResource(R.string.omi_detail_tap_mute)
+        else -> stringResource(R.string.omi_detail_tap_no_mute)
     }
-    OmiStatus.Connecting -> "Linking and checking the pendant."
-    OmiStatus.Disconnected -> "Switch the pendant on or bring it closer. It links again on its own."
+    OmiStatus.Connecting -> stringResource(R.string.omi_detail_connecting)
+    OmiStatus.Disconnected -> stringResource(R.string.omi_detail_disconnected)
     is OmiStatus.Unsupported ->
-        "This pendant's firmware sends audio in a format Omnesis does not read (${status.codec ?: "unknown"}). Update the firmware."
+        stringResource(R.string.omi_detail_unsupported, status.codec?.toString() ?: stringResource(R.string.omi_codec_unknown))
     OmiStatus.NotPaired -> ""
 }
 
@@ -295,7 +299,7 @@ fun OmiSettingsSection(vm: OmiViewModel = hiltViewModel()) {
     if (!available && state.status == OmiStatus.NotPaired) return
     Spacer(Modifier.height(OmSpacing.md))
     Text(
-        "OMI PENDANT",
+        stringResource(R.string.omi_section_header),
         style = MaterialTheme.typography.labelMedium,
         color = OmTheme.colors.textSecondary,
         modifier = Modifier.padding(top = OmSpacing.sm, bottom = OmSpacing.xs),
@@ -317,15 +321,15 @@ fun OmiRecordingRowContent(status: OmiStatus, onOpenSettings: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (status == OmiStatus.NotPaired) {
                 Text(
-                    "Record from an Omi pendant you wear.",
+                    stringResource(R.string.omi_row_intro),
                     style = MaterialTheme.typography.bodyMedium,
                     color = c.textSecondary,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = onOpenSettings) { Text("Link in Settings") }
+                TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.omi_row_link_in_settings)) }
             } else {
                 StatusRow(status, Modifier.weight(1f))
-                TextButton(onClick = onOpenSettings) { Text("Manage") }
+                TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.omi_row_manage)) }
             }
         }
     }

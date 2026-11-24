@@ -4,6 +4,7 @@
 package dev.omnesis.android.feature.recording.ui
 
 import android.Manifest
+import android.content.res.Resources
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -56,10 +57,15 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -70,6 +76,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.omnesis.android.designsystem.components.OmnesisCard
 import dev.omnesis.android.designsystem.theme.OmSpacing
 import dev.omnesis.android.designsystem.theme.OmTheme
+import dev.omnesis.android.feature.recording.R
 import dev.omnesis.android.feature.recording.RecordingInput
 import dev.omnesis.android.feature.recording.RecordingState
 
@@ -96,14 +103,15 @@ fun RecordingScreen(
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
+    val untitled = stringResource(R.string.recording_untitled)
     Scaffold(
         containerColor = OmTheme.colors.bgPrimary,
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Recordings") },
+                title = { Text(stringResource(R.string.recording_screen_title)) },
                 navigationIcon = {
                     IconButton(onClick = onOpenMenu) {
-                        Icon(Icons.Outlined.Menu, contentDescription = "Menu")
+                        Icon(Icons.Outlined.Menu, contentDescription = stringResource(R.string.recording_menu))
                     }
                 },
             )
@@ -123,7 +131,7 @@ fun RecordingScreen(
             onDelete = vm::delete,
             onDismissError = vm::dismissDeleteError,
             wearableCard = wearableCard,
-            onOpenRecording = { onOpenSpeakers(it.id, it.title) },
+            onOpenRecording = { onOpenSpeakers(it.id, it.title.ifBlank { untitled }) },
             onRetryGatewayRecent = vm::refreshGatewayRecent,
             modifier = Modifier.padding(padding),
         )
@@ -178,15 +186,15 @@ fun RecordingContent(
         state.deleteError?.let { message ->
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(message, color = c.danger, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-                    TextButton(onClick = onDismissError) { Text("Dismiss") }
+                    Text(stringResource(message), color = c.danger, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                    TextButton(onClick = onDismissError) { Text(stringResource(R.string.recording_dismiss)) }
                 }
             }
         }
         if (state.recent.isNotEmpty()) {
             item {
                 Text(
-                    "On this phone",
+                    stringResource(R.string.recording_on_this_phone),
                     style = MaterialTheme.typography.titleSmall,
                     color = c.textSecondary,
                     modifier = Modifier.padding(top = OmSpacing.sm),
@@ -198,22 +206,22 @@ fun RecordingContent(
         if (gateway !is GatewayRecent.Hidden) {
             item {
                 Text(
-                    "Recent recordings",
+                    stringResource(R.string.recording_recent_title),
                     style = MaterialTheme.typography.titleSmall,
                     color = c.textSecondary,
                     modifier = Modifier.padding(top = OmSpacing.sm),
                 )
             }
             when (gateway) {
-                GatewayRecent.Loading -> item { QuietLine("Loading recent recordings…") }
+                GatewayRecent.Loading -> item { QuietLine(stringResource(R.string.recording_recent_loading)) }
                 GatewayRecent.Failed -> item {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        QuietLine("Recent recordings could not be loaded.", Modifier.weight(1f))
-                        TextButton(onClick = onRetryGatewayRecent) { Text("Retry") }
+                        QuietLine(stringResource(R.string.recording_recent_failed), Modifier.weight(1f))
+                        TextButton(onClick = onRetryGatewayRecent) { Text(stringResource(R.string.recording_retry)) }
                     }
                 }
                 is GatewayRecent.Loaded -> if (gateway.recordings.isEmpty()) {
-                    item { QuietLine("No recordings on the gateway yet.") }
+                    item { QuietLine(stringResource(R.string.recording_recent_empty)) }
                 } else {
                     items(gateway.recordings, key = { "gateway-${it.id}" }) { recording ->
                         GatewayRecordingRow(recording, onOpenRecording)
@@ -233,26 +241,27 @@ private fun QuietLine(text: String, modifier: Modifier = Modifier) {
 @Composable
 private fun GatewayRecordingRow(recording: GatewayRecording, onOpen: (GatewayRecording) -> Unit) {
     val c = OmTheme.colors
+    val res = resources()
     OmnesisCard(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(OmRadius.large)).clickable { onOpen(recording) }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Outlined.RecordVoiceOver, contentDescription = null, tint = c.textSecondary, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(OmSpacing.md))
             Column(Modifier.weight(1f)) {
                 Text(
-                    recording.title,
+                    recording.title.ifBlank { stringResource(R.string.recording_untitled) },
                     style = MaterialTheme.typography.bodyMedium,
                     color = c.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "${recording.when_} · ${gatewayStateLine(recording.state)}",
+                    "${recording.when_} · ${gatewayStateLine(res, recording.state)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = c.textMuted,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                speakersLine(recording)?.let { line ->
+                speakersLine(res, recording)?.let { line ->
                     Text(
                         line,
                         style = MaterialTheme.typography.bodySmall,
@@ -266,19 +275,32 @@ private fun GatewayRecordingRow(recording: GatewayRecording, onOpen: (GatewayRec
     }
 }
 
-internal fun gatewayStateLine(state: String): String = when (state) {
-    "recording" -> "Recording"
-    "transcribing" -> "Transcribing"
-    "done" -> "Transcribed"
+/** The resources [stringResource] reads, following configuration changes. */
+@Composable
+@ReadOnlyComposable
+internal fun resources(): Resources {
+    LocalConfiguration.current
+    return LocalContext.current.resources
+}
+
+internal fun gatewayStateLine(res: Resources, state: String): String = when (state) {
+    "recording" -> res.getString(R.string.recording_gateway_state_recording)
+    "transcribing" -> res.getString(R.string.recording_gateway_state_transcribing)
+    "done" -> res.getString(R.string.recording_gateway_state_done)
     else -> state.replaceFirstChar { it.uppercase() }
 }
 
 /** "2 of 3 speakers named", or null when the gateway did not tell speakers apart. */
-internal fun speakersLine(recording: GatewayRecording): String? = when {
+internal fun speakersLine(res: Resources, recording: GatewayRecording): String? = when {
     recording.speakers <= 0 -> null
     recording.namedSpeakers >= recording.speakers ->
-        if (recording.speakers == 1) "1 speaker named" else "All ${recording.speakers} speakers named"
-    else -> "${recording.namedSpeakers} of ${recording.speakers} ${if (recording.speakers == 1) "speaker" else "speakers"} named"
+        res.getQuantityString(R.plurals.recording_speakers_all_named, recording.speakers, recording.speakers)
+    else -> res.getQuantityString(
+        R.plurals.recording_speakers_some_named,
+        recording.speakers,
+        recording.namedSpeakers,
+        recording.speakers,
+    )
 }
 
 @Composable
@@ -292,15 +314,13 @@ private fun StartCard(
     val c = OmTheme.colors
     val wearable = state.wearableName
     OmnesisCard(padding = OmSpacing.lg) {
-        Text("Record a conversation", style = MaterialTheme.typography.titleMedium, color = c.textPrimary)
+        Text(stringResource(R.string.recording_start_title), style = MaterialTheme.typography.titleMedium, color = c.textPrimary)
         Spacer(Modifier.height(OmSpacing.xs))
         Text(
             if (state.startInput == RecordingInput.WEARABLE) {
-                "Records from the $wearable you are wearing. It keeps recording with the phone's screen off, " +
-                    "uploads as it goes, and the gateway turns the conversation into a searchable transcript."
+                stringResource(R.string.recording_start_body_wearable, wearable.orEmpty())
             } else {
-                "Put the phone on the table. It keeps recording with the screen off, uploads as it goes, " +
-                    "and the gateway turns the conversation into a searchable transcript."
+                stringResource(R.string.recording_start_body_phone)
             },
             style = MaterialTheme.typography.bodyMedium,
             color = c.textSecondary,
@@ -316,7 +336,7 @@ private fun StartCard(
                     } else {
                         null
                     },
-                    label = { Text("Phone microphone") },
+                    label = { Text(stringResource(R.string.recording_input_phone)) },
                 )
                 FilterChip(
                     selected = state.startInput == RecordingInput.WEARABLE,
@@ -331,7 +351,7 @@ private fun StartCard(
             }
             Spacer(Modifier.height(OmSpacing.xs))
             Text(
-                "Start records from the input selected here. A tap on the $wearable always records from the $wearable.",
+                stringResource(R.string.recording_input_hint, wearable),
                 style = MaterialTheme.typography.bodySmall,
                 color = c.textMuted,
             )
@@ -340,16 +360,16 @@ private fun StartCard(
         OutlinedTextField(
             value = state.title,
             onValueChange = onTitleChange,
-            label = { Text("Title (optional)") },
+            label = { Text(stringResource(R.string.recording_title_field)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(OmSpacing.sm))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Upload on Wi-Fi only", style = MaterialTheme.typography.bodyMedium, color = c.textPrimary)
+                Text(stringResource(R.string.recording_wifi_only), style = MaterialTheme.typography.bodyMedium, color = c.textPrimary)
                 Text(
-                    "Recording continues offline; parts upload once connected.",
+                    stringResource(R.string.recording_wifi_only_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = c.textMuted,
                 )
@@ -359,7 +379,7 @@ private fun StartCard(
         if (state.micDenied) {
             Spacer(Modifier.height(OmSpacing.sm))
             Text(
-                "Microphone access is needed to record. Allow it, then start again.",
+                stringResource(R.string.recording_mic_denied),
                 style = MaterialTheme.typography.bodySmall,
                 color = c.danger,
             )
@@ -368,11 +388,11 @@ private fun StartCard(
         Button(onClick = onStart, enabled = !state.starting, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Outlined.Mic, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(OmSpacing.sm))
-            Text(if (state.starting) "Starting…" else "Start recording")
+            Text(stringResource(if (state.starting) R.string.recording_starting else R.string.recording_start))
         }
         Spacer(Modifier.height(OmSpacing.sm))
         Text(
-            "Let everyone know you are recording.",
+            stringResource(R.string.recording_consent_hint),
             style = MaterialTheme.typography.bodySmall,
             color = c.textMuted,
         )
@@ -389,6 +409,7 @@ private fun RecorderCard(
     onStop: () -> Unit,
 ) {
     val c = OmTheme.colors
+    val wearable = wearableName ?: stringResource(R.string.recording_wearable_fallback)
     OmnesisCard(padding = OmSpacing.lg) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -399,10 +420,10 @@ private fun RecorderCard(
             Spacer(Modifier.width(OmSpacing.sm))
             Text(
                 when {
-                    recording.paused -> "Paused"
-                    recording.ambient -> "Capturing conversations with the ${wearableName ?: "wearable"}"
-                    recording.input == RecordingInput.WEARABLE -> "Recording with the ${wearableName ?: "wearable"}"
-                    else -> "Recording"
+                    recording.paused -> stringResource(R.string.recording_paused)
+                    recording.ambient -> stringResource(R.string.recording_ambient_with, wearable)
+                    recording.input == RecordingInput.WEARABLE -> stringResource(R.string.recording_with, wearable)
+                    else -> stringResource(R.string.recording_in_progress)
                 },
                 style = MaterialTheme.typography.labelLarge,
                 color = c.textSecondary,
@@ -435,9 +456,9 @@ private fun RecorderCard(
             Spacer(Modifier.height(OmSpacing.sm))
             Text(
                 if (recording.input == RecordingInput.WEARABLE) {
-                    "The ${wearableName ?: "wearable"} is not connected. Recording resumes when it is back."
+                    stringResource(R.string.recording_wearable_lost, wearable)
                 } else {
-                    "The microphone is in use by another app. Resume to try again."
+                    stringResource(R.string.recording_mic_busy)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = c.danger,
@@ -448,8 +469,7 @@ private fun RecorderCard(
         if (recording.ambient) {
             Spacer(Modifier.height(OmSpacing.sm))
             Text(
-                "This conversation is kept until three minutes pass without speech; the next starts on its own. " +
-                    "Tap the ${wearableName ?: "wearable"} to mark a moment.",
+                stringResource(R.string.recording_ambient_hint, wearable),
                 style = MaterialTheme.typography.bodySmall,
                 color = c.textSecondary,
                 textAlign = TextAlign.Center,
@@ -458,7 +478,7 @@ private fun RecorderCard(
         }
         Spacer(Modifier.height(OmSpacing.xs))
         Text(
-            "${recording.chunks} ${if (recording.chunks == 1) "part" else "parts"} saved · the screen can turn off",
+            pluralStringResource(R.plurals.recording_parts_saved, recording.chunks, recording.chunks),
             style = MaterialTheme.typography.bodySmall,
             color = c.textMuted,
             textAlign = TextAlign.Center,
@@ -473,7 +493,7 @@ private fun RecorderCard(
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(OmSpacing.xs))
-                Text(if (recording.paused) "Resume" else "Pause")
+                Text(stringResource(if (recording.paused) R.string.recording_resume else R.string.recording_pause))
             }
             Button(
                 onClick = onStop,
@@ -483,7 +503,7 @@ private fun RecorderCard(
                 Icon(Icons.Outlined.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(OmSpacing.xs))
                 // Stopping an episode turns all-day capture off: the next would open at once.
-                Text(if (recording.ambient) "Turn off" else "Stop")
+                Text(stringResource(if (recording.ambient) R.string.recording_turn_off else R.string.recording_stop))
             }
         }
     }
@@ -493,14 +513,14 @@ private fun RecorderCard(
 private fun UnavailableCard(availability: RecordingAvailability.Availability) {
     val c = OmTheme.colors
     OmnesisCard(padding = OmSpacing.lg) {
-        Text("Recording is not available", style = MaterialTheme.typography.titleMedium, color = c.textPrimary)
+        Text(stringResource(R.string.recording_unavailable_title), style = MaterialTheme.typography.titleMedium, color = c.textPrimary)
         Spacer(Modifier.height(OmSpacing.xs))
         Text(
             when (availability) {
                 RecordingAvailability.Availability.TRANSCRIPTION_OFF ->
-                    "Gateway transcription is switched off. Turn it on in the gateway's settings to record conversations."
+                    stringResource(R.string.recording_unavailable_transcription_off)
                 else ->
-                    "This gateway does not take recordings. It needs experimental mode and an assigned transcriber."
+                    stringResource(R.string.recording_unavailable_gateway)
             },
             style = MaterialTheme.typography.bodyMedium,
             color = c.textSecondary,
@@ -522,14 +542,14 @@ private fun RecentRow(recent: RecentRecording, onDelete: (String) -> Unit) {
             Spacer(Modifier.width(OmSpacing.md))
             Column(Modifier.weight(1f)) {
                 Text(
-                    recent.title,
+                    recent.title.ifBlank { stringResource(R.string.recording_untitled) },
                     style = MaterialTheme.typography.bodyMedium,
                     color = c.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "${recent.when_} · ${statusLine(recent.status)}",
+                    "${recent.when_} · ${statusLine(resources(), recent.status)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = c.textMuted,
                     maxLines = 2,
@@ -537,20 +557,20 @@ private fun RecentRow(recent: RecentRecording, onDelete: (String) -> Unit) {
                 )
             }
             IconButton(onClick = { onDelete(recent.id) }) {
-                Icon(Icons.Outlined.Delete, contentDescription = "Delete recording", tint = c.textMuted)
+                Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.recording_delete), tint = c.textMuted)
             }
         }
     }
 }
 
-internal fun statusLine(status: RecentRecording.Status): String = when (status) {
+internal fun statusLine(res: Resources, status: RecentRecording.Status): String = when (status) {
     is RecentRecording.Status.Uploading -> when (status.partsLeft) {
-        0 -> "Waiting to upload"
-        1 -> "Uploading, 1 part left"
-        else -> "Uploading, ${status.partsLeft} parts left"
+        0 -> res.getString(R.string.recording_status_waiting)
+        else -> res.getQuantityString(R.plurals.recording_status_uploading, status.partsLeft, status.partsLeft)
     }
-    RecentRecording.Status.Sent -> "Sent; the gateway transcribes it"
-    is RecentRecording.Status.Refused -> "Not sent: ${status.reason}"
+    RecentRecording.Status.Sent -> res.getString(R.string.recording_status_sent)
+    // The reason is the gateway's own words, as it sent them.
+    is RecentRecording.Status.Refused -> res.getString(R.string.recording_status_refused, status.reason)
 }
 
 /** `m:ss`, or `h:mm:ss` from the first hour. */

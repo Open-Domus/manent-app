@@ -6,6 +6,7 @@ package dev.omnesis.android.feature.recording.ui
 import androidx.lifecycle.SavedStateHandle
 import dev.omnesis.android.feature.recording.OutboxChunk
 import dev.omnesis.android.feature.recording.OutboxSession
+import dev.omnesis.android.feature.recording.R
 import dev.omnesis.android.feature.recording.RecordingSessionProvider
 import dev.omnesis.android.feature.recording.RecordingsGateway
 import dev.omnesis.android.transport.GatewayException
@@ -129,7 +130,7 @@ class RecordingSpeakersViewModelTest {
         val vm = viewModel()
         advanceUntilIdle()
         val load = vm.state.value.load as RecordingSpeakersUiState.Load.Failed
-        assertTrue(load.message.contains("no longer"))
+        assertEquals(R.string.recording_speakers_recording_gone, load.message)
     }
 
     @Test fun setSelfShowsAtOnceThenTakesTheGatewaysAnswer() = runTest(dispatcher) {
@@ -144,7 +145,7 @@ class RecordingSpeakersViewModelTest {
         advanceUntilIdle()
         assertEquals(listOf(1 to SpeakerMapping.Self), gateway.sets)
         assertTrue(vm.state.value.saving.isEmpty())
-        assertEquals("You", speakerLabel(vm.state.value.speakers.first()))
+        assertEquals(SpeakerLabel.You, speakerLabel(vm.state.value.speakers.first()))
     }
 
     @Test fun choosingAPersonSearchesDebouncedAndMapsTheSpeaker() = runTest(dispatcher) {
@@ -179,7 +180,7 @@ class RecordingSpeakersViewModelTest {
         vm.name(2, "  Jamie  ")
         advanceUntilIdle()
         assertEquals(listOf(2 to SpeakerMapping.Name("Jamie")), gateway.sets)
-        assertEquals("Jamie", speakerLabel(vm.state.value.speakers.first { it.speaker == 2 }))
+        assertEquals(SpeakerLabel.Named("Jamie"), speakerLabel(vm.state.value.speakers.first { it.speaker == 2 }))
     }
 
     @Test fun clearUnmapsTheSpeaker() = runTest(dispatcher) {
@@ -190,7 +191,7 @@ class RecordingSpeakersViewModelTest {
         advanceUntilIdle()
         assertEquals(listOf(1 to SpeakerMapping.Clear), gateway.sets)
         assertFalse(vm.state.value.speakers.first().mapped)
-        assertEquals("Speaker 1", speakerLabel(vm.state.value.speakers.first()))
+        assertEquals(SpeakerLabel.Numbered(1), speakerLabel(vm.state.value.speakers.first()))
     }
 
     @Test fun aRefusedChangeRollsBackAndSaysSo() = runTest(dispatcher) {
@@ -203,7 +204,7 @@ class RecordingSpeakersViewModelTest {
         val speaker = vm.state.value.speakers.first { it.speaker == 1 }
         assertNull(speaker.name)
         assertTrue(vm.state.value.saving.isEmpty())
-        assertEquals("The change could not be saved. Try again.", vm.state.value.message)
+        assertEquals(R.string.recording_speakers_save_failed, vm.state.value.message)
         vm.dismissMessage()
         assertNull(vm.state.value.message)
     }
@@ -215,7 +216,7 @@ class RecordingSpeakersViewModelTest {
         vm.choosePerson(1, PersonSummary(id = "p-gone", canonicalName = "Jamie"))
         advanceUntilIdle()
         assertNull(vm.state.value.speakers.first().personId)
-        assertEquals("That person is no longer known to the gateway.", vm.state.value.message)
+        assertEquals(R.string.recording_speakers_person_gone, vm.state.value.message)
     }
 
     @Test fun disconnectedChangesRollBack() = runTest(dispatcher) {
@@ -225,7 +226,7 @@ class RecordingSpeakersViewModelTest {
         vm.setSelf(2)
         advanceUntilIdle()
         assertFalse(vm.state.value.speakers.first { it.speaker == 2 }.isSelf)
-        assertEquals("Reconnect to the gateway and try again.", vm.state.value.message)
+        assertEquals(R.string.recording_speakers_not_connected, vm.state.value.message)
     }
 
     @Test fun anotherSpeakersPendingChangeSurvivesTheAnswer() = runTest(dispatcher) {
@@ -250,11 +251,15 @@ class RecordingSpeakersViewModelTest {
         assertTrue(vm.state.value.saving.isEmpty())
     }
 
-    @Test fun formatsTalkTime() {
-        assertEquals("Under a minute", formatTalkTime(5_000))
-        assertEquals("1 min", formatTalkTime(61_000))
-        assertEquals("4 min", formatTalkTime(240_000))
-        assertEquals("1 h", formatTalkTime(3_600_000))
-        assertEquals("1 h 5 min", formatTalkTime(3_900_000))
+    @Test fun roundsTalkTime() {
+        assertNull(talkTime(5_000))
+        assertEquals(TalkTime(0, 1), talkTime(61_000))
+        assertEquals(TalkTime(0, 4), talkTime(240_000))
+        assertEquals(TalkTime(1, 0), talkTime(3_600_000))
+        assertEquals(TalkTime(1, 5), talkTime(3_900_000))
+    }
+
+    @Test fun aBlankNameFallsBackToTheNumber() {
+        assertEquals(SpeakerLabel.Numbered(3), speakerLabel(RecordingSpeakerDto(3, name = " ")))
     }
 }

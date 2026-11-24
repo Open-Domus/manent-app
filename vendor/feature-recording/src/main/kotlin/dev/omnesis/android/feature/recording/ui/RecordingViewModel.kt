@@ -4,11 +4,13 @@
 package dev.omnesis.android.feature.recording.ui
 
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.omnesis.android.feature.recording.OutboxSession
+import dev.omnesis.android.feature.recording.R
 import dev.omnesis.android.feature.recording.RecordingController
 import dev.omnesis.android.feature.recording.RecordingFiles
 import dev.omnesis.android.feature.recording.RecordingForegroundService
@@ -55,6 +57,7 @@ interface RecordingAvailability {
 /** One recording the phone still knows about, as the list shows it. */
 data class RecentRecording(
     val id: String,
+    /** Blank when the recording has none: the list shows a stand-in. */
     val title: String,
     val when_: String,
     val status: Status,
@@ -69,6 +72,7 @@ data class RecentRecording(
 /** One of the gateway's recent recordings, as the list shows it. */
 data class GatewayRecording(
     val id: String,
+    /** Blank when the recording has none: the list shows a stand-in. */
     val title: String,
     val when_: String,
     /** `recording`, `transcribing`, `done`, or an unknown state as sent. */
@@ -96,7 +100,7 @@ data class RecordingUiState(
     /** Start was tapped and the recorder has not reported yet: the button is disabled. */
     val starting: Boolean = false,
     val recent: List<RecentRecording> = emptyList(),
-    val deleteError: String? = null,
+    @StringRes val deleteError: Int? = null,
     /** The paired wearable's name, when the app links one; null hides the input choice. */
     val wearableName: String? = null,
     /** The wearable is linked now and can record. */
@@ -223,7 +227,7 @@ class RecordingViewModel @Inject constructor(
             if (session.created) {
                 val gateway = sessions.gateway()
                 if (gateway == null) {
-                    _state.update { it.copy(deleteError = "Reconnect to the gateway to delete this recording.") }
+                    _state.update { it.copy(deleteError = R.string.recording_delete_reconnect) }
                     return@launch
                 }
                 try {
@@ -231,7 +235,7 @@ class RecordingViewModel @Inject constructor(
                 } catch (_: GatewayException.NotFound) {
                     // Already gone on the gateway.
                 } catch (e: GatewayException) {
-                    _state.update { it.copy(deleteError = "The recording could not be deleted. Try again.") }
+                    _state.update { it.copy(deleteError = R.string.recording_delete_failed) }
                     return@launch
                 }
             }
@@ -287,11 +291,12 @@ class RecordingViewModel @Inject constructor(
     companion object {
         private const val START_TIMEOUT_MS = 5_000L
         private const val GATEWAY_RECENT_LIMIT = 20
-        private val WHEN = DateTimeFormatter.ofPattern("EEE d MMM, HH:mm", Locale.getDefault())
+        // Read on each use, so a change of language shows in the day and month names.
+        private val WHEN get() = DateTimeFormatter.ofPattern("EEE d MMM, HH:mm", Locale.getDefault())
 
         fun RecordingSummaryDto.toGatewayRecording(zone: ZoneId = ZoneId.systemDefault()): GatewayRecording {
             val time = runCatching { WHEN.withZone(zone).format(Instant.parse(startedAt)) }.getOrDefault(startedAt)
-            return GatewayRecording(id, title.ifBlank { "Conversation" }, time, state, speakers, namedSpeakers)
+            return GatewayRecording(id, title, time, state, speakers, namedSpeakers)
         }
 
         fun OutboxSession.toRecent(partsLeft: Int, zone: ZoneId = ZoneId.systemDefault()): RecentRecording {
@@ -301,7 +306,7 @@ class RecordingViewModel @Inject constructor(
                 finished -> RecentRecording.Status.Sent
                 else -> RecentRecording.Status.Uploading(partsLeft)
             }
-            return RecentRecording(id, title ?: "Conversation", time, status)
+            return RecentRecording(id, title.orEmpty(), time, status)
         }
     }
 }

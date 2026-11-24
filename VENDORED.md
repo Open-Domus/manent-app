@@ -13,3 +13,4 @@ Patches applied:
 - `0001-feature-omi-leave-wearable-binding-to-the-app.patch`
 - `0002-feature-assist-hand-command-outcomes-to-the-app.patch`
 - `0003-feature-assist-wait-longer-and-say-where-a-run-timed-out.patch`
+- `0004-localize-the-ui-with-italian.patch`

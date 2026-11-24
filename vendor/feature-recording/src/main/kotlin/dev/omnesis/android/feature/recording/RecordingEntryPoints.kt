@@ -75,7 +75,11 @@ class RecordingEntryPoints @Inject constructor(
         if (!enabled) {
             ShortcutManagerCompat.removeDynamicShortcuts(context, listOf(SHORTCUT_ID))
             // A copy pinned to the home screen stays, greyed, with this message.
-            ShortcutManagerCompat.disableShortcuts(context, listOf(SHORTCUT_ID), UNAVAILABLE_MESSAGE)
+            ShortcutManagerCompat.disableShortcuts(
+                context,
+                listOf(SHORTCUT_ID),
+                context.getString(R.string.recording_shortcut_unavailable),
+            )
             return
         }
         ShortcutManagerCompat.enableShortcuts(context, listOf(shortcut()))
@@ -84,8 +88,8 @@ class RecordingEntryPoints @Inject constructor(
 
     private fun shortcut(): ShortcutInfoCompat =
         ShortcutInfoCompat.Builder(context, SHORTCUT_ID)
-            .setShortLabel("Record")
-            .setLongLabel(RecordingTileService.LABEL)
+            .setShortLabel(context.getString(R.string.recording_shortcut_short_label))
+            .setLongLabel(context.getString(R.string.recording_tile_label))
             .setIcon(IconCompat.createWithResource(context, R.drawable.ic_shortcut_record))
             .setIntent(RecordingStartActivity.intent(context))
             .build()
@@ -93,7 +97,6 @@ class RecordingEntryPoints @Inject constructor(
     companion object {
         private const val TAG = "Omnesis:Recording"
         const val SHORTCUT_ID = "record_conversation"
-        const val UNAVAILABLE_MESSAGE = "The gateway does not take recordings"
 
         internal fun entryPoints(availability: Availability, recording: Boolean): Wanted {
             val available = availability == Availability.AVAILABLE

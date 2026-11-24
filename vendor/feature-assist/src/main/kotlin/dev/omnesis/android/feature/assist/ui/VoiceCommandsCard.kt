@@ -13,6 +13,7 @@ import android.provider.OpenableColumns
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,6 +49,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -74,9 +77,11 @@ import dev.omnesis.android.feature.assist.AssistSettings
 import dev.omnesis.android.feature.assist.CommandRoute
 import dev.omnesis.android.feature.assist.CommandTranscription
 import dev.omnesis.android.feature.assist.Destination
+import dev.omnesis.android.feature.assist.ImportRefusedException
 import dev.omnesis.android.feature.assist.PhoneActionCatalog
 import dev.omnesis.android.feature.assist.PhoneActionKind
 import dev.omnesis.android.feature.assist.PhoneActionRunner
+import dev.omnesis.android.feature.assist.R
 import dev.omnesis.android.feature.assist.TranscriberKind
 import dev.omnesis.android.feature.assist.TranscriptionTiming
 import dev.omnesis.android.feature.assist.WakeWord
@@ -152,20 +157,22 @@ data class VoiceCommandsState(
     /** [row] sets timers and alarms, which needs the permission to display over other apps. */
     fun needsOverlay(row: RouteRow): Boolean = row.route.destination == Destination.PhoneAction && !overlayAllowed
 
-    /** What keeps [row] from being heard, or null when it is ready. */
-    fun problem(row: RouteRow): String? = when {
-        row.word == null -> "Its wake-word model is gone; choose another."
-        !row.installed && row.word.custom -> "Its imported model is missing; import it again."
-        !row.installed -> "Download its model first."
+    /** What keeps [row] from being heard, as the card says it, or null when it is ready. */
+    @StringRes
+    fun problem(row: RouteRow): Int? = when {
+        row.word == null -> R.string.assist_problem_word_gone
+        !row.installed && row.word.custom -> R.string.assist_problem_import_missing
+        !row.installed -> R.string.assist_problem_download
         else -> when (val d = row.route.destination) {
-            Destination.HomeAssistant -> if (configured) null else "Set up Home Assistant first."
-            is Destination.Webhook -> if (isWebhookUrl(d.url)) null else "Enter the webhook address."
+            Destination.HomeAssistant -> if (configured) null else R.string.assist_problem_home_assistant
+            is Destination.Webhook -> if (isWebhookUrl(d.url)) null else R.string.assist_problem_webhook
             Destination.PhoneAction -> if (overlayAllowed) null else OVERLAY_NEEDED
         }
     }
 
     companion object {
-        const val OVERLAY_NEEDED = "Allow display over other apps to carry out phone actions."
+        @StringRes
+        val OVERLAY_NEEDED = R.string.assist_overlay_needed
     }
 }
 
@@ -264,7 +271,7 @@ class VoiceCommandsViewModel @Inject constructor(
     /** Save the address (and the token, when one was typed), then test them. */
     fun connect(baseUrl: String, token: String) {
         if (AssistPipelineClient.webSocketUrl(baseUrl) == null) {
-            local.update { it.copy(error = "Enter the Home Assistant address as http://… or https://…") }
+            local.update { it.copy(error = context.getString(R.string.assist_error_home_assistant_address)) }
             return
         }
         settings.setConnection(baseUrl, token.takeIf { it.isNotBlank() })
@@ -300,7 +307,7 @@ class VoiceCommandsViewModel @Inject constructor(
 
     fun saveWebhook(routeId: String, url: String, secret: String) {
         if (!isWebhookUrl(url)) {
-            local.update { it.copy(error = "Enter the webhook address as http://… or https://…") }
+            local.update { it.copy(error = context.getString(R.string.assist_error_webhook_address)) }
             return
         }
         local.update { it.copy(error = null) }
@@ -319,7 +326,7 @@ class VoiceCommandsViewModel @Inject constructor(
                 models.download(needed)
                 null
             } catch (e: IOException) {
-                "The wake-word models could not be downloaded: ${e.message}"
+                context.getString(R.string.assist_error_download, e.message)
             }
             local.update { it.copy(downloading = false, models = it.models + 1, error = error) }
         }
@@ -333,10 +340,12 @@ class VoiceCommandsViewModel @Inject constructor(
                 val (name, bytes) = withContext(Dispatchers.IO) { read(uri) }
                 models.import(name, bytes)
                 null
+            } catch (e: ImportRefusedException) {
+                context.getString(R.string.assist_error_import, context.getString(e.reason, e.arg))
             } catch (e: IOException) {
-                "That file was not imported: ${e.message}"
+                context.getString(R.string.assist_error_import, e.message)
             } catch (e: SecurityException) {
-                "That file could not be read."
+                context.getString(R.string.assist_error_unreadable)
             }
             local.update { it.copy(models = it.models + 1, error = error) }
         }
@@ -353,8 +362,11 @@ class VoiceCommandsViewModel @Inject constructor(
         val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
             if (c.moveToFirst()) c.getString(0) else null
         } ?: uri.lastPathSegment ?: "wake word"
-        if (!name.endsWith(".onnx", ignoreCase = true)) throw IOException("choose an openWakeWord .onnx file")
-        val bytes = resolver.openInputStream(uri)?.use { it.readBytes() } ?: throw IOException("it could not be opened")
+        if (!name.endsWith(".onnx", ignoreCase = true)) {
+            throw ImportRefusedException(R.string.assist_import_not_onnx, message = "choose an openWakeWord .onnx file")
+        }
+        val bytes = resolver.openInputStream(uri)?.use { it.readBytes() }
+            ?: throw ImportRefusedException(R.string.assist_import_cannot_open, message = "it could not be opened")
         return name to bytes
     }
 }
@@ -409,23 +421,21 @@ fun VoiceCommandsContent(state: VoiceCommandsState, actions: VoiceCommandsAction
     val c = OmTheme.colors
     OmnesisCard(padding = OmSpacing.lg) {
         Text(
-            "Say a wake word and a command, and the destination you chose for that word carries it out. The phone " +
-                "listens to the pendant for the wake words; only the command after one is sent, and nothing is recorded. " +
-                "Three short vibrations mean done, one long one that it did not work.",
+            stringResource(R.string.assist_intro),
             style = MaterialTheme.typography.bodySmall,
             color = c.textSecondary,
         )
 
-        Section("Wake words")
+        Section(stringResource(R.string.assist_section_wake_words))
         state.routes.forEachIndexed { i, row ->
             if (i > 0) HorizontalDivider(Modifier.padding(vertical = OmSpacing.sm), color = c.border)
             RouteEditor(state, row, actions)
         }
         if (state.canAddRoute) {
-            TextButton(onClick = actions::addRoute) { Text("Add a wake word") }
+            TextButton(onClick = actions::addRoute) { Text(stringResource(R.string.assist_add_wake_word)) }
         }
 
-        Section("Models")
+        Section(stringResource(R.string.assist_section_models))
         ModelsSection(state, actions)
 
         if (state.routes.any { it.route.destination == Destination.HomeAssistant }) {
@@ -433,11 +443,11 @@ fun VoiceCommandsContent(state: VoiceCommandsState, actions: VoiceCommandsAction
             HomeAssistantSection(state, actions)
         }
         if (state.hasPhoneRoute && state.phoneActions.isNotEmpty()) {
-            Section("Phone actions")
+            Section(stringResource(R.string.assist_section_phone_actions))
             PhoneActionsSection(state, actions)
         }
         if (state.needsText) {
-            Section("Transcription")
+            Section(stringResource(R.string.assist_section_transcription))
             TranscriptionSection(state, actions)
         }
 
@@ -451,9 +461,9 @@ fun VoiceCommandsContent(state: VoiceCommandsState, actions: VoiceCommandsAction
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("Listen for wake words", style = MaterialTheme.typography.bodyMedium, color = c.textPrimary)
+                Text(stringResource(R.string.assist_listen), style = MaterialTheme.typography.bodyMedium, color = c.textPrimary)
                 if (!state.canEnable) {
-                    Text("Set up at least one wake word first.", style = MaterialTheme.typography.bodySmall, color = c.textMuted)
+                    Text(stringResource(R.string.assist_listen_needs_setup), style = MaterialTheme.typography.bodySmall, color = c.textMuted)
                 }
             }
             Switch(checked = state.enabled, onCheckedChange = null, enabled = state.canEnable, modifier = Modifier.scale(0.78f))
@@ -463,7 +473,7 @@ fun VoiceCommandsContent(state: VoiceCommandsState, actions: VoiceCommandsAction
             Text(it, style = MaterialTheme.typography.bodySmall, color = c.danger)
         }
         if (state.configured || state.routes.any { it.installed } || state.routes != VoiceCommandsState().routes) {
-            TextButton(onClick = actions::forget, modifier = Modifier.padding(top = OmSpacing.xs)) { Text("Forget voice commands") }
+            TextButton(onClick = actions::forget, modifier = Modifier.padding(top = OmSpacing.xs)) { Text(stringResource(R.string.assist_forget)) }
         }
     }
 }
@@ -479,51 +489,56 @@ private fun Section(title: String) {
 private fun RouteEditor(state: VoiceCommandsState, row: RouteRow, actions: VoiceCommandsActions) {
     val c = OmTheme.colors
     val route = row.route
+    val imported = stringResource(R.string.assist_word_imported)
+    val destinationNames = DestinationNames(
+        webhook = stringResource(R.string.assist_destination_webhook),
+        phone = stringResource(R.string.assist_destination_phone),
+    )
     Row(verticalAlignment = Alignment.CenterVertically) {
         Picker(
-            label = row.word?.let { "“${it.phrase}”" } ?: "Choose a word",
+            label = row.word?.let { "“${it.phrase}”" } ?: stringResource(R.string.assist_choose_word),
             options = state.words.filter { w -> w.id == route.wakeWord || state.routes.none { it.route.wakeWord == w.id } },
-            text = { "“${it.phrase}”" + if (it.custom) " · imported" else "" },
+            text = { if (it.custom) imported.format(it.phrase) else "“${it.phrase}”" },
             onChoose = { actions.chooseWord(route.id, it.id) },
         )
         Text("→", style = MaterialTheme.typography.bodyMedium, color = c.textMuted)
         Picker(
-            label = destinationName(route.destination),
+            label = destinationNames(route.destination),
             options = listOf(
                 Destination.HomeAssistant,
                 (route.destination as? Destination.Webhook) ?: Destination.Webhook(),
                 Destination.PhoneAction,
             ),
-            text = ::destinationName,
+            text = destinationNames::invoke,
             onChoose = { actions.chooseDestination(route.id, it) },
         )
         Spacer(Modifier.weight(1f))
         IconButton(onClick = { actions.removeRoute(route.id) }) {
-            Icon(Icons.Outlined.Delete, contentDescription = "Remove this wake word", tint = c.textMuted)
+            Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.assist_remove_wake_word), tint = c.textMuted)
         }
     }
     val destination = route.destination
     if (destination is Destination.Webhook) WebhookEditor(row, destination, actions)
     if (destination == Destination.PhoneAction) {
         Text(
-            "Timers, alarms, navigation, music, calls and more: see Phone actions below.",
+            stringResource(R.string.assist_phone_action_hint),
             style = MaterialTheme.typography.bodySmall,
             color = c.textMuted,
         )
     }
     state.problem(row)?.takeIf { it != VoiceCommandsState.OVERLAY_NEEDED }?.let {
-        Text(it, style = MaterialTheme.typography.bodySmall, color = c.warning)
+        Text(stringResource(it), style = MaterialTheme.typography.bodySmall, color = c.warning)
     }
     // Asked for here, beside the destination that needs it, whatever else the route still lacks.
     if (state.needsOverlay(row)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                VoiceCommandsState.OVERLAY_NEEDED,
+                stringResource(VoiceCommandsState.OVERLAY_NEEDED),
                 style = MaterialTheme.typography.bodySmall,
                 color = c.warning,
                 modifier = Modifier.weight(1f),
             )
-            TextButton(onClick = actions::allowOverlay) { Text("Allow") }
+            TextButton(onClick = actions::allowOverlay) { Text(stringResource(R.string.assist_allow)) }
         }
     }
 }
@@ -535,7 +550,7 @@ private fun WebhookEditor(row: RouteRow, destination: Destination.Webhook, actio
     OutlinedTextField(
         value = url,
         onValueChange = { url = it },
-        label = { Text("Webhook address") },
+        label = { Text(stringResource(R.string.assist_webhook_address)) },
         placeholder = { Text("https://automation.example.com/hook") },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -545,7 +560,7 @@ private fun WebhookEditor(row: RouteRow, destination: Destination.Webhook, actio
     OutlinedTextField(
         value = secret,
         onValueChange = { secret = it },
-        label = { Text(if (row.hasSecret) "Bearer secret (saved, type to replace)" else "Bearer secret (optional)") },
+        label = { Text(stringResource(if (row.hasSecret) R.string.assist_webhook_secret_saved else R.string.assist_webhook_secret)) },
         singleLine = true,
         visualTransformation = PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -558,10 +573,10 @@ private fun WebhookEditor(row: RouteRow, destination: Destination.Webhook, actio
                 secret = ""
             },
             enabled = url.isNotBlank() && (url.trim() != destination.url || secret.isNotBlank()),
-        ) { Text("Save") }
+        ) { Text(stringResource(R.string.assist_save)) }
         Spacer(Modifier.width(OmSpacing.sm))
         Text(
-            "Receives the command's text as JSON.",
+            stringResource(R.string.assist_webhook_hint),
             style = MaterialTheme.typography.bodySmall,
             color = OmTheme.colors.textMuted,
         )
@@ -573,21 +588,20 @@ private fun ModelsSection(state: VoiceCommandsState, actions: VoiceCommandsActio
     val c = OmTheme.colors
     val missing = state.missing
     if (missing.isEmpty()) {
-        Text("Every wake word's model is on this phone.", style = MaterialTheme.typography.bodySmall, color = c.textMuted)
+        Text(stringResource(R.string.assist_models_ready), style = MaterialTheme.typography.bodySmall, color = c.textMuted)
     } else {
         Text(
-            "The models are not part of the app. They are downloaded to this phone from where they are published and " +
-                "checked before use:",
+            stringResource(R.string.assist_models_explained),
             style = MaterialTheme.typography.bodySmall,
             color = c.textMuted,
         )
         missing.forEach {
-            Text("• “${it.phrase}”: ${it.origin}", style = MaterialTheme.typography.bodySmall, color = c.textMuted)
+            Text(stringResource(R.string.assist_model_origin, it.phrase, stringResource(it.origin)), style = MaterialTheme.typography.bodySmall, color = c.textMuted)
         }
         Spacer(Modifier.height(OmSpacing.xs))
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedButton(onClick = actions::download, enabled = !state.downloading) {
-                Text(if (state.downloading) "Downloading…" else "Download the models")
+                Text(stringResource(if (state.downloading) R.string.assist_downloading else R.string.assist_download_models))
             }
             if (state.downloading) {
                 Spacer(Modifier.width(OmSpacing.sm))
@@ -597,12 +611,11 @@ private fun ModelsSection(state: VoiceCommandsState, actions: VoiceCommandsActio
     }
     Spacer(Modifier.height(OmSpacing.xs))
     Text(
-        "Any openWakeWord model works too: one you trained with Home Assistant's wake-word notebook, or one from a " +
-            "community collection.",
+        stringResource(R.string.assist_models_custom_hint),
         style = MaterialTheme.typography.bodySmall,
         color = c.textMuted,
     )
-    TextButton(onClick = actions::import) { Text("Import a model (.onnx)") }
+    TextButton(onClick = actions::import) { Text(stringResource(R.string.assist_import_model)) }
 }
 
 @Composable
@@ -610,7 +623,7 @@ private fun HomeAssistantSection(state: VoiceCommandsState, actions: VoiceComman
     var url by remember(state.baseUrl) { mutableStateOf(state.baseUrl) }
     var token by remember { mutableStateOf("") }
     Text(
-        "Home Assistant hears the command itself, with the assistant you choose.",
+        stringResource(R.string.assist_home_assistant_hint),
         style = MaterialTheme.typography.bodySmall,
         color = OmTheme.colors.textMuted,
     )
@@ -618,7 +631,7 @@ private fun HomeAssistantSection(state: VoiceCommandsState, actions: VoiceComman
     OutlinedTextField(
         value = url,
         onValueChange = { url = it },
-        label = { Text("Home Assistant address") },
+        label = { Text(stringResource(R.string.assist_home_assistant_address)) },
         placeholder = { Text("http://homeassistant.local:8123") },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -628,8 +641,10 @@ private fun HomeAssistantSection(state: VoiceCommandsState, actions: VoiceComman
     OutlinedTextField(
         value = token,
         onValueChange = { token = it },
-        label = { Text(if (state.hasToken) "Access token (saved, type to replace)" else "Long-lived access token") },
-        placeholder = { Text("From your Home Assistant profile") },
+        label = {
+            Text(stringResource(if (state.hasToken) R.string.assist_home_assistant_token_saved else R.string.assist_home_assistant_token))
+        },
+        placeholder = { Text(stringResource(R.string.assist_home_assistant_token_placeholder)) },
         singleLine = true,
         visualTransformation = PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -643,7 +658,7 @@ private fun HomeAssistantSection(state: VoiceCommandsState, actions: VoiceComman
                 token = ""
             },
             enabled = url.isNotBlank() && (token.isNotBlank() || state.hasToken) && !state.checking,
-        ) { Text("Save and test") }
+        ) { Text(stringResource(R.string.assist_save_and_test)) }
         if (state.checking) {
             Spacer(Modifier.width(OmSpacing.sm))
             OmSpinner(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
@@ -660,7 +675,7 @@ private fun HomeAssistantSection(state: VoiceCommandsState, actions: VoiceComman
 private fun TranscriptionSection(state: VoiceCommandsState, actions: VoiceCommandsActions) {
     val c = OmTheme.colors
     Text(
-        "Webhooks and phone actions get the command as text. Choose who transcribes it.",
+        stringResource(R.string.assist_transcription_hint),
         style = MaterialTheme.typography.bodySmall,
         color = c.textMuted,
     )
@@ -677,35 +692,45 @@ private fun TranscriptionSection(state: VoiceCommandsState, actions: VoiceComman
             Spacer(Modifier.width(OmSpacing.sm))
             Column(Modifier.weight(1f)) {
                 Text(
-                    when (kind) {
-                        TranscriberKind.GATEWAY -> "Gateway"
-                        TranscriberKind.PHONE -> "This phone, on-device"
-                    },
+                    stringResource(
+                        when (kind) {
+                            TranscriberKind.GATEWAY -> R.string.assist_transcriber_gateway
+                            TranscriberKind.PHONE -> R.string.assist_transcriber_phone
+                        },
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = c.textPrimary,
                 )
-                val detail = problem?.let { "Unavailable: $it" } ?: state.timings[kind]?.let(::timingLine)
-                    ?: when (kind) {
-                        TranscriberKind.GATEWAY -> "The audio goes to your gateway, which transcribes it."
-                        TranscriberKind.PHONE -> "The audio stays on the phone."
-                    }
+                // The problem comes from the transcriber as it says it, in its own words.
+                val timing = state.timings[kind]
+                val detail = when {
+                    problem != null -> stringResource(R.string.assist_transcriber_unavailable, problem)
+                    timing != null -> timingLine(timing)
+                    else -> stringResource(
+                        when (kind) {
+                            TranscriberKind.GATEWAY -> R.string.assist_transcriber_gateway_detail
+                            TranscriberKind.PHONE -> R.string.assist_transcriber_phone_detail
+                        },
+                    )
+                }
                 Text(detail, style = MaterialTheme.typography.bodySmall, color = if (problem != null) c.warning else c.textMuted)
             }
         }
     }
 }
 
+@Composable
 private fun timingLine(t: TranscriptionTiming): String =
-    "Last command: ${seconds(t.tookMs)} for ${seconds(t.audioMs)} of audio" + if (t.heard) "." else ", nothing heard."
+    stringResource(if (t.heard) R.string.assist_timing else R.string.assist_timing_nothing_heard, seconds(t.tookMs), seconds(t.audioMs))
 
-private fun seconds(ms: Long) = "%.1f s".format(java.util.Locale.ROOT, ms / 1000.0)
+@Composable
+private fun seconds(ms: Long) = stringResource(R.string.assist_seconds, ms / 1000.0)
 
 @Composable
 private fun PhoneActionsSection(state: VoiceCommandsState, actions: VoiceCommandsActions) {
     val c = OmTheme.colors
     Text(
-        "What the wake words for this phone can do, and with which app. An action no app on this phone takes is " +
-            "not available.",
+        stringResource(R.string.assist_phone_actions_hint),
         style = MaterialTheme.typography.bodySmall,
         color = c.textMuted,
     )
@@ -714,7 +739,7 @@ private fun PhoneActionsSection(state: VoiceCommandsState, actions: VoiceCommand
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(
-                    row.kind.label,
+                    stringResource(row.kind.label),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (row.apps.isEmpty()) c.textMuted else c.textPrimary,
                 )
@@ -722,11 +747,11 @@ private fun PhoneActionsSection(state: VoiceCommandsState, actions: VoiceCommand
             }
             when {
                 row.apps.isEmpty() ->
-                    Text("No app on this phone", style = MaterialTheme.typography.bodySmall, color = c.textMuted)
+                    Text(stringResource(R.string.assist_no_app), style = MaterialTheme.typography.bodySmall, color = c.textMuted)
                 row.kind == PhoneActionKind.OPEN_APP ->
-                    Text("${row.apps.size} apps", style = MaterialTheme.typography.bodySmall, color = c.textMuted)
+                    Text(pluralStringResource(R.plurals.assist_app_count, row.apps.size, row.apps.size), style = MaterialTheme.typography.bodySmall, color = c.textMuted)
                 row.kind.choosable && row.apps.size > 1 -> Picker(
-                    label = row.app?.label ?: "Choose an app",
+                    label = row.app?.label ?: stringResource(R.string.assist_choose_app),
                     options = row.apps,
                     text = { it.label },
                     onChoose = { actions.choosePhoneApp(row.kind, it.packageName) },
@@ -739,17 +764,17 @@ private fun PhoneActionsSection(state: VoiceCommandsState, actions: VoiceCommand
             }
         }
         if (row.needsChoice && row.kind.choosable) {
-            Text("Choose the app that takes it.", style = MaterialTheme.typography.bodySmall, color = c.warning)
+            Text(stringResource(R.string.assist_choose_app_warning), style = MaterialTheme.typography.bodySmall, color = c.warning)
         }
         if (row.kind == PhoneActionKind.CALL && row.apps.isNotEmpty() && !state.callingAllowed) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "Allow contacts and calls to call people by name. Without it, spoken numbers open the dialer.",
+                    stringResource(R.string.assist_calling_needed),
                     style = MaterialTheme.typography.bodySmall,
                     color = c.warning,
                     modifier = Modifier.weight(1f),
                 )
-                TextButton(onClick = actions::allowCalling) { Text("Allow") }
+                TextButton(onClick = actions::allowCalling) { Text(stringResource(R.string.assist_allow)) }
             }
         }
     }
@@ -768,10 +793,13 @@ private fun <T> Picker(label: String, options: List<T>, text: (T) -> String, onC
     }
 }
 
-private fun destinationName(d: Destination): String = when (d) {
-    Destination.HomeAssistant -> "Home Assistant"
-    is Destination.Webhook -> "Webhook"
-    Destination.PhoneAction -> "This phone"
+/** The destinations' names, read from the resources by the composable that shows them. */
+private class DestinationNames(val webhook: String, val phone: String) {
+    operator fun invoke(d: Destination): String = when (d) {
+        Destination.HomeAssistant -> "Home Assistant"
+        is Destination.Webhook -> webhook
+        Destination.PhoneAction -> phone
+    }
 }
 
 @Composable
@@ -779,9 +807,12 @@ private fun CheckLine(check: AssistCheck?) {
     val c = OmTheme.colors
     val (text, bad) = when (check) {
         null -> return
-        is AssistCheck.Ok -> "Connected to Home Assistant${check.version?.let { " $it" } ?: ""}." to false
-        AssistCheck.BadToken -> "Home Assistant refused the token." to true
-        is AssistCheck.Unreachable -> "Home Assistant could not be reached (${check.reason})." to true
+        is AssistCheck.Ok -> {
+            val version = check.version
+            (if (version != null) stringResource(R.string.assist_check_ok_version, version) else stringResource(R.string.assist_check_ok)) to false
+        }
+        AssistCheck.BadToken -> stringResource(R.string.assist_check_bad_token) to true
+        is AssistCheck.Unreachable -> stringResource(R.string.assist_check_unreachable, check.reason) to true
     }
     Spacer(Modifier.height(OmSpacing.xs))
     Text(text, style = MaterialTheme.typography.bodySmall, color = if (bad) c.danger else c.success)
@@ -792,14 +823,15 @@ private fun PipelinePicker(state: VoiceCommandsState, onChoose: (String?) -> Uni
     val ok = state.check as? AssistCheck.Ok ?: return
     var open by remember { mutableStateOf(false) }
     val preferred = ok.pipelines.firstOrNull { it.id == ok.preferred }?.name
-    val current = state.pipelines.firstOrNull { it.id == state.pipelineId }?.name
-        ?: ("Preferred" + (preferred?.let { " ($it)" } ?: ""))
+    val preferredName = preferred?.let { stringResource(R.string.assist_pipeline_preferred_named, it) }
+        ?: stringResource(R.string.assist_pipeline_preferred)
+    val current = state.pipelines.firstOrNull { it.id == state.pipelineId }?.name ?: preferredName
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text("Assistant:", style = MaterialTheme.typography.bodySmall, color = OmTheme.colors.textSecondary)
+        Text(stringResource(R.string.assist_pipeline_label), style = MaterialTheme.typography.bodySmall, color = OmTheme.colors.textSecondary)
         Box {
             TextButton(onClick = { open = true }) { Text(current) }
             DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-                DropdownMenuItem(text = { Text("Preferred" + (preferred?.let { " ($it)" } ?: "")) }, onClick = { onChoose(null); open = false })
+                DropdownMenuItem(text = { Text(preferredName) }, onClick = { onChoose(null); open = false })
                 ok.pipelines.forEach { p ->
                     DropdownMenuItem(
                         text = { Text(p.name + (p.language?.let { " · $it" } ?: "")) },

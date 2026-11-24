@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Conversation recording (experimental): screens, notification, Quick Settings tile and shortcut. -->
+<resources>
+    <!-- Recordings screen -->
+    <string name="recording_screen_title">Recordings</string>
+    <string name="recording_menu">Menu</string>
+    <string name="recording_dismiss">Dismiss</string>
+    <string name="recording_on_this_phone">On this phone</string>
+    <string name="recording_recent_title">Recent recordings</string>
+    <string name="recording_recent_loading">Loading recent recordings…</string>
+    <string name="recording_recent_failed">Recent recordings could not be loaded.</string>
+    <string name="recording_retry">Retry</string>
+    <string name="recording_recent_empty">No recordings on the gateway yet.</string>
+    <string name="recording_untitled">Conversation</string>
+
+    <!-- A gateway recording's state -->
+    <string name="recording_gateway_state_recording">Recording</string>
+    <string name="recording_gateway_state_transcribing">Transcribing</string>
+    <string name="recording_gateway_state_done">Transcribed</string>
+    <!-- Every speaker named; the count is the number of speakers -->
+    <plurals name="recording_speakers_all_named">
+        <item quantity="one">%d speaker named</item>
+        <item quantity="other">All %d speakers named</item>
+    </plurals>
+    <!-- Some speakers named; the quantity follows the number of speakers (%2$d) -->
+    <plurals name="recording_speakers_some_named">
+        <item quantity="one">%1$d of %2$d speaker named</item>
+        <item quantity="other">%1$d of %2$d speakers named</item>
+    </plurals>
+
+    <!-- Start card -->
+    <string name="recording_start_title">Record a conversation</string>
+    <string name="recording_start_body_wearable">Records from the %1$s you are wearing. It keeps recording with the phone\'s screen off, uploads as it goes, and the gateway turns the conversation into a searchable transcript.</string>
+    <string name="recording_start_body_phone">Put the phone on the table. It keeps recording with the screen off, uploads as it goes, and the gateway turns the conversation into a searchable transcript.</string>
+    <string name="recording_input_phone">Phone microphone</string>
+    <string name="recording_input_hint">Start records from the input selected here. A tap on the %1$s always records from the %1$s.</string>
+    <string name="recording_title_field">Title (optional)</string>
+    <string name="recording_wifi_only">Upload on Wi-Fi only</string>
+    <string name="recording_wifi_only_hint">Recording continues offline; parts upload once connected.</string>
+    <string name="recording_mic_denied">Microphone access is needed to record. Allow it, then start again.</string>
+    <string name="recording_starting">Starting…</string>
+    <string name="recording_start">Start recording</string>
+    <string name="recording_consent_hint">Let everyone know you are recording.</string>
+
+    <!-- Recorder card -->
+    <string name="recording_paused">Paused</string>
+    <string name="recording_ambient_with">Capturing conversations with the %1$s</string>
+    <string name="recording_with">Recording with the %1$s</string>
+    <string name="recording_in_progress">Recording</string>
+    <!-- Stands in for the wearable's name, after "the" -->
+    <string name="recording_wearable_fallback">wearable</string>
+    <string name="recording_wearable_lost">The %1$s is not connected. Recording resumes when it is back.</string>
+    <string name="recording_mic_busy">The microphone is in use by another app. Resume to try again.</string>
+    <string name="recording_ambient_hint">This conversation is kept until three minutes pass without speech; the next starts on its own. Tap the %1$s to mark a moment.</string>
+    <plurals name="recording_parts_saved">
+        <item quantity="one">%d part saved · the screen can turn off</item>
+        <item quantity="other">%d parts saved · the screen can turn off</item>
+    </plurals>
+    <string name="recording_pause">Pause</string>
+    <string name="recording_resume">Resume</string>
+    <string name="recording_stop">Stop</string>
+    <string name="recording_turn_off">Turn off</string>
+
+    <!-- Unavailable card -->
+    <string name="recording_unavailable_title">Recording is not available</string>
+    <string name="recording_unavailable_transcription_off">Gateway transcription is switched off. Turn it on in the gateway\'s settings to record conversations.</string>
+    <string name="recording_unavailable_gateway">This gateway does not take recordings. It needs experimental mode and an assigned transcriber.</string>
+
+    <!-- Recordings on this phone -->
+    <string name="recording_delete">Delete recording</string>
+    <string name="recording_status_waiting">Waiting to upload</string>
+    <plurals name="recording_status_uploading">
+        <item quantity="one">Uploading, %d part left</item>
+        <item quantity="other">Uploading, %d parts left</item>
+    </plurals>
+    <string name="recording_status_sent">Sent; the gateway transcribes it</string>
+    <!-- %1$s: the gateway's reason, as it sent it -->
+    <string name="recording_status_refused">Not sent: %1$s</string>
+    <string name="recording_delete_reconnect">Reconnect to the gateway to delete this recording.</string>
+    <string name="recording_delete_failed">The recording could not be deleted. Try again.</string>
+
+    <!-- Who spoke -->
+    <string name="recording_speakers_title">Who spoke</string>
+    <string name="recording_back">Back</string>
+    <string name="recording_speakers_none">Speakers were not told apart for this recording. The gateway\'s speaker setting is off, or its transcriber gives no timings to tell voices apart.</string>
+    <string name="recording_speakers_intro">Say who each voice is. People you choose become participants of the conversation.</string>
+    <string name="recording_speakers_this_is_me">This is me</string>
+    <string name="recording_speakers_choose_person">Choose person…</string>
+    <string name="recording_speakers_name_action">Name…</string>
+    <string name="recording_speakers_clear">Clear</string>
+    <string name="recording_speakers_mapping_self">your voice</string>
+    <string name="recording_speakers_mapping_person">one of your people</string>
+    <string name="recording_speakers_mapping_name">a name you gave</string>
+    <string name="recording_speakers_mapping_none">not named yet</string>
+    <string name="recording_speakers_you">You</string>
+    <string name="recording_speakers_numbered">Speaker %1$d</string>
+    <string name="recording_speakers_picker_title">Who is speaker %1$d?</string>
+    <string name="recording_speakers_search">Search people</string>
+    <string name="recording_speakers_search_failed">People could not be searched. Try again.</string>
+    <string name="recording_speakers_no_match">No one matches.</string>
+    <plurals name="recording_speakers_items">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
+    <string name="recording_speakers_name_title">Name speaker %1$d</string>
+    <string name="recording_speakers_name_body">For someone who is not among your people in Omnesis.</string>
+    <string name="recording_speakers_name_label">Name</string>
+    <string name="recording_save">Save</string>
+    <string name="recording_cancel">Cancel</string>
+    <string name="recording_speakers_not_connected">Reconnect to the gateway and try again.</string>
+    <string name="recording_speakers_save_failed">The change could not be saved. Try again.</string>
+    <string name="recording_speakers_recording_gone">This recording is no longer on the gateway.</string>
+    <string name="recording_speakers_load_failed">Speakers could not be loaded.</string>
+    <string name="recording_speakers_speaker_gone">This speaker is no longer on the gateway.</string>
+    <string name="recording_speakers_person_gone">That person is no longer known to the gateway.</string>
+    <!-- How long someone spoke -->
+    <string name="recording_talk_under_minute">Under a minute</string>
+    <string name="recording_talk_minutes">%1$d min</string>
+    <string name="recording_talk_hours">%1$d h</string>
+    <string name="recording_talk_hours_minutes">%1$d h %2$d min</string>
+
+    <!-- Notification -->
+    <string name="recording_channel_name">Conversation recording</string>
+    <string name="recording_channel_description">Shown while Omnesis records a conversation</string>
+    <string name="recording_notification_paused">Recording paused</string>
+    <string name="recording_notification_ambient">Capturing conversations</string>
+    <string name="recording_notification_active">Recording conversation</string>
+    <string name="recording_notification_wearable_lost">The %1$s is not connected. Recording resumes when it is back</string>
+    <string name="recording_notification_mic_busy">The microphone is in use elsewhere. Tap Resume to try again</string>
+    <string name="recording_notification_paused_text">Tap Resume to continue</string>
+    <string name="recording_notification_ambient_text">Omnesis keeps what the %1$s hears. Tap the %1$s to mark a moment</string>
+    <string name="recording_notification_active_text">Omnesis is recording with the %1$s</string>
+    <!-- Stands in for the input's name, after "the" -->
+    <string name="recording_microphone">microphone</string>
+
+    <!-- Quick Settings tile and launcher shortcut -->
+    <string name="recording_tile_label">Record conversation</string>
+    <string name="recording_tile_on">Recording</string>
+    <string name="recording_tile_off">Off</string>
+    <string name="recording_tile_state_on">Recording. Tap to stop</string>
+    <string name="recording_tile_state_off">Tap to start recording</string>
+    <string name="recording_tile_description_on">%1$s, recording. Tap to stop</string>
+    <string name="recording_tile_description_off">%1$s, tap to start recording</string>
+    <string name="recording_shortcut_short_label">Record</string>
+    <string name="recording_shortcut_unavailable">The gateway does not take recordings</string>
+</resources>

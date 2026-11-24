@@ -50,7 +50,7 @@ class WakeWordModelStoreTest {
     }
 
     private fun word(id: String, body: ByteArray, digestOf: ByteArray = body) =
-        WakeWord(id, id.replace('_', ' '), "$id.onnx", file("$id.onnx", body, digestOf), "test")
+        WakeWord(id, id.replace('_', ' '), "$id.onnx", file("$id.onnx", body, digestOf), R.string.assist_origin_openwakeword)
 
     private val mel = byteArrayOf(1, 2, 3)
     private val emb = byteArrayOf(4, 5)
@@ -129,8 +129,9 @@ class WakeWordModelStoreTest {
         try {
             store.import("noise.onnx", byteArrayOf(1))
             fail("expected a refusal")
-        } catch (e: IOException) {
+        } catch (e: ImportRefusedException) {
             assertTrue(e.message!!.contains("classifier"))
+            assertEquals(R.string.assist_import_not_classifier, e.reason)
         }
         assertEquals(listOf(one, two), store.words())
     }
@@ -141,8 +142,10 @@ class WakeWordModelStoreTest {
         try {
             store.import("ehi casa.onnx", byteArrayOf(2))
             fail("expected a refusal")
-        } catch (e: IOException) {
+        } catch (e: ImportRefusedException) {
             assertTrue(e.message!!.contains("already exists"))
+            assertEquals(R.string.assist_import_exists, e.reason)
+            assertEquals("ehi casa", e.arg)
         }
     }
 

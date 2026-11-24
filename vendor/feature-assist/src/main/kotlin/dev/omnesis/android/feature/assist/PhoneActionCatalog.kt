@@ -121,12 +121,15 @@ class PhoneActionCatalog(
         return Built.Ready(build(app).setPackage(app.packageName))
     }
 
-    private fun missingApp(kind: PhoneActionKind): String =
-        if (apps(kind).isEmpty()) {
-            "no app on this phone handles ${kind.label.lowercase()}"
+    private fun missingApp(kind: PhoneActionKind): String {
+        // Only logged, so named in English whatever the phone's language.
+        val name = kind.name.lowercase().replace('_', ' ')
+        return if (apps(kind).isEmpty()) {
+            "no app on this phone handles $name"
         } else {
-            "choose an app for ${kind.label.lowercase()} in the voice-command settings"
+            "choose an app for $name in the voice-command settings"
         }
+    }
 
     /** The launchable app whose name is [name]: the same name, else the only one that contains it. */
     private fun openApp(name: String): Built {

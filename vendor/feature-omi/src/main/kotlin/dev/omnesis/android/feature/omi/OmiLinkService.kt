@@ -14,6 +14,7 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
@@ -159,8 +160,8 @@ class OmiLinkService : Service() {
         }
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_omi)
-            .setContentTitle(statusLine(status))
-            .setContentText("Tap the pendant to start or stop a recording")
+            .setContentTitle(statusLine(this, status))
+            .setContentText(getString(R.string.omi_notification_text))
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
@@ -174,8 +175,8 @@ class OmiLinkService : Service() {
         val manager = getSystemService(NotificationManager::class.java) ?: return
         if (manager.getNotificationChannel(CHANNEL_ID) != null) return
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, "Omi pendant", NotificationManager.IMPORTANCE_MIN).apply {
-                description = "Shown while Omnesis keeps the pendant linked"
+            NotificationChannel(CHANNEL_ID, getString(R.string.omi_pendant), NotificationManager.IMPORTANCE_MIN).apply {
+                description = getString(R.string.omi_notification_channel_description)
                 setShowBadge(false)
             },
         )
@@ -199,12 +200,21 @@ class OmiLinkService : Service() {
             context.startService(Intent(context, OmiLinkService::class.java).setAction(ACTION_STOP))
         }
 
-        fun statusLine(status: OmiStatus): String = when (status) {
-            OmiStatus.NotPaired -> "No pendant associated"
-            OmiStatus.Disconnected -> "Omi not connected"
-            OmiStatus.Connecting -> "Connecting to Omi…"
-            is OmiStatus.Ready -> "Omi connected" + (status.battery?.let { " · $it%" } ?: "")
-            is OmiStatus.Unsupported -> "Omi firmware not supported"
+        /** The pendant's state in one line; with the battery level when it is connected and reports one. */
+        fun statusLine(context: Context, status: OmiStatus): String {
+            val battery = (status as? OmiStatus.Ready)?.battery
+            return if (battery != null) context.getString(statusLineRes(status), battery) else context.getString(statusLineRes(status))
+        }
+
+        /** The string of [statusLine]; [R.string.omi_status_connected_battery] takes the battery level. */
+        @StringRes
+        fun statusLineRes(status: OmiStatus): Int = when (status) {
+            OmiStatus.NotPaired -> R.string.omi_status_not_paired
+            OmiStatus.Disconnected -> R.string.omi_status_disconnected
+            OmiStatus.Connecting -> R.string.omi_status_connecting
+            is OmiStatus.Ready ->
+                if (status.battery != null) R.string.omi_status_connected_battery else R.string.omi_status_connected
+            is OmiStatus.Unsupported -> R.string.omi_status_unsupported
         }
     }
 }

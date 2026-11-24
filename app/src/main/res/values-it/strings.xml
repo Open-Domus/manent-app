@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Pairing screen -->
+    <string name="app_pair_title">Collega Omnesis</string>
+    <string name="app_back">Indietro</string>
+    <string name="app_pair_instructions">Sull\'host del gateway esegui:</string>
+    <string name="app_pair_payload_label">Contenuto del QR (JSON)</string>
+    <string name="app_pair_from_payload">Associa dal contenuto del QR</string>
+    <string name="app_pair_by_hand">Oppure a mano</string>
+    <string name="app_pair_gateway_url">URL del gateway</string>
+    <string name="app_pair_code">Codice di associazione</string>
+    <string name="app_pair_fingerprint">Impronta del certificato (facoltativa)</string>
+    <string name="app_pair">Associa</string>
+
+    <!-- Home -->
+    <string name="app_recordings">Registrazioni</string>
+
+    <!-- Spoken answers -->
+    <string name="app_spoken_answers_title">Risposte a voce</string>
+    <string name="app_spoken_answers_description">Il telefono legge ad alta voce la risposta di Home Assistant, nelle cuffie se sono collegate.</string>
+    <string name="app_spoken_answers_try">Prova</string>
+    <string name="app_spoken_answers_off">Disattivato</string>
+    <string name="app_spoken_answers_questions">Risposte alle domande</string>
+    <string name="app_spoken_answers_always">Tutte le risposte</string>
+    <string name="app_spoken_answers_off_hint">Solo le vibrazioni del ciondolo</string>
+    <string name="app_spoken_answers_questions_hint">“Quanti gradi ha la caldaia?”</string>
+    <string name="app_spoken_answers_always_hint">Anche le conferme: “Ho acceso la luce”</string>
+    <string name="app_spoken_answers_sample">La caldaia è a 52 gradi.</string>
+
+    <!-- Omnesis connection -->
+    <string name="app_omnesis_not_connected">Non collegato. Le registrazioni restano su questo telefono finché non colleghi un gateway.</string>
+    <string name="app_omnesis_connect">Collega</string>
+    <string name="app_omnesis_check">Verifica</string>
+    <string name="app_omnesis_disconnect">Scollega</string>
+    <string name="app_status_checking">Verifica in corso…</string>
+    <string name="app_status_unreachable">Non raggiungibile: %1$s</string>
+    <string name="app_status_experimental_off">La modalità sperimentale è disattivata sul gateway (OMNESIS_EXPERIMENTAL=1)</string>
+    <string name="app_status_no_recordings">Il gateway non accetta registrazioni</string>
+    <string name="app_status_transcription_off">La trascrizione del gateway è disattivata</string>
+    <string name="app_status_takes_recordings">Accetta registrazioni</string>
+
+    <!-- Why a voice-command transcriber cannot run, shown on the voice commands card -->
+    <string name="app_transcriber_not_paired">questo telefono non è associato a un gateway</string>
+    <string name="app_transcriber_dictation_off">la dettatura del gateway è disattivata</string>
+    <string name="app_transcriber_phone_unsupported">non ancora disponibile in questa app; usa il gateway</string>
+</resources>

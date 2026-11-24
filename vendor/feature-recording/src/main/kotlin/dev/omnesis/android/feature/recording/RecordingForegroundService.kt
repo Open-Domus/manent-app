@@ -388,19 +388,21 @@ class RecordingForegroundService : Service() {
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_recording_mic)
             .setContentTitle(
-                when {
-                    paused -> "Recording paused"
-                    ambient -> "Capturing conversations"
-                    else -> "Recording conversation"
-                },
+                getString(
+                    when {
+                        paused -> R.string.recording_notification_paused
+                        ambient -> R.string.recording_notification_ambient
+                        else -> R.string.recording_notification_active
+                    },
+                ),
             )
             .setContentText(
                 when {
-                    micLost && input == RecordingInput.WEARABLE -> "The ${inputName()} is not connected. Recording resumes when it is back"
-                    micLost -> "The microphone is in use elsewhere. Tap Resume to try again"
-                    paused -> "Tap Resume to continue"
-                    ambient -> "Omnesis keeps what the ${inputName()} hears. Tap the ${inputName()} to mark a moment"
-                    else -> "Omnesis is recording with the ${inputName()}"
+                    micLost && input == RecordingInput.WEARABLE -> getString(R.string.recording_notification_wearable_lost, inputName())
+                    micLost -> getString(R.string.recording_notification_mic_busy)
+                    paused -> getString(R.string.recording_notification_paused_text)
+                    ambient -> getString(R.string.recording_notification_ambient_text, inputName())
+                    else -> getString(R.string.recording_notification_active_text, inputName())
                 },
             )
             .setOngoing(true)
@@ -410,16 +412,21 @@ class RecordingForegroundService : Service() {
             .setContentIntent(open)
         if (!paused) {
             builder.setUsesChronometer(true).setWhen(System.currentTimeMillis() - elapsedMs).setShowWhen(true)
-            builder.addAction(0, "Pause", actionIntent(ACTION_PAUSE))
+            builder.addAction(0, getString(R.string.recording_pause), actionIntent(ACTION_PAUSE))
         } else {
             builder.setShowWhen(false)
-            builder.addAction(0, "Resume", actionIntent(ACTION_RESUME))
+            builder.addAction(0, getString(R.string.recording_resume), actionIntent(ACTION_RESUME))
         }
-        builder.addAction(0, if (ambient) "Turn off" else "Stop", actionIntent(ACTION_STOP))
+        builder.addAction(
+            0,
+            getString(if (ambient) R.string.recording_turn_off else R.string.recording_stop),
+            actionIntent(ACTION_STOP),
+        )
         return builder.build()
     }
 
-    private fun inputName(): String = if (input == RecordingInput.WEARABLE) wearable?.name ?: "wearable" else "microphone"
+    private fun inputName(): String =
+        if (input == RecordingInput.WEARABLE) wearable?.name ?: getString(R.string.recording_wearable_fallback) else getString(R.string.recording_microphone)
 
     private fun actionIntent(action: String): PendingIntent =
         PendingIntent.getService(
@@ -479,15 +486,18 @@ class RecordingForegroundService : Service() {
         /**
          * Low importance: the notification is a standing indicator, not an
          * alert. A channel's importance cannot be lowered after creation, so
-         * it starts low.
+         * it starts low. Creating it again only renames it, in the current language.
          */
         fun ensureChannel(context: Context) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
             val manager = context.getSystemService(NotificationManager::class.java) ?: return
-            if (manager.getNotificationChannel(CHANNEL_ID) != null) return
             manager.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "Conversation recording", NotificationManager.IMPORTANCE_LOW).apply {
-                    description = "Shown while Omnesis records a conversation"
+                NotificationChannel(
+                    CHANNEL_ID,
+                    context.getString(R.string.recording_channel_name),
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    description = context.getString(R.string.recording_channel_description)
                     setShowBadge(false)
                 },
             )

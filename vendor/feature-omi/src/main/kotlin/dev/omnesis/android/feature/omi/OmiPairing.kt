@@ -54,7 +54,7 @@ class OmiPairing(private val context: Context, private val store: OmiPairingStor
 
     /** Ask the system to look for a pendant; [onChooser] receives the dialog to launch. */
     fun request(onChooser: (IntentSender) -> Unit, onError: (String) -> Unit) {
-        val cdm = manager ?: return onError("This phone cannot associate companion devices")
+        val cdm = manager ?: return onError(context.getString(R.string.omi_pairing_unsupported))
         val filter = BluetoothLeDeviceFilter.Builder()
             .setScanFilter(ScanFilter.Builder().setServiceUuid(ParcelUuid(OmiProtocol.AUDIO_SERVICE)).build())
             .build()
@@ -66,7 +66,7 @@ class OmiPairing(private val context: Context, private val store: OmiPairingStor
                 object : CompanionDeviceManager.Callback() {
                     override fun onAssociationPending(intentSender: IntentSender) = onChooser(intentSender)
                     override fun onAssociationCreated(associationInfo: AssociationInfo) = Unit // handled in complete()
-                    override fun onFailure(error: CharSequence?) = onError(error?.toString() ?: "No pendant found")
+                    override fun onFailure(error: CharSequence?) = onError(error?.toString() ?: context.getString(R.string.omi_pairing_not_found))
                 },
             )
         } else {
@@ -76,7 +76,7 @@ class OmiPairing(private val context: Context, private val store: OmiPairingStor
                 object : CompanionDeviceManager.Callback() {
                     @Deprecated("Below API 33")
                     override fun onDeviceFound(chooserLauncher: IntentSender) = onChooser(chooserLauncher)
-                    override fun onFailure(error: CharSequence?) = onError(error?.toString() ?: "No pendant found")
+                    override fun onFailure(error: CharSequence?) = onError(error?.toString() ?: context.getString(R.string.omi_pairing_not_found))
                 },
                 Handler(Looper.getMainLooper()),
             )

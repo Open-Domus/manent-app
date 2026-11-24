@@ -2,10 +2,12 @@
 
 package it.manentlabs.app.omnesis
 
+import android.content.Context
 import android.util.Log
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.omnesis.android.feature.assist.CommandTranscriber
 import dev.omnesis.android.feature.assist.CommandTranscribers
@@ -16,6 +18,7 @@ import dev.omnesis.android.feature.recording.RecordingSessionProvider
 import dev.omnesis.android.feature.recording.ui.RecordingAvailability
 import dev.omnesis.android.transport.GatewayException
 import dev.omnesis.android.transport.dto.VoiceNoteBody
+import it.manentlabs.app.R
 import java.io.File
 import java.io.IOException
 import java.time.Instant
@@ -78,11 +81,11 @@ object OmnesisModule {
     /** Voice commands for webhooks and the phone are transcribed by the gateway. */
     @Provides
     @Singleton
-    fun provideCommandTranscribers(sessions: GatewaySessions): CommandTranscribers =
+    fun provideCommandTranscribers(@ApplicationContext context: Context, sessions: GatewaySessions): CommandTranscribers =
         CommandTranscribers(
             mapOf(
-                TranscriberKind.GATEWAY to GatewayCommandTranscriber(sessions),
-                TranscriberKind.PHONE to UnsupportedTranscriber,
+                TranscriberKind.GATEWAY to GatewayCommandTranscriber(context, sessions),
+                TranscriberKind.PHONE to UnsupportedTranscriber(context),
             ),
         )
 
@@ -90,10 +93,17 @@ object OmnesisModule {
     private const val TAG = "Manent"
 }
 
-class GatewayCommandTranscriber(private val sessions: GatewaySessions) : CommandTranscriber {
+class GatewayCommandTranscriber(
+    private val context: Context,
+    private val sessions: GatewaySessions,
+) : CommandTranscriber {
     override fun unavailable(): String? {
-        if (sessions.session == null) return "this phone is not paired with a gateway"
-        return if (sessions.status.value?.dictationEnabled == false) "gateway dictation is off" else null
+        if (sessions.session == null) return context.getString(R.string.app_transcriber_not_paired)
+        return if (sessions.status.value?.dictationEnabled == false) {
+            context.getString(R.string.app_transcriber_dictation_off)
+        } else {
+            null
+        }
     }
 
     override suspend fun transcribe(wav: File, locale: String?): String? {
@@ -115,7 +125,7 @@ class GatewayCommandTranscriber(private val sessions: GatewaySessions) : Command
 }
 
 /** On-device recognition is not ported yet. */
-object UnsupportedTranscriber : CommandTranscriber {
-    override fun unavailable(): String = "not available in this app yet; use the gateway"
+class UnsupportedTranscriber(private val context: Context) : CommandTranscriber {
+    override fun unavailable(): String = context.getString(R.string.app_transcriber_phone_unsupported)
     override suspend fun transcribe(wav: File, locale: String?): String? = null
 }

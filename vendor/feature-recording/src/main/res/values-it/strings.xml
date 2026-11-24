@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Recordings screen -->
+    <string name="recording_screen_title">Registrazioni</string>
+    <string name="recording_menu">Menu</string>
+    <string name="recording_dismiss">Ignora</string>
+    <string name="recording_on_this_phone">Su questo telefono</string>
+    <string name="recording_recent_title">Registrazioni recenti</string>
+    <string name="recording_recent_loading">Caricamento delle registrazioni recenti…</string>
+    <string name="recording_recent_failed">Impossibile caricare le registrazioni recenti.</string>
+    <string name="recording_retry">Riprova</string>
+    <string name="recording_recent_empty">Ancora nessuna registrazione sul gateway.</string>
+    <string name="recording_untitled">Conversazione</string>
+
+    <!-- A gateway recording's state -->
+    <string name="recording_gateway_state_recording">In registrazione</string>
+    <string name="recording_gateway_state_transcribing">Trascrizione in corso</string>
+    <string name="recording_gateway_state_done">Trascritta</string>
+    <plurals name="recording_speakers_all_named">
+        <item quantity="one">%d partecipante identificato</item>
+        <item quantity="other">Tutti i %d partecipanti identificati</item>
+    </plurals>
+    <plurals name="recording_speakers_some_named">
+        <item quantity="one">%1$d di %2$d partecipante identificato</item>
+        <item quantity="other">%1$d di %2$d partecipanti identificati</item>
+    </plurals>
+
+    <!-- Start card -->
+    <string name="recording_start_title">Registra una conversazione</string>
+    <string name="recording_start_body_wearable">Registra da %1$s che indossi. Continua a registrare anche con lo schermo del telefono spento, carica man mano e il gateway trasforma la conversazione in una trascrizione ricercabile.</string>
+    <string name="recording_start_body_phone">Appoggia il telefono sul tavolo. Continua a registrare anche a schermo spento, carica man mano e il gateway trasforma la conversazione in una trascrizione ricercabile.</string>
+    <string name="recording_input_phone">Microfono del telefono</string>
+    <string name="recording_input_hint">Avvia registrazione usa la sorgente scelta qui. Se tocchi %1$s, la registrazione parte sempre da %1$s.</string>
+    <string name="recording_title_field">Titolo (facoltativo)</string>
+    <string name="recording_wifi_only">Carica solo con Wi-Fi</string>
+    <string name="recording_wifi_only_hint">La registrazione continua offline; le parti vengono caricate appena c\'è connessione.</string>
+    <string name="recording_mic_denied">Per registrare serve l\'accesso al microfono. Consentilo, poi avvia di nuovo.</string>
+    <string name="recording_starting">Avvio…</string>
+    <string name="recording_start">Avvia registrazione</string>
+    <string name="recording_consent_hint">Avvisa tutti che stai registrando.</string>
+
+    <!-- Recorder card -->
+    <string name="recording_paused">In pausa</string>
+    <string name="recording_ambient_with">Acquisizione delle conversazioni con %1$s</string>
+    <string name="recording_with">Registrazione con %1$s</string>
+    <string name="recording_in_progress">Registrazione in corso</string>
+    <string name="recording_wearable_fallback">il dispositivo indossabile</string>
+    <string name="recording_wearable_lost">Nessuna connessione con %1$s. La registrazione riprende quando torna disponibile.</string>
+    <string name="recording_mic_busy">Il microfono è in uso da un\'altra app. Riprendi per riprovare.</string>
+    <string name="recording_ambient_hint">Questa conversazione continua finché non passano tre minuti senza parlato; la successiva parte da sola. Tocca %1$s per segnare un momento.</string>
+    <plurals name="recording_parts_saved">
+        <item quantity="one">%d parte salvata · lo schermo può spegnersi</item>
+        <item quantity="other">%d parti salvate · lo schermo può spegnersi</item>
+    </plurals>
+    <string name="recording_pause">Pausa</string>
+    <string name="recording_resume">Riprendi</string>
+    <string name="recording_stop">Interrompi</string>
+    <string name="recording_turn_off">Disattiva</string>
+
+    <!-- Unavailable card -->
+    <string name="recording_unavailable_title">Registrazione non disponibile</string>
+    <string name="recording_unavailable_transcription_off">La trascrizione del gateway è disattivata. Attivala nelle impostazioni del gateway per registrare le conversazioni.</string>
+    <string name="recording_unavailable_gateway">Questo gateway non accetta registrazioni. Servono la modalità sperimentale e un trascrittore assegnato.</string>
+
+    <!-- Recordings on this phone -->
+    <string name="recording_delete">Elimina registrazione</string>
+    <string name="recording_status_waiting">In attesa di caricamento</string>
+    <plurals name="recording_status_uploading">
+        <item quantity="one">Caricamento, manca %d parte</item>
+        <item quantity="other">Caricamento, mancano %d parti</item>
+    </plurals>
+    <string name="recording_status_sent">Inviata; il gateway la trascrive</string>
+    <string name="recording_status_refused">Non inviata: %1$s</string>
+    <string name="recording_delete_reconnect">Riconnettiti al gateway per eliminare questa registrazione.</string>
+    <string name="recording_delete_failed">Impossibile eliminare la registrazione. Riprova.</string>
+
+    <!-- Who spoke -->
+    <string name="recording_speakers_title">Chi parla</string>
+    <string name="recording_back">Indietro</string>
+    <string name="recording_speakers_none">In questa registrazione i partecipanti non sono stati distinti. L\'impostazione dei partecipanti del gateway è disattivata, oppure il suo trascrittore non fornisce i tempi per distinguere le voci.</string>
+    <string name="recording_speakers_intro">Indica a chi appartiene ogni voce. Le persone che scegli diventano partecipanti della conversazione.</string>
+    <string name="recording_speakers_this_is_me">Sono io</string>
+    <string name="recording_speakers_choose_person">Scegli persona…</string>
+    <string name="recording_speakers_name_action">Dai un nome…</string>
+    <string name="recording_speakers_clear">Rimuovi</string>
+    <string name="recording_speakers_mapping_self">la tua voce</string>
+    <string name="recording_speakers_mapping_person">una delle tue persone</string>
+    <string name="recording_speakers_mapping_name">un nome che hai dato</string>
+    <string name="recording_speakers_mapping_none">non ancora identificato</string>
+    <string name="recording_speakers_you">Tu</string>
+    <string name="recording_speakers_numbered">Partecipante %1$d</string>
+    <string name="recording_speakers_picker_title">Chi è il partecipante %1$d?</string>
+    <string name="recording_speakers_search">Cerca persone</string>
+    <string name="recording_speakers_search_failed">Impossibile cercare le persone. Riprova.</string>
+    <string name="recording_speakers_no_match">Nessun risultato.</string>
+    <plurals name="recording_speakers_items">
+        <item quantity="one">%d elemento</item>
+        <item quantity="other">%d elementi</item>
+    </plurals>
+    <string name="recording_speakers_name_title">Dai un nome al partecipante %1$d</string>
+    <string name="recording_speakers_name_body">Per qualcuno che non è tra le tue persone in Omnesis.</string>
+    <string name="recording_speakers_name_label">Nome</string>
+    <string name="recording_save">Salva</string>
+    <string name="recording_cancel">Annulla</string>
+    <string name="recording_speakers_not_connected">Riconnettiti al gateway e riprova.</string>
+    <string name="recording_speakers_save_failed">Impossibile salvare la modifica. Riprova.</string>
+    <string name="recording_speakers_recording_gone">Questa registrazione non è più sul gateway.</string>
+    <string name="recording_speakers_load_failed">Impossibile caricare i partecipanti.</string>
+    <string name="recording_speakers_speaker_gone">Questo partecipante non è più sul gateway.</string>
+    <string name="recording_speakers_person_gone">Il gateway non conosce più questa persona.</string>
+    <!-- How long someone spoke -->
+    <string name="recording_talk_under_minute">Meno di un minuto</string>
+    <string name="recording_talk_minutes">%1$d min</string>
+    <string name="recording_talk_hours">%1$d h</string>
+    <string name="recording_talk_hours_minutes">%1$d h %2$d min</string>
+
+    <!-- Notification -->
+    <string name="recording_channel_name">Registrazione delle conversazioni</string>
+    <string name="recording_channel_description">Mostrata mentre Omnesis registra una conversazione</string>
+    <string name="recording_notification_paused">Registrazione in pausa</string>
+    <string name="recording_notification_ambient">Acquisizione delle conversazioni</string>
+    <string name="recording_notification_active">Registrazione della conversazione</string>
+    <string name="recording_notification_wearable_lost">Nessuna connessione con %1$s. La registrazione riprende quando torna disponibile</string>
+    <string name="recording_notification_mic_busy">Il microfono è in uso altrove. Tocca Riprendi per riprovare</string>
+    <string name="recording_notification_paused_text">Tocca Riprendi per continuare</string>
+    <string name="recording_notification_ambient_text">Omnesis conserva ciò che sente %1$s. Tocca %1$s per segnare un momento</string>
+    <string name="recording_notification_active_text">Omnesis sta registrando con %1$s</string>
+    <string name="recording_microphone">il microfono</string>
+
+    <!-- Quick Settings tile and launcher shortcut -->
+    <string name="recording_tile_label">Registra conversazione</string>
+    <string name="recording_tile_on">In corso</string>
+    <string name="recording_tile_off">Non attiva</string>
+    <string name="recording_tile_state_on">Registrazione in corso. Tocca per interrompere</string>
+    <string name="recording_tile_state_off">Tocca per avviare la registrazione</string>
+    <string name="recording_tile_description_on">%1$s, registrazione in corso. Tocca per interrompere</string>
+    <string name="recording_tile_description_off">%1$s, tocca per avviare la registrazione</string>
+    <string name="recording_shortcut_short_label">Registra</string>
+    <string name="recording_shortcut_unavailable">Il gateway non accetta registrazioni</string>
+</resources>

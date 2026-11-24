@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- La scheda dei comandi vocali -->
+    <string name="assist_intro">Pronuncia una parola di attivazione seguita da un comando: lo esegue la destinazione che hai scelto per quella parola. Il telefono ascolta il ciondolo in attesa delle parole di attivazione; viene inviato solo il comando che segue e non viene registrato nulla. Tre vibrazioni brevi indicano che è fatto, una lunga che non ha funzionato.</string>
+    <string name="assist_section_wake_words">Parole di attivazione</string>
+    <string name="assist_section_models">Modelli</string>
+    <string name="assist_section_phone_actions">Azioni del telefono</string>
+    <string name="assist_section_transcription">Trascrizione</string>
+    <string name="assist_add_wake_word">Aggiungi una parola di attivazione</string>
+    <string name="assist_listen">Ascolta le parole di attivazione</string>
+    <string name="assist_listen_needs_setup">Prima configura almeno una parola di attivazione.</string>
+    <string name="assist_forget">Dimentica i comandi vocali</string>
+    <string name="assist_allow">Consenti</string>
+    <string name="assist_save">Salva</string>
+
+    <!-- Un percorso: una parola di attivazione e dove va il suo comando -->
+    <string name="assist_choose_word">Scegli una parola</string>
+    <string name="assist_word_imported">“%1$s” · importata</string>
+    <string name="assist_remove_wake_word">Rimuovi questa parola di attivazione</string>
+    <string name="assist_destination_webhook">Webhook</string>
+    <string name="assist_destination_phone">Questo telefono</string>
+    <string name="assist_phone_action_hint">Timer, sveglie, navigazione, musica, chiamate e altro: vedi Azioni del telefono qui sotto.</string>
+    <string name="assist_problem_word_gone">Il modello della parola di attivazione non c\'è più: scegline un\'altra.</string>
+    <string name="assist_problem_import_missing">Manca il modello importato: importalo di nuovo.</string>
+    <string name="assist_problem_download">Prima scarica il modello.</string>
+    <string name="assist_problem_home_assistant">Prima configura Home Assistant.</string>
+    <string name="assist_problem_webhook">Inserisci l\'indirizzo del webhook.</string>
+    <string name="assist_overlay_needed">Consenti la visualizzazione sopra altre app per eseguire le azioni del telefono.</string>
+
+    <!-- Destinazione webhook -->
+    <string name="assist_webhook_address">Indirizzo del webhook</string>
+    <string name="assist_webhook_secret_saved">Segreto Bearer (salvato, digita per sostituirlo)</string>
+    <string name="assist_webhook_secret">Segreto Bearer (facoltativo)</string>
+    <string name="assist_webhook_hint">Riceve il testo del comando in JSON.</string>
+
+    <!-- Modelli delle parole di attivazione -->
+    <string name="assist_models_ready">I modelli di tutte le parole di attivazione sono su questo telefono.</string>
+    <string name="assist_models_explained">I modelli non fanno parte dell\'app. Vengono scaricati su questo telefono da dove sono pubblicati e verificati prima dell\'uso:</string>
+    <string name="assist_model_origin">• “%1$s”: %2$s</string>
+    <string name="assist_downloading">Download in corso…</string>
+    <string name="assist_download_models">Scarica i modelli</string>
+    <string name="assist_models_custom_hint">Funziona anche qualsiasi modello openWakeWord: uno che hai addestrato con il notebook per le parole di attivazione di Home Assistant, o uno di una raccolta della community.</string>
+    <string name="assist_import_model">Importa un modello (.onnx)</string>
+    <string name="assist_origin_openwakeword">progetto openWakeWord, solo per uso non commerciale (CC BY-NC-SA 4.0)</string>
+    <string name="assist_origin_community">raccolta di parole di attivazione della community di Home Assistant (MIT)</string>
+    <string name="assist_origin_imported">importata su questo telefono</string>
+
+    <!-- Destinazione Home Assistant -->
+    <string name="assist_home_assistant_hint">Home Assistant ascolta direttamente il comando, con l\'assistente che scegli.</string>
+    <string name="assist_home_assistant_address">Indirizzo di Home Assistant</string>
+    <string name="assist_home_assistant_token_saved">Token di accesso (salvato, digita per sostituirlo)</string>
+    <string name="assist_home_assistant_token">Token di accesso di lunga durata</string>
+    <string name="assist_home_assistant_token_placeholder">Dal tuo profilo di Home Assistant</string>
+    <string name="assist_save_and_test">Salva e prova</string>
+    <string name="assist_check_ok">Collegato a Home Assistant.</string>
+    <string name="assist_check_ok_version">Collegato a Home Assistant %1$s.</string>
+    <string name="assist_check_bad_token">Home Assistant ha rifiutato il token.</string>
+    <string name="assist_check_unreachable">Impossibile raggiungere Home Assistant (%1$s).</string>
+    <string name="assist_pipeline_label">Assistente:</string>
+    <string name="assist_pipeline_preferred">Preferito</string>
+    <string name="assist_pipeline_preferred_named">Preferito (%1$s)</string>
+
+    <!-- Trascrizione -->
+    <string name="assist_transcription_hint">I webhook e le azioni del telefono ricevono il comando come testo. Scegli chi lo trascrive.</string>
+    <string name="assist_transcriber_gateway">Gateway</string>
+    <string name="assist_transcriber_phone">Questo telefono, sul dispositivo</string>
+    <string name="assist_transcriber_gateway_detail">L\'audio va al tuo gateway, che lo trascrive.</string>
+    <string name="assist_transcriber_phone_detail">L\'audio resta sul telefono.</string>
+    <string name="assist_transcriber_unavailable">Non disponibile: %1$s</string>
+    <string name="assist_timing">Ultimo comando: %1$s per %2$s di audio.</string>
+    <string name="assist_timing_nothing_heard">Ultimo comando: %1$s per %2$s di audio, non si è sentito nulla.</string>
+    <string name="assist_seconds">%1$.1f s</string>
+
+    <!-- Azioni del telefono -->
+    <string name="assist_phone_actions_hint">Cosa possono fare le parole di attivazione per questo telefono, e con quale app. Un\'azione che nessuna app del telefono gestisce non è disponibile.</string>
+    <string name="assist_no_app">Nessuna app sul telefono</string>
+    <plurals name="assist_app_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d app</item>
+    </plurals>
+    <string name="assist_choose_app">Scegli un\'app</string>
+    <string name="assist_choose_app_warning">Scegli l\'app che la gestisce.</string>
+    <string name="assist_calling_needed">Consenti l\'accesso a contatti e chiamate per chiamare le persone per nome. Altrimenti, i numeri pronunciati aprono il tastierino.</string>
+    <string name="assist_action_timer">Timer</string>
+    <string name="assist_action_alarm">Sveglie</string>
+    <string name="assist_action_navigate">Navigazione</string>
+    <string name="assist_action_music">Musica</string>
+    <string name="assist_action_open_app">Apri un\'app</string>
+    <string name="assist_action_call">Chiamate</string>
+    <string name="assist_action_calendar">Eventi del calendario</string>
+    <string name="assist_action_share">Note ed elenchi</string>
+
+    <!-- Errori -->
+    <string name="assist_error_home_assistant_address">Inserisci l\'indirizzo di Home Assistant come http://… o https://…</string>
+    <string name="assist_error_webhook_address">Inserisci l\'indirizzo del webhook come http://… o https://…</string>
+    <string name="assist_error_download">Impossibile scaricare i modelli delle parole di attivazione: %1$s</string>
+    <string name="assist_error_import">Il file non è stato importato: %1$s</string>
+    <string name="assist_error_unreadable">Impossibile leggere il file.</string>
+    <string name="assist_import_not_onnx">scegli un file .onnx di openWakeWord</string>
+    <string name="assist_import_cannot_open">non è stato possibile aprirlo</string>
+    <string name="assist_import_no_name">il file deve avere un nome</string>
+    <string name="assist_import_too_large">il file è troppo grande per un modello di parola di attivazione</string>
+    <string name="assist_import_exists">esiste già una parola di attivazione “%1$s”</string>
+    <string name="assist_import_not_classifier">non è un modello di parola di attivazione che il telefono può eseguire</string>
+</resources>
