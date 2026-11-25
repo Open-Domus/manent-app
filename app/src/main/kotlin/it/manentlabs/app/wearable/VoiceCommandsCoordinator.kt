@@ -3,9 +3,9 @@
 package it.manentlabs.app.wearable
 
 import android.util.Log
-import dev.omnesis.android.feature.assist.AssistOutcome
-import dev.omnesis.android.feature.assist.AssistRuntime
-import dev.omnesis.android.feature.recording.SharedWearableAudio
+import it.manentlabs.app.feature.assist.AssistOutcome
+import it.manentlabs.app.feature.assist.AssistRuntime
+import it.manentlabs.app.feature.recording.SharedWearableAudio
 import it.manentlabs.app.speech.AnswerSpeaker
 import it.manentlabs.app.speech.SpokenAnswerSettings
 import it.manentlabs.app.speech.spokenReply

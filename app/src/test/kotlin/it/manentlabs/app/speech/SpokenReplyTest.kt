@@ -2,7 +2,7 @@
 
 package it.manentlabs.app.speech
 
-import dev.omnesis.android.feature.assist.AssistOutcome
+import it.manentlabs.app.feature.assist.AssistOutcome
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test

@@ -4,7 +4,7 @@ package it.manentlabs.app.speech
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dev.omnesis.android.feature.assist.AssistOutcome
+import it.manentlabs.app.feature.assist.AssistOutcome
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow

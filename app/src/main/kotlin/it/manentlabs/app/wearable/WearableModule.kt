@@ -6,9 +6,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import dev.omnesis.android.feature.omi.OmiLink
-import dev.omnesis.android.feature.recording.SharedWearableAudio
-import dev.omnesis.android.feature.recording.WearableAudio
+import it.manentlabs.app.feature.omi.OmiLink
+import it.manentlabs.app.feature.recording.SharedWearableAudio
+import it.manentlabs.app.feature.recording.WearableAudio
 import javax.inject.Singleton
 
 @Module

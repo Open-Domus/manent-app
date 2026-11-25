@@ -2,10 +2,10 @@
 
 package it.manentlabs.app.wearable
 
-import dev.omnesis.android.feature.assist.CommandFeedback
-import dev.omnesis.android.feature.omi.Haptic
-import dev.omnesis.android.feature.omi.OmiLink
-import dev.omnesis.android.feature.recording.WearableAudio
+import it.manentlabs.app.feature.assist.CommandFeedback
+import it.manentlabs.app.feature.omi.Haptic
+import it.manentlabs.app.feature.omi.OmiLink
+import it.manentlabs.app.feature.recording.WearableAudio
 
 /** An Omi pendant: its link streams the audio, its motor signals with the recorder's own patterns. */
 class OmiWearable(private val link: OmiLink) : Wearable {

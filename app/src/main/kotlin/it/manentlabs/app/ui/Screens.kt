@@ -43,10 +43,10 @@ import it.manentlabs.app.speech.AnswerSpeaker
 import it.manentlabs.app.speech.SpokenAnswerSettings
 import it.manentlabs.app.speech.SpokenAnswers
 import androidx.compose.ui.semantics.Role
-import dev.omnesis.android.designsystem.components.OmnesisCard
-import dev.omnesis.android.designsystem.theme.OmTheme
-import dev.omnesis.android.feature.assist.ui.VoiceCommandsCard
-import dev.omnesis.android.feature.omi.ui.OmiCard
+import it.manentlabs.app.designsystem.components.OmnesisCard
+import it.manentlabs.app.designsystem.theme.OmTheme
+import it.manentlabs.app.feature.assist.ui.VoiceCommandsCard
+import it.manentlabs.app.feature.omi.ui.OmiCard
 import kotlinx.coroutines.launch
 
 /** Connect an Omnesis gateway, with this phone as a device of its own. Optional: Manent works without one. */

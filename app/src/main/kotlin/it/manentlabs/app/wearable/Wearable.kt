@@ -2,8 +2,8 @@
 
 package it.manentlabs.app.wearable
 
-import dev.omnesis.android.feature.assist.CommandFeedback
-import dev.omnesis.android.feature.recording.WearableAudio
+import it.manentlabs.app.feature.assist.CommandFeedback
+import it.manentlabs.app.feature.recording.WearableAudio
 
 /**
  * A device the owner wears that streams speech to the phone: the recorder and

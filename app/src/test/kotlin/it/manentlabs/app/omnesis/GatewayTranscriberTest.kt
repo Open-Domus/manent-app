@@ -2,7 +2,7 @@
 
 package it.manentlabs.app.omnesis
 
-import dev.omnesis.android.transport.http.GatewayHttp
+import it.manentlabs.app.transport.http.GatewayHttp
 import java.io.File
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient

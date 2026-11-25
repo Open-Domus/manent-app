@@ -2,8 +2,8 @@
 
 package it.manentlabs.app.wearable
 
-import dev.omnesis.android.feature.assist.CommandFeedback
-import dev.omnesis.android.feature.omi.Haptic
+import it.manentlabs.app.feature.assist.CommandFeedback
+import it.manentlabs.app.feature.omi.Haptic
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

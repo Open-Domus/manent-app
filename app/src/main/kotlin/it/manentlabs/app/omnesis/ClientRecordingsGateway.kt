@@ -1,21 +1,20 @@
 // SPDX-License-Identifier: MIT
-// Copied from Omnesis android/app/.../di/RecordingSessionModule.kt (ClientRecordingsGateway).
 
 package it.manentlabs.app.omnesis
 
-import dev.omnesis.android.feature.recording.OutboxChunk
-import dev.omnesis.android.feature.recording.OutboxSession
-import dev.omnesis.android.feature.recording.RecordingsGateway
-import dev.omnesis.android.transport.client.GatewayClient
-import dev.omnesis.android.transport.client.RecordingsClient
-import dev.omnesis.android.transport.client.SearchClient
-import dev.omnesis.android.transport.dto.FinishRecordingBody
-import dev.omnesis.android.transport.dto.PersonSummary
-import dev.omnesis.android.transport.dto.RecordingChunkMetadata
-import dev.omnesis.android.transport.dto.RecordingSpeakerDto
-import dev.omnesis.android.transport.dto.RecordingSummaryDto
-import dev.omnesis.android.transport.dto.SpeakerMapping
-import dev.omnesis.android.transport.dto.StartRecordingBody
+import it.manentlabs.app.feature.recording.OutboxChunk
+import it.manentlabs.app.feature.recording.OutboxSession
+import it.manentlabs.app.feature.recording.RecordingsGateway
+import it.manentlabs.app.transport.client.GatewayClient
+import it.manentlabs.app.transport.client.RecordingsClient
+import it.manentlabs.app.transport.client.SearchClient
+import it.manentlabs.app.transport.dto.FinishRecordingBody
+import it.manentlabs.app.transport.dto.PersonSummary
+import it.manentlabs.app.transport.dto.RecordingChunkMetadata
+import it.manentlabs.app.transport.dto.RecordingSpeakerDto
+import it.manentlabs.app.transport.dto.RecordingSummaryDto
+import it.manentlabs.app.transport.dto.SpeakerMapping
+import it.manentlabs.app.transport.dto.StartRecordingBody
 
 /**
  * [RecordingsGateway] over the session's [RecordingsClient], with [GatewayClient] for the

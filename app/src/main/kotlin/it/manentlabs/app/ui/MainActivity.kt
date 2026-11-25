@@ -20,11 +20,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import it.manentlabs.app.omnesis.GatewaySessions
 import it.manentlabs.app.speech.AnswerSpeaker
 import it.manentlabs.app.speech.SpokenAnswerSettings
-import dev.omnesis.android.designsystem.theme.OmnesisTheme
-import dev.omnesis.android.feature.omi.ui.OmiRecordingRow
-import dev.omnesis.android.feature.recording.ui.RecordingScreen
-import dev.omnesis.android.feature.recording.ui.RecordingSpeakersScreen
-import dev.omnesis.android.feature.recording.ui.RecordingSpeakersViewModel
+import it.manentlabs.app.designsystem.theme.OmnesisTheme
+import it.manentlabs.app.feature.omi.ui.OmiRecordingRow
+import it.manentlabs.app.feature.recording.ui.RecordingScreen
+import it.manentlabs.app.feature.recording.ui.RecordingSpeakersScreen
+import it.manentlabs.app.feature.recording.ui.RecordingSpeakersViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint

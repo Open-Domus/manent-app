@@ -1,0 +1,287 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Lorenzo Farnararo
+
+package it.manentlabs.app.transport.client
+
+import it.manentlabs.app.transport.dto.ConversationRecord
+import it.manentlabs.app.transport.dto.ConversationMessagePage
+import it.manentlabs.app.transport.dto.ConversationSummary
+import it.manentlabs.app.transport.dto.ConversationsResponse
+import it.manentlabs.app.transport.dto.CreateSessionResponse
+import it.manentlabs.app.transport.dto.DailyBriefItemsDto
+import it.manentlabs.app.transport.dto.DailyBriefReactionReceiptDto
+import it.manentlabs.app.transport.dto.ModelDisplay
+import it.manentlabs.app.transport.dto.SendMessageResponse
+import it.manentlabs.app.transport.http.GatewayHttp
+import it.manentlabs.app.transport.http.getJson
+import it.manentlabs.app.transport.http.getPrivateJson
+import it.manentlabs.app.transport.http.patchJson
+import it.manentlabs.app.transport.http.postJson
+import it.manentlabs.app.transport.http.putJsonSegments
+import java.time.ZoneId
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+
+/** Agent control HTTP (sessions, messages, conversations). The SSE stream lives in [AgentEventSource]. */
+class AgentClient(private val http: GatewayHttp) {
+
+    /**
+     * The device's own IANA zone rides along so the agent speaks in the clock
+     * the phone is showing. The gateway sits on a machine that stays home while
+     * the phone travels, so its zone is not a stand-in: a wall-clock time
+     * rendered in it is the wrong hour anywhere else.
+     */
+    suspend fun createSession(
+        resumeFromId: String? = null,
+        transcriptLimit: Int? = null,
+        timeZone: String? = deviceTimeZone(),
+        profile: AgentSessionProfile = AgentSessionProfile.INTERACTIVE,
+    ): CreateSessionResponse =
+        http.postJson(
+            "agent/sessions",
+            transcriptLimit?.let { mapOf("transcriptLimit" to it.coerceIn(0, 500).toString()) }
+                ?: emptyMap(),
+            CreateSessionBody(resumeFromId, profile = profile.wireValue, timeZone = timeZone),
+        )
+
+    /**
+     * `deepResearch` is the per-message Deep Research flag, armed by the
+     * composer's `/`→pill. When `false` the POST body is byte-identical to a
+     * plain turn (the key is dropped — see [SendMessageBody]); `true` adds
+     * `"deepResearch": true`, which the gateway route honours to enter the
+     * explicit Deep Research loop. Explicit-only: there is no auto-gating.
+     */
+    suspend fun sendMessage(
+        sessionId: String,
+        text: String,
+        deepResearch: Boolean = false,
+        notifyAfterMs: Int? = null,
+        viewingForMs: Int? = null,
+    ): SendMessageResponse =
+        http.postJson(
+            "agent/sessions/$sessionId/messages",
+            SendMessageBody.of(text, deepResearch, notifyAfterMs, viewingForMs),
+        )
+
+    suspend fun controls(sessionId: String): ConversationControls =
+        http.getJson("agent/sessions/$sessionId/controls")
+
+    suspend fun submit(sessionId: String, body: ConversationSubmissionBody): ConversationSubmissionResponse =
+        http.postJson("agent/sessions/$sessionId/submissions", body)
+
+    suspend fun sendQueuedNow(sessionId: String, submissionIds: List<String>): ConversationControls =
+        http.postJson("agent/sessions/$sessionId/queue/send-now", QueueSendNowBody(submissionIds))
+
+    suspend fun cancel(sessionId: String): Boolean =
+        http.postJson<Map<String, String>, OkResponse>("agent/sessions/$sessionId/cancel", emptyMap()).ok
+
+    suspend fun conversationPage(
+        limit: Int = 50,
+        cursor: String? = null,
+    ): ConversationsResponse {
+        val query = buildMap {
+            put("limit", limit.toString())
+            if (!cursor.isNullOrBlank()) put("cursor", cursor)
+        }
+        return http.getJson("agent/conversations", query)
+    }
+
+    suspend fun conversations(): List<ConversationSummary> =
+        conversationPage().conversations
+
+    suspend fun conversation(id: String): ConversationRecord =
+        http.getJson("agent/conversations/$id")
+
+    /**
+     * Report that this app is showing a conversation to the user, which clears
+     * its unread marker on every surface. Distinct from fetching it: a sync is
+     * not a read, so only a screen that actually rendered it may say this.
+     *
+     * [viewing] says whether it is still on screen. True holds it open, so an
+     * answer arriving now counts as seen; false says the user moved on.
+     *
+     * [messageId] names an answer shown somewhere other than this app's
+     * conversation screen (a watch face), so the gateway counts that answer as
+     * read without holding the conversation open.
+     */
+    suspend fun markConversationSeen(
+        id: String,
+        viewing: Boolean,
+        messageId: String? = null,
+    ): Boolean = http.postJson<ConversationSeenBody, OkResponse>(
+        "agent/conversations/$id/seen",
+        ConversationSeenBody(viewing, messageId),
+    ).ok
+
+    suspend fun conversationMessages(
+        id: String,
+        limit: Int = 25,
+        cursor: String? = null,
+    ): ConversationMessagePage = http.getJson(
+        "agent/conversations/$id/messages",
+        buildMap {
+            put("limit", limit.coerceIn(1, 500).toString())
+            cursor?.takeIf { it.isNotBlank() }?.let { put("cursor", it) }
+        },
+    )
+
+    suspend fun deleteConversation(id: String) {
+        http.execute(http.newRequest(http.urlFor("agent/conversations/$id")).delete().build())
+    }
+
+    /** PATCH `/agent/conversations/:id` — pin or unpin a stored transcript. */
+    suspend fun setPinned(id: String, pinned: Boolean) {
+        http.patchJson<PinBody, OkResponse>("agent/conversations/$id", PinBody(pinned))
+    }
+
+    suspend fun model(): ModelDisplay = http.getJson("agent/model")
+
+    /**
+     * `GET /agent/conversations/:id/briefs/:day` — what the Morning brief sent on [day]
+     * (`YYYY-MM-DD`) was based on. 404s when no brief was sent that day. Never cached: the
+     * tasks an item names change state after the brief is sent.
+     */
+    suspend fun dailyBriefItems(conversationId: String, day: String): DailyBriefItemsDto =
+        http.getPrivateJson(listOf("agent", "conversations", conversationId, "briefs", day))
+
+    /**
+     * `PUT /agent/conversations/:id/briefs/:day/items/:observationId/reaction` — what the reader
+     * thinks of one item the brief sent on [day]. A null [reaction] clears it, sent as JSON `null`
+     * rather than left out. [note] carries the reader's words; the gateway derives a correction
+     * note's id from the item and the words, so a retry with the same words saves one note.
+     *
+     * Gateway TS body (`packages/gateway/src/http/schemas/agent-briefs.ts`):
+     *
+     * ```ts
+     * { reaction: "up" | "not_interested" | "factual_error" | null; note?: string }
+     * ```
+     */
+    suspend fun reactToBriefItem(
+        conversationId: String,
+        day: String,
+        observationId: String,
+        reaction: String?,
+        note: String? = null,
+    ): DailyBriefReactionReceiptDto = http.putJsonSegments<JsonObject, DailyBriefReactionReceiptDto>(
+        listOf("agent", "conversations", conversationId, "briefs", day, "items", observationId, "reaction"),
+        buildJsonObject {
+            if (reaction == null) put("reaction", JsonNull) else put("reaction", reaction)
+            note?.trim()?.takeIf(String::isNotEmpty)?.let { put("note", it) }
+        },
+    )
+}
+
+/** Prompt/tool profile requested when a session is created or resumed. */
+enum class AgentSessionProfile(internal val wireValue: String) {
+    /** Full visual-chat timeline and citation tools. */
+    INTERACTIVE("interactive"),
+
+    /** Concise spoken replies for a bounded voice surface. */
+    VOICE("voice"),
+}
+
+@Serializable
+data class CreateSessionBody(
+    val resumeFromId: String? = null,
+    /** Visual chat defaults to `interactive`; bounded voice callers opt into `voice`. */
+    val profile: String,
+    val timeZone: String? = null,
+)
+
+/**
+ * The device's current IANA zone, or null where it cannot be resolved — read
+ * per call rather than cached, since a phone that crosses a border changes zone
+ * while the process stays alive.
+ */
+internal fun deviceTimeZone(): String? = runCatching { ZoneId.systemDefault().id }.getOrNull()
+
+@Serializable
+data class PinBody(val pinned: Boolean)
+
+/**
+ * The `/messages` POST body. `deepResearch` is nullable so `OmnesisJson`
+ * (`explicitNulls = false`) drops optional flags for a plain turn — a default
+ * send's payload is byte-identical to before these flags existed. [of] is the
+ * unit-test seam: it sets `deepResearch` only when the per-message pill is
+ * armed; bounded voice callers opt into the two timing fields explicitly.
+ */
+@Serializable
+data class SendMessageBody(
+    val text: String,
+    val deepResearch: Boolean? = null,
+    val notifyAfterMs: Int? = null,
+    val viewingForMs: Int? = null,
+) {
+    companion object {
+        fun of(
+            text: String,
+            deepResearch: Boolean,
+            notifyAfterMs: Int? = null,
+            viewingForMs: Int? = null,
+        ): SendMessageBody = SendMessageBody(
+            text = text,
+            deepResearch = if (deepResearch) true else null,
+            notifyAfterMs = notifyAfterMs,
+            viewingForMs = viewingForMs,
+        )
+    }
+}
+
+@Serializable
+data class OkResponse(val ok: Boolean = false)
+
+/** Body of `POST /agent/conversations/:id/seen`. */
+@Serializable
+data class ConversationSeenBody(val viewing: Boolean, val messageId: String? = null)
+
+@Serializable
+data class ConversationChoice(val label: String, val description: String? = null)
+
+@Serializable
+data class ConversationClarification(
+    val id: String,
+    val question: String,
+    val choices: List<ConversationChoice> = emptyList(),
+)
+
+@Serializable
+data class ConversationSubmission(
+    val id: String,
+    val text: String,
+    val status: String,
+    val error: String? = null,
+    val deepResearch: Boolean? = null,
+)
+
+@Serializable
+data class ConversationCapabilities(val coalescedQueue: Boolean = false, val queueSendNow: Boolean = false)
+
+@Serializable
+data class QueueSendNowBody(val submissionIds: List<String>)
+
+@Serializable
+data class ConversationControls(
+    val busy: Boolean = false,
+    val pendingClarification: ConversationClarification? = null,
+    val queuedMessages: List<ConversationSubmission> = emptyList(),
+    val capabilities: ConversationCapabilities = ConversationCapabilities(),
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+data class ConversationSubmissionBody(
+    val clientMessageId: String,
+    val text: String,
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val mode: String = "queue",
+    val deepResearch: Boolean? = null,
+    val clarificationId: String? = null,
+)
+
+@Serializable
+data class ConversationSubmissionResponse(val submission: ConversationSubmission)

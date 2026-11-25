@@ -1,0 +1,118 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Lorenzo Farnararo
+
+package it.manentlabs.app.transport
+
+import it.manentlabs.app.transport.dto.OmnesisJson
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class DeviceCapabilitiesTest {
+    @Test
+    fun pairingRemindersAreAdvertisedWhileOlderCapabilityPayloadsRemainSupported() {
+        val current = DeviceCapabilities.android(emptyList())
+        assertTrue(current.pairingNotifications)
+        val wire = OmnesisJson.encodeToJsonElement(DeviceCapabilities.serializer(), current).jsonObject
+        assertEquals("true", wire["pairingNotifications"]!!.jsonPrimitive.content)
+        val legacy = kotlinx.serialization.json.JsonObject(wire.filterKeys { it != "pairingNotifications" })
+        assertFalse(OmnesisJson.decodeFromJsonElement(DeviceCapabilities.serializer(), legacy).pairingNotifications)
+    }
+
+    @Test
+    fun everyBuildAnnouncesThatItRoutesTailscaleJoinNotifications() {
+        val capabilities = DeviceCapabilities.android(emptyList())
+        assertTrue(capabilities.tailscaleJoinNotifications)
+        val announced = OmnesisJson.encodeToJsonElement(DeviceCapabilities.serializer(), capabilities).jsonObject
+        assertEquals("true", announced["tailscaleJoinNotifications"]!!.jsonPrimitive.content)
+        // An older payload without the key reads as a device that cannot route them.
+        val wire = OmnesisJson.encodeToJsonElement(DeviceCapabilities.serializer(), DeviceCapabilities.android(emptyList())).jsonObject
+        val legacy = kotlinx.serialization.json.JsonObject(wire.filterKeys { it != "tailscaleJoinNotifications" })
+        assertFalse(OmnesisJson.decodeFromJsonElement(DeviceCapabilities.serializer(), legacy).tailscaleJoinNotifications)
+        // The capability survives the per-pairing identity and TLS mode the composition root adds.
+        val paired = DeviceCapabilities.android(emptyList())
+            .withPairingIdentity("Android", "Android-abc123", "install-1", null)
+            .withTlsMode("system")
+        assertTrue(paired.tailscaleJoinNotifications)
+    }
+
+    @Test
+    fun sourceContractsProduceClosedWireValuesAndLeaseCapability() {
+        val capabilities = DeviceCapabilities.android(
+            listOf(
+                HostedSourceContract("apple-health", SourceMultiDeviceMode.REPLICATED),
+                HostedSourceContract("activity-segments", SourceMultiDeviceMode.PARTITIONED),
+            ),
+        )
+
+        assertEquals("replicated", capabilities.multiDeviceModes["apple-health"])
+        assertEquals("partitioned", capabilities.multiDeviceModes["activity-segments"])
+        assertTrue(capabilities.syncLease)
+    }
+
+    /**
+     * The gateway's version ledger reads `version` out of the hello. The
+     * field is deliberately optional on the wire, so a build that stopped
+     * sending it would still connect and simply go silent about which
+     * release it is — nothing but this test would notice.
+     */
+    @Test
+    fun announcesTheAppVersionWhenTheCompositionRootSuppliesOne() {
+        val announced = DeviceCapabilities.android(
+            listOf(HostedSourceContract("health-connect", SourceMultiDeviceMode.PARTITIONED)),
+            version = "9.8.7",
+        )
+        assertEquals("9.8.7", announced.version)
+
+        // A caller that supplies none reports nothing rather than a made-up
+        // version: an absent reading is a supported state on the gateway.
+        assertNull(DeviceCapabilities.android(emptyList()).version)
+    }
+
+    @Test
+    fun announcesThePushAppIdentityWhenTheCompositionRootSuppliesOne() {
+        val announced = DeviceCapabilities.android(
+            emptyList(),
+            pushAppId = "it.manentlabs.app",
+        )
+
+        assertEquals("it.manentlabs.app", announced.pushAppId)
+        assertNull(DeviceCapabilities.android(emptyList()).pushAppId)
+    }
+
+    @Test
+    fun rejectsBlankAndDuplicateSourceContracts() {
+        assertThrows(IllegalArgumentException::class.java) {
+            DeviceCapabilities.android(listOf(HostedSourceContract("")))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            DeviceCapabilities.android(
+                listOf(HostedSourceContract("photos"), HostedSourceContract("photos")),
+            )
+        }
+    }
+
+    /**
+     * The gateway names devices still pinned to a certificate that is about to
+     * renew from the `tls` block of the hello; a phone that never sets a mode
+     * sends no block at all rather than a null.
+     */
+    @Test
+    fun announcesTheTlsModeOnlyOnceTheCompositionRootSetsIt() {
+        val base = DeviceCapabilities.android(emptyList())
+        val bare = OmnesisJson.encodeToJsonElement(DeviceCapabilities.serializer(), base).jsonObject
+        assertFalse(bare.containsKey("tls"))
+
+        val pinned = OmnesisJson.encodeToJsonElement(
+            DeviceCapabilities.serializer(),
+            base.withTlsMode("pinned-leaf"),
+        ).jsonObject
+        assertEquals("pinned-leaf", pinned["tls"]!!.jsonObject["mode"]!!.jsonPrimitive.content)
+        assertEquals("system", base.withTlsMode("pinned-leaf").withTlsMode("system").tls?.mode)
+    }
+}

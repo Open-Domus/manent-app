@@ -1,0 +1,119 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Lorenzo Farnararo
+
+package it.manentlabs.app.transport.dto
+
+import kotlinx.serialization.Serializable
+
+/**
+ * Wire DTOs for the gateway's quick-capture `/notes` surface ("Tell Omnesis").
+ * Older gateway versions may not expose these endpoints.
+ *
+ * Gateway TS shape (the wire contract these mirror):
+ *
+ * ```ts
+ * // POST /notes            body: { id?: string; text: string; capturedAt?: string;
+ * //                                capturedTimeZoneId?: string; capturedUtcOffsetSeconds?: number;
+ * //                                surface?: string; deviceId?: string; taskId?: string }
+ * //                        `id` is a client-generated idempotency key (UUID): a retried
+ * //                        POST with the same id returns the stored entry instead of
+ * //                        creating a duplicate. `capturedTimeZoneId` (an IANA zone) and
+ * //                        `capturedUtcOffsetSeconds` travel as a pair: the gateway rejects
+ * //                        one without the other.
+ * type NoteEntry = {
+ *   id: string;
+ *   day: string;          // "YYYY-MM-DD"
+ *   capturedAt: string;   // ISO 8601
+ *   updatedAt: string;    // ISO 8601
+ *   text: string;
+ *   surface: string | null;
+ *   deviceId: string | null;
+ * };
+ * ```
+ *
+ * Decoded with [OmnesisJson] (forward-compatible: unknown keys ignored,
+ * missing optionals default), so a newer gateway never crashes this client.
+ */
+@Serializable
+data class NoteEntryDto(
+    val id: String,
+    val day: String,
+    val capturedAt: String,
+    val updatedAt: String,
+    val text: String,
+    val surface: String? = null,
+    val deviceId: String? = null,
+    val transcription: String? = null,
+    val transcribedAt: String? = null,
+    val receivedAt: String? = null,
+    val agent: NoteAgentDto? = null,
+    val placeName: String? = null,
+    val taskId: String? = null,
+)
+
+/**
+ * The `note` part of a `POST /notes/voice` upload: the `POST /notes` fields plus the
+ * device [language] (a BCP 47 tag the gateway turns into its transcriber's hint).
+ * [text] is the phone's own transcript, the note's text until the gateway replaces it,
+ * and may be empty.
+ */
+@Serializable
+data class VoiceNoteBody(
+    val id: String,
+    val text: String,
+    val capturedAt: String,
+    val surface: String,
+    val deviceId: String? = null,
+    val language: String? = null,
+    val taskId: String? = null,
+    val capturedTimeZoneId: String? = null,
+    val capturedUtcOffsetSeconds: Int? = null,
+    /** The recorded conversation this audio was clipped from, for a marked moment. */
+    val recordingId: String? = null,
+)
+
+/** `POST /notes/voice` 202: the note is saved and its transcription queued. */
+@Serializable
+data class VoiceNoteAcceptedDto(
+    val id: String,
+    /** `pending` while the gateway transcribes. */
+    val transcription: String? = null,
+)
+
+/** `POST /notes` request body. [id] is the client idempotency key (see the contract above). */
+@Serializable
+data class CreateNoteBody(
+    val text: String,
+    val id: String? = null,
+    val capturedAt: String? = null,
+    val surface: String? = null,
+    val deviceId: String? = null,
+    val taskId: String? = null,
+    val capturedTimeZoneId: String? = null,
+    val capturedUtcOffsetSeconds: Int? = null,
+)
+
+@Serializable
+data class NoteAgentDto(val state: String, val receipt: NoteReceiptDto? = null)
+
+@Serializable
+data class NoteReceiptDto(
+    val text: String = "",
+    val changes: List<NoteChangeDto> = emptyList(),
+    val conversationId: String? = null,
+)
+
+@Serializable
+data class NoteChangeDto(val text: String, val taskId: String? = null, val undoSeq: Long? = null)
+
+@Serializable
+data class NotesHistoryDto(val entries: List<NoteEntryDto>, val pageInfo: NotesPageInfoDto)
+
+@Serializable
+data class NotesPageInfoDto(val hasMore: Boolean = false, val nextCursor: String? = null, val limit: Int = 25)
+
+@Serializable
+data class EditNoteBody(val text: String)
+
+@Serializable
+data class NotesDayDto(val entries: List<NoteEntryDto>)

@@ -11,10 +11,12 @@ connected to send them there.
 | Path | What |
 | --- | --- |
 | `app/` | The app: `wearable/` (the device seam and its adapters), `omnesis/` (the optional Omnesis connection), `ui/` |
-| `vendor/` | Modules copied from Omnesis in their original packages. Never edit by hand: see below |
-| `patches/` | Changes applied to `vendor/` after each copy |
-| `scripts/vendor.sh` | Copies `vendor/` again from an Omnesis checkout and applies `patches/` |
-| `VENDORED.md` | Which ref and commit each vendored module came from |
+| `core-transport/` | Client of the Omnesis gateway: HTTP, device socket, wire types |
+| `core-pairing/` | Pairing the phone with a gateway |
+| `core-designsystem/` | Theme and shared components |
+| `feature-recording/` | Recording from the phone or the wearable, the outbox and its upload |
+| `feature-omi/` | The Omi pendant: link and audio stream |
+| `feature-assist/` | Wake words and voice commands |
 
 ## Build
 
@@ -24,18 +26,6 @@ Needs JDK 17 and the Android SDK (`sdk.dir` in `local.properties`).
 ./gradlew :app:assembleDebug
 ./gradlew testDebugUnitTest
 ```
-
-## Refreshing the vendored code
-
-```
-scripts/vendor.sh                       # upstream/main and baldarn/omi-assist-commands
-UPSTREAM_REF=v0.9.0 scripts/vendor.sh   # another upstream ref
-git diff vendor/                        # what upstream changed
-```
-
-To change a vendored file, edit it, then save the change as a patch:
-`git diff --relative=vendor vendor/ > patches/NNNN-what.patch`, starting from a tree where
-`vendor/` matches the last copy.
 
 ## Omnesis
 
@@ -50,4 +40,4 @@ then paste the QR payload, or the URL and code, under Omnesis → Connect.
 
 ## Licence
 
-MIT, see `LICENSE`. The vendored code comes from Omnesis, which is AGPL-3.0 upstream; the copy here is under MIT.
+MIT, see `LICENSE`.

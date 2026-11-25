@@ -2,9 +2,9 @@
 
 package it.manentlabs.app.omnesis
 
-import dev.omnesis.android.transport.client.NotesClient
-import dev.omnesis.android.transport.http.GatewayHttp
-import dev.omnesis.android.transport.http.postBody
+import it.manentlabs.app.transport.client.NotesClient
+import it.manentlabs.app.transport.http.GatewayHttp
+import it.manentlabs.app.transport.http.postBody
 import java.io.File
 import kotlinx.serialization.Serializable
 import okhttp3.MediaType.Companion.toMediaType

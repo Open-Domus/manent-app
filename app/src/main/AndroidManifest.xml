@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Manent. The pendant link, the recorder and the voice-command listener
-  come from the vendored modules' manifests, merged here.
+  come from the feature modules' manifests, merged here.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
