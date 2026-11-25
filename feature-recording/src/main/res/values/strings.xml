@@ -51,7 +51,7 @@
     <string name="recording_wearable_fallback">wearable</string>
     <string name="recording_wearable_lost">The %1$s is not connected. Recording resumes when it is back.</string>
     <string name="recording_mic_busy">The microphone is in use by another app. Resume to try again.</string>
-    <string name="recording_ambient_hint">This conversation is kept until three minutes pass without speech; the next starts on its own. Tap the %1$s to mark a moment.</string>
+    <string name="recording_ambient_hint">This conversation is kept until a minute and a half passes without speech; the next starts on its own. Tap the %1$s to mark a moment.</string>
     <plurals name="recording_parts_saved">
         <item quantity="one">%d part saved · the screen can turn off</item>
         <item quantity="other">%d parts saved · the screen can turn off</item>

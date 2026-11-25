@@ -16,6 +16,11 @@ import java.util.concurrent.Executors
  * chunk of [ChunkPolicy.TARGET_CHUNK_MS] of audio, so the speech check, the
  * outbox and the gateway see no difference.
  *
+ * With a [detector], the speech is judged as it is written: a chunk that held
+ * speech closes at the first pause of [ChunkPolicy.CHUNK_PAUSE_MS] once it is
+ * [ChunkPolicy.MIN_CHUNK_MS] long, so it reaches the gateway soon after the
+ * sentence ends and the cut falls between sentences.
+ *
  * Audio time follows the wall clock. A wearable stops sending while it hears
  * nothing (its microphone sleeps) and loses a frame now and then; frames
  * arriving later than [PAD_AFTER_MS] past where the audio has got to are
@@ -43,6 +48,8 @@ class FrameAudioRecorder(
     private val clock: () -> Long = System::currentTimeMillis,
     /** Cuts marked moments out of the stream; null when moments are not marked. Used on the worker only. */
     private val clipper: MomentClipper? = null,
+    /** Judges speech so a chunk can close at a pause; null closes chunks on length alone. Used on the worker only. */
+    private val detector: SpeechDetector? = null,
 ) : ChunkRecorder {
 
     private class Open(val seq: Int, val file: File, val encoder: PcmChunkEncoder, val startedAtMs: Long) {
@@ -56,6 +63,14 @@ class FrameAudioRecorder(
     /** End of the audio written so far in this run, wall clock; null before the first frame. */
     private var audioEndMs: Long? = null
     private var interrupted = false
+    // Speech heard on the worker, for closing a chunk at a pause.
+    private val frame = FloatArray(ChunkPolicy.FRAME_SAMPLES)
+    private var framed = 0
+    private var quietFrames = 0
+    /** The chunk being written held speech. */
+    private var heardSpeech = false
+    /** False once the detector failed: chunks then close on length alone. */
+    private var listening = detector != null
 
     @Volatile private var streaming = false
     @Volatile private var nextSeq = 0
@@ -117,6 +132,7 @@ class FrameAudioRecorder(
 
     override fun stop() {
         pause()
+        onWorker { (detector as? AutoCloseable)?.close() }
         worker.shutdown()
     }
 
@@ -163,6 +179,7 @@ class FrameAudioRecorder(
             end == null -> startsAt
             startsAt - end > GAP_CLOSE_MS -> {
                 closeCurrent()
+                forgetSpeech()
                 // The wearable heard nothing: the marked moment, if any, ended here.
                 clipper?.finish()
                 fileGap(end, startsAt)
@@ -177,7 +194,7 @@ class FrameAudioRecorder(
         write(pcm, at)
     }
 
-    /** Append [pcm] starting at [atMs], rotating chunks at the target length. */
+    /** Append [pcm] starting at [atMs], rotating chunks at the target length or at a pause after speech. */
     private fun write(pcm: ShortArray, atMs: Long) {
         var at = 0
         var time = atMs
@@ -185,14 +202,46 @@ class FrameAudioRecorder(
             val open = current ?: openChunk(time)
             val room = (TARGET_SAMPLES - open.samples).toInt()
             val n = minOf(room, pcm.size - at)
-            open.encoder.write(if (at == 0 && n == pcm.size) pcm else pcm.copyOfRange(at, at + n))
+            val part = if (at == 0 && n == pcm.size) pcm else pcm.copyOfRange(at, at + n)
+            open.encoder.write(part)
             open.samples += n
             at += n
             time = open.endMs
-            if (open.samples >= TARGET_SAMPLES) closeCurrent()
+            listen(part)
+            if (open.samples >= TARGET_SAMPLES || pausedAfterSpeech(open)) closeCurrent()
         }
         audioEndMs = time
         clipper?.let { c -> guarded { c.offer(pcm, time) } }
+    }
+
+    /** Judge [pcm] a detector frame at a time; a frame straddling two chunks counts for the second. */
+    private fun listen(pcm: ShortArray) {
+        val d = detector ?: return
+        if (!listening) return
+        for (sample in pcm) {
+            frame[framed++] = sample / 32768f
+            if (framed < frame.size) continue
+            framed = 0
+            val speech = try {
+                d.probability(frame)
+            } catch (e: Exception) {
+                Log.w(TAG, "Speech detector failed; chunks close on length alone: ${e.message}")
+                listening = false
+                return
+            }
+            if (speech >= ChunkPolicy.SPEECH_THRESHOLD) heardSpeech = true
+            quietFrames = if (speech < ChunkPolicy.SPEECH_END_THRESHOLD) quietFrames + 1 else 0
+        }
+    }
+
+    private fun pausedAfterSpeech(open: Open): Boolean =
+        heardSpeech && open.samples >= MIN_SAMPLES && quietFrames * ChunkPolicy.FRAME_MS >= ChunkPolicy.CHUNK_PAUSE_MS
+
+    /** The stream broke off: what follows is judged afresh. */
+    private fun forgetSpeech() {
+        if (listening) guarded { detector?.reset() }
+        framed = 0
+        quietFrames = 0
     }
 
     /** A number is taken only once its file is open, so one that fails to open leaves no hole. */
@@ -207,6 +256,7 @@ class FrameAudioRecorder(
     private fun closeCurrent() {
         val open = current ?: return
         current = null
+        heardSpeech = false
         try {
             open.encoder.finish()
         } catch (e: Exception) {
@@ -229,6 +279,7 @@ class FrameAudioRecorder(
     private fun endRun() {
         clipper?.let { c -> guarded { c.reset() } }
         closeCurrent()
+        forgetSpeech()
         releaseDecoder()
         audioEndMs = null
     }
@@ -265,6 +316,7 @@ class FrameAudioRecorder(
     companion object {
         private const val TAG = "Manent:Recording"
         private const val TARGET_SAMPLES = ChunkPolicy.TARGET_CHUNK_MS * ChunkPolicy.SAMPLE_RATE_HZ / 1000
+        private const val MIN_SAMPLES = ChunkPolicy.MIN_CHUNK_MS * ChunkPolicy.SAMPLE_RATE_HZ / 1000
 
         /** Lateness beyond the link's own jitter: the audio is padded with silence up to the frame. */
         const val PAD_AFTER_MS = 300L

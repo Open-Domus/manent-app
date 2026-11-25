@@ -34,7 +34,7 @@ class FrameAudioRecorderTest {
 
     private val recorder = recorder()
 
-    private fun recorder(clipper: MomentClipper? = null) = FrameAudioRecorder(
+    private fun recorder(clipper: MomentClipper? = null, detector: SpeechDetector? = null) = FrameAudioRecorder(
         directory = dir,
         input = input,
         onChunk = { chunks += it },
@@ -47,11 +47,12 @@ class FrameAudioRecorderTest {
         worker = DirectExecutor(),
         postToMain = { it.run() },
         clipper = clipper,
+        detector = detector,
     )
 
-    /** Send [count] frames 20 ms apart, the first arriving at [fromMs]. */
-    private fun frames(count: Int, fromMs: Long) {
-        repeat(count) { input.sink!!.onFrame(byteArrayOf(1), fromMs + it * 20L) }
+    /** Send [count] frames 20 ms apart, the first arriving at [fromMs]; [level] 1 is quiet, [SPEECH] is speech. */
+    private fun frames(count: Int, fromMs: Long, level: Byte = 1) {
+        repeat(count) { input.sink!!.onFrame(byteArrayOf(level), fromMs + it * 20L) }
     }
 
     @Test fun aSteadyStreamIsOneChunkTimedFromItsFirstFrame() {
@@ -217,6 +218,61 @@ class FrameAudioRecorderTest {
         assertEquals(10 * 320, written["chunk-00000.m4a"])
     }
 
+    @Test fun aChunkWithSpeechClosesAtThePauseAfterTheMinimumLength() {
+        val recorder = recorder(detector = FakeDetector())
+        recorder.start()
+        frames(600, fromMs = 20, level = SPEECH) // 12 s of speech, 375 detector frames
+        frames(50, fromMs = 12_020) // 1 s of quiet
+        recorder.stop()
+
+        assertEquals(listOf(0, 1), chunks.map { it.seq })
+        // The pause counts once 22 detector frames (704 ms) are quiet: 36 frames of 20 ms in.
+        assertEquals(12_720L, chunks[0].durationMs)
+        assertEquals(chunks[0].startedAtMs + chunks[0].durationMs, chunks[1].startedAtMs)
+        assertEquals(280L, chunks[1].durationMs)
+    }
+
+    @Test fun aPauseBeforeTheMinimumLengthLeavesTheChunkOpen() {
+        val recorder = recorder(detector = FakeDetector())
+        recorder.start()
+        frames(250, fromMs = 20, level = SPEECH) // 5 s
+        frames(50, fromMs = 5_020) // 1 s of quiet
+        frames(100, fromMs = 6_020, level = SPEECH) // 2 s
+        recorder.stop()
+
+        assertEquals(1, chunks.size)
+        assertEquals(8_000L, chunks[0].durationMs)
+    }
+
+    @Test fun quietAloneRunsToTheTargetLength() {
+        val recorder = recorder(detector = FakeDetector())
+        recorder.start()
+        frames(3_001, fromMs = 20)
+        recorder.stop()
+
+        assertEquals(ChunkPolicy.TARGET_CHUNK_MS, chunks[0].durationMs)
+    }
+
+    @Test fun aFailingDetectorLeavesChunksToTheirLength() {
+        val recorder = recorder(detector = FakeDetector(fails = true))
+        recorder.start()
+        frames(600, fromMs = 20, level = SPEECH)
+        frames(50, fromMs = 12_020)
+        recorder.stop()
+
+        assertEquals(1, chunks.size)
+        assertEquals(13_000L, chunks[0].durationMs)
+    }
+
+    /** Speech wherever a sample is louder than a quiet frame's. */
+    private class FakeDetector(private val fails: Boolean = false) : SpeechDetector {
+        override fun reset() = Unit
+        override fun probability(frame: FloatArray): Float {
+            check(!fails) { "no model" }
+            return if (frame.any { it > 0.02f }) 1f else 0f
+        }
+    }
+
     private class FakeWearable : WearableAudio {
         var accept = true
         var sink: WearableAudio.FrameSink? = null
@@ -238,7 +294,7 @@ class FrameAudioRecorderTest {
     private class FakeDecoder : OpusDecoder {
         override fun decode(frame: ByteArray): ShortArray {
             require(frame.isNotEmpty()) { "corrupt frame" }
-            return ShortArray(320) { 100 }
+            return ShortArray(320) { (frame[0] * 100).toShort() }
         }
         override fun close() = Unit
     }
@@ -252,6 +308,11 @@ class FrameAudioRecorderTest {
             written[file.name] = samples
             file.writeBytes(if (samples > 0) byteArrayOf(1) else byteArrayOf())
         }
+    }
+
+    private companion object {
+        /** A frame level the fake detector hears as speech. */
+        const val SPEECH: Byte = 9
     }
 
     private class DirectExecutor : AbstractExecutorService() {

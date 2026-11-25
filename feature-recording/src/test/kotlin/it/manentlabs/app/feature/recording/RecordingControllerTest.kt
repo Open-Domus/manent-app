@@ -41,29 +41,32 @@ class RecordingControllerTest {
     private fun chunkFile(name: String) = File(root, name).apply { writeBytes(byteArrayOf(1, 2, 3)) }
 
     /** File chunk [seq] of [sessionId], a minute long from the session's start, with speech or not. */
-    private fun minute(sessionId: String, seq: Int, speech: Boolean) {
+    private fun minute(sessionId: String, seq: Int, speech: Boolean) = chunk(sessionId, seq, speech, 60_000L)
+
+    /** Chunk [seq] of [lengthMs], every chunk before it as long. */
+    private fun chunk(sessionId: String, seq: Int, speech: Boolean, lengthMs: Long) {
         val file = chunkFile(ChunkPolicy.fileName(seq))
         if (!speech) verdicts[file.name] = ChunkSpeech(SpeechVerdict.NoSpeech, speechAtEnd = false)
-        controller.chunkClosed(sessionId, RecordedChunk(seq, now + seq * 60_000L, 60_000, file, interrupted = false))
+        controller.chunkClosed(sessionId, RecordedChunk(seq, now + seq * lengthMs, lengthMs, file, interrupted = false))
     }
 
-    @Test fun anAmbientEpisodeIsOverAfterThreeMinutesWithoutSpeech() = runTest {
+    @Test fun anAmbientEpisodeIsOverAfterAMinuteAndAHalfWithoutSpeech() = runTest {
         val over = Collections.synchronizedList(mutableListOf<String>())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { controller.episodesOver.collect { over += it } }
         val active = controller.begin(null, ambient = true)!!
         assertTrue(active.ambient)
         assertTrue(outbox.sessionsById[active.sessionId]!!.ambient)
 
-        minute(active.sessionId, 0, speech = true)
-        minute(active.sessionId, 1, speech = false)
-        minute(active.sessionId, 2, speech = true) // the conversation picks up again
-        minute(active.sessionId, 3, speech = false)
-        minute(active.sessionId, 4, speech = false)
+        fun halfMinute(seq: Int, speech: Boolean) = chunk(active.sessionId, seq, speech, 30_000L)
+        halfMinute(0, speech = true)
+        halfMinute(1, speech = false)
+        halfMinute(2, speech = true) // the conversation picks up again
+        halfMinute(3, speech = false)
+        halfMinute(4, speech = false) // a minute quiet since chunk 2 ended
         controller.flush()
         assertTrue(over.isEmpty())
 
-        minute(active.sessionId, 5, speech = false) // three quiet minutes since minute 2 ended
-        minute(active.sessionId, 6, speech = false)
+        halfMinute(5, speech = false) // a minute and a half
         controller.flush()
         assertEquals(listOf(active.sessionId), over)
     }

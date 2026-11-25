@@ -346,7 +346,7 @@ class RecordingController(
         private const val TAG = "Manent:Recording"
 
         /** An ambient episode ends after this long without speech. */
-        const val EPISODE_QUIET_MS = 3 * 60_000L
+        const val EPISODE_QUIET_MS = 90_000L
     }
 }
 

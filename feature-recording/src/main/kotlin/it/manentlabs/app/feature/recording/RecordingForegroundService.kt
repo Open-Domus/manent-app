@@ -199,6 +199,7 @@ class RecordingForegroundService : Service() {
                     onChunk = { chunk -> controller.chunkClosed(id, chunk) },
                     onInputLost = ::onWearableLost,
                     clipper = if (ambient) clipperFor(id) else null,
+                    detector = SileroSpeechDetector { assets.open(SileroSpeechDetector.MODEL_ASSET).use { it.readBytes() } },
                 )
             }
             if (!r.start()) {

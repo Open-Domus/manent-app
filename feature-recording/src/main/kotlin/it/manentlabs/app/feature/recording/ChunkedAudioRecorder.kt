@@ -39,6 +39,16 @@ object ChunkPolicy {
     const val FILE_EXTENSION = "m4a"
     /** About a minute of audio per chunk at [BIT_RATE]. */
     const val TARGET_CHUNK_MS = 60_000L
+    /*
+     * A recorder that hears the speech as it writes (the wearable's) closes a
+     * chunk that held speech at the first pause of [CHUNK_PAUSE_MS] once the
+     * chunk is [MIN_CHUNK_MS] long, so the gateway transcribes a sentence
+     * seconds after it is said instead of up to a minute later. A chunk of
+     * silence alone still runs to [TARGET_CHUNK_MS]: there is nothing to
+     * transcribe in it.
+     */
+    const val MIN_CHUNK_MS = 10_000L
+    const val CHUNK_PAUSE_MS = 700L
     /** Samples per voice-detector frame: 32 ms at [SAMPLE_RATE_HZ], the window Silero VAD takes. */
     const val FRAME_SAMPLES = 512
     /*

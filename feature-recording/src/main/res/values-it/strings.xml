@@ -47,7 +47,7 @@
     <string name="recording_wearable_fallback">il dispositivo indossabile</string>
     <string name="recording_wearable_lost">Nessuna connessione con %1$s. La registrazione riprende quando torna disponibile.</string>
     <string name="recording_mic_busy">Il microfono è in uso da un\'altra app. Riprendi per riprovare.</string>
-    <string name="recording_ambient_hint">Questa conversazione continua finché non passano tre minuti senza parlato; la successiva parte da sola. Tocca %1$s per segnare un momento.</string>
+    <string name="recording_ambient_hint">Questa conversazione continua finché non passa un minuto e mezzo senza parlato; la successiva parte da sola. Tocca %1$s per segnare un momento.</string>
     <plurals name="recording_parts_saved">
         <item quantity="one">%d parte salvata · lo schermo può spegnersi</item>
         <item quantity="other">%d parti salvate · lo schermo può spegnersi</item>
