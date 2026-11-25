@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home: each section opens on a small label (the eyebrow) and a serif title -->
+    <string name="home_pendant_label">Pendant</string>
+    <string name="home_pendant_title" translatable="false">Omi</string>
+    <string name="home_recordings_label">Recordings</string>
+    <string name="home_recordings_title">Conversations</string>
+    <string name="home_voice_label">Voice</string>
+    <string name="home_gateway_label">Gateway</string>
+    <string name="home_gateway_title" translatable="false">Omnesis</string>
+
+    <string name="home_recordings_lede">Record a conversation from the phone or the pendant; your gateway turns it into a transcript.</string>
+    <string name="home_recordings_record">Record</string>
+    <string name="home_recordings_open">Open recordings</string>
+    <plurals name="home_recordings_waiting">
+        <item quantity="one">%d recording waiting to be sent</item>
+        <item quantity="other">%d recordings waiting to be sent</item>
+    </plurals>
+
+    <string name="home_voice_settings">Settings</string>
+
+    <!-- A short state word over the gateway's name -->
+    <string name="home_gateway_checking">Checking</string>
+    <string name="home_gateway_unreachable">Unreachable</string>
+    <string name="home_gateway_attention">Needs attention</string>
+    <string name="home_gateway_ready">Connected</string>
+
+    <!-- %1$s: the app's version, e.g. 0.1.1 -->
+    <string name="home_footer">Manent · version %1$s</string>
+</resources>

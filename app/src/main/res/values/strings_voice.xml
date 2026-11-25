@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="voice_title">Voice commands</string>
+    <string name="voice_intro">Say a wake word, then a command, and the destination you picked for that word carries it out. The phone listens to the pendant only for wake words, sends just the command that follows, and records nothing. Two short buzzes mean done; one long buzz means it did not work.</string>
+
+    <!-- Section headings -->
+    <string name="voice_section_wake_words">Wake words</string>
+    <string name="voice_section_models">Models</string>
+    <string name="voice_section_phone_actions">Phone actions</string>
+    <string name="voice_section_transcription">Transcription</string>
+
+    <!-- Names that stay as they are in every language -->
+    <string name="voice_home_assistant" translatable="false">Home Assistant</string>
+    <string name="voice_webhook_placeholder" translatable="false">https://automation.example.com/hook</string>
+    <string name="voice_home_assistant_placeholder" translatable="false">http://homeassistant.local:8123</string>
+    <string name="voice_route_arrow" translatable="false">→</string>
+
+    <!-- Wake words and where they go -->
+    <string name="voice_add_wake_word">Add a wake word</string>
+    <string name="voice_choose_word">Choose a word</string>
+    <!-- %1$s: the wake word, e.g. ok home -->
+    <string name="voice_word">“%1$s”</string>
+    <!-- %1$s: a wake word the owner imported -->
+    <string name="voice_word_imported">“%1$s” · imported</string>
+    <string name="voice_remove_wake_word">Remove this wake word</string>
+    <string name="voice_destination_webhook">Webhook</string>
+    <string name="voice_destination_phone">This phone</string>
+    <string name="voice_phone_hint">Timers, alarms, directions, music, calls and more: see Phone actions below.</string>
+    <string name="voice_problem_word_gone">This wake word is no longer available; pick another one.</string>
+    <string name="voice_problem_import_missing">The imported model is gone; import it again.</string>
+    <string name="voice_problem_download">Its model still needs downloading.</string>
+    <string name="voice_problem_home_assistant">Home Assistant is not set up yet.</string>
+    <string name="voice_problem_webhook">Add the webhook address.</string>
+    <string name="voice_overlay_needed">To carry out phone actions, Manent needs permission to display over other apps. It never shows anything on top of them.</string>
+    <string name="voice_allow">Allow</string>
+    <string name="voice_save">Save</string>
+
+    <!-- Webhook destination -->
+    <string name="voice_webhook_address">Webhook address</string>
+    <string name="voice_webhook_secret">Bearer secret (optional)</string>
+    <string name="voice_webhook_secret_saved">Bearer secret saved; type a new one to replace it</string>
+    <string name="voice_webhook_hint">The command arrives as text, in JSON.</string>
+
+    <!-- Models -->
+    <string name="voice_models_ready">The models for every wake word are on this phone.</string>
+    <string name="voice_models_explained">The models do not ship with the app. They are downloaded to this phone from where their authors publish them, and checked before use:</string>
+    <!-- %1$s: wake word; %2$s: where its model comes from and under which licence -->
+    <string name="voice_model_origin">• “%1$s”: %2$s</string>
+    <string name="voice_origin_openwakeword">openWakeWord project, for non-commercial use only (CC BY-NC-SA 4.0)</string>
+    <string name="voice_origin_community">Home Assistant community wake-word collection (MIT)</string>
+    <string name="voice_origin_imported">imported on this phone</string>
+    <string name="voice_download_models">Download the models</string>
+    <string name="voice_downloading">Downloading…</string>
+    <string name="voice_models_custom_hint">Any openWakeWord model works too, such as one you trained with Home Assistant\'s wake-word notebook or one from a community collection.</string>
+    <string name="voice_import_model">Import a model (.onnx)</string>
+
+    <!-- Home Assistant -->
+    <string name="voice_home_assistant_hint">Home Assistant listens to the command itself, with the assistant you pick.</string>
+    <string name="voice_home_assistant_address">Home Assistant address</string>
+    <string name="voice_home_assistant_token">Long-lived access token</string>
+    <string name="voice_home_assistant_token_saved">Access token saved; type a new one to replace it</string>
+    <string name="voice_home_assistant_token_placeholder">Create one in your Home Assistant profile</string>
+    <string name="voice_save_and_test">Save and test</string>
+    <string name="voice_check_ok">Connected to Home Assistant.</string>
+    <!-- %1$s: Home Assistant's version, e.g. 2026.11.2 -->
+    <string name="voice_check_ok_version">Connected to Home Assistant %1$s.</string>
+    <string name="voice_check_bad_token">Home Assistant did not accept the token.</string>
+    <!-- %1$s: a short technical reason, e.g. timeout -->
+    <string name="voice_check_unreachable">Could not reach Home Assistant (%1$s).</string>
+    <string name="voice_pipeline_label">Assistant</string>
+    <string name="voice_pipeline_preferred">Preferred</string>
+    <!-- %1$s: the name of Home Assistant's preferred assistant -->
+    <string name="voice_pipeline_preferred_named">Preferred (%1$s)</string>
+    <!-- %1$s: assistant name; %2$s: its language -->
+    <string name="voice_pipeline_option" translatable="false">%1$s · %2$s</string>
+
+    <!-- Phone actions -->
+    <string name="voice_phone_actions_hint">What wake words for this phone can do, and which app does it. An action no app on the phone handles is not available.</string>
+    <string name="voice_no_app">No app on this phone</string>
+    <plurals name="voice_app_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d apps</item>
+    </plurals>
+    <string name="voice_choose_app">Choose an app</string>
+    <string name="voice_choose_app_warning">Pick the app that should do it.</string>
+    <string name="voice_calling_needed">To call people by name, allow access to contacts and calls. Without it, a spoken number opens the dialer.</string>
+    <string name="voice_action_timer">Timers</string>
+    <string name="voice_action_alarm">Alarms</string>
+    <string name="voice_action_navigate">Directions</string>
+    <string name="voice_action_music">Music</string>
+    <string name="voice_action_open_app">Opening apps</string>
+    <string name="voice_action_call">Calls</string>
+    <string name="voice_action_calendar">Calendar events</string>
+    <string name="voice_action_share">Notes and lists</string>
+    <!-- Example commands, in Italian in every language -->
+    <string name="voice_example_timer" translatable="false">“timer di 10 minuti”</string>
+    <string name="voice_example_alarm" translatable="false">“sveglia alle 7:30”</string>
+    <string name="voice_example_navigate" translatable="false">“naviga verso la stazione”</string>
+    <string name="voice_example_music" translatable="false">“metti un po\' di jazz”</string>
+    <string name="voice_example_open_app" translatable="false">“apri la fotocamera”</string>
+    <string name="voice_example_call" translatable="false">“chiama Maya Reeves”</string>
+    <string name="voice_example_calendar" translatable="false">“appuntamento dal dentista domani alle 15”</string>
+    <string name="voice_example_share" translatable="false">“aggiungi alla lista latte”</string>
+    <!-- Title of a calendar event whose command named nothing else -->
+    <string name="voice_event_default_title">Event</string>
+
+    <!-- Transcription -->
+    <string name="voice_transcription_hint">Webhooks and phone actions get the command as text, transcribed by your gateway.</string>
+    <!-- %1$s: why the gateway cannot transcribe now -->
+    <string name="voice_transcription_unavailable">Unavailable: %1$s</string>
+    <!-- %1$s: time taken; %2$s: length of the audio -->
+    <string name="voice_timing">Last command: transcribed in %1$s from %2$s of audio.</string>
+    <string name="voice_timing_nothing_heard">Last command: %1$s for %2$s of audio, and nothing was recognised.</string>
+    <string name="voice_seconds">%1$.1f s</string>
+
+    <!-- Switch and errors -->
+    <string name="voice_listen">Listen for wake words</string>
+    <string name="voice_listen_needs_setup">Finish setting up at least one wake word first.</string>
+    <string name="voice_forget">Forget voice commands</string>
+    <string name="voice_error_home_assistant_address">Enter the Home Assistant address starting with http:// or https://</string>
+    <string name="voice_error_webhook_address">Enter the webhook address starting with http:// or https://</string>
+    <!-- %1$s: technical reason, e.g. "melspectrogram.onnx: HTTP 404" -->
+    <string name="voice_error_download">The wake-word models could not be downloaded: %1$s</string>
+    <!-- %1$s: why, one of the voice_import_* texts or a technical message -->
+    <string name="voice_error_import">The file was not imported: %1$s</string>
+    <string name="voice_error_unreadable">That file could not be read.</string>
+    <string name="voice_import_not_onnx">pick an openWakeWord .onnx file</string>
+    <string name="voice_import_cannot_open">it could not be opened</string>
+    <string name="voice_import_no_name">the file has no name</string>
+    <string name="voice_import_too_large">it is too big to be a wake-word model</string>
+    <!-- %1$s: the wake word -->
+    <string name="voice_import_exists">there is already a wake word called “%1$s”</string>
+    <string name="voice_import_not_classifier">it is not a wake-word model this phone can run</string>
+    <!-- Section titles on the Voice commands screen; the labels above them are the section headings -->
+    <string name="voice_words_title">What you say, where it goes</string>
+    <string name="voice_models_title">Heard on the phone</string>
+    <string name="voice_home_assistant_title">Your home</string>
+    <string name="voice_phone_actions_title">What the phone can do</string>
+    <string name="voice_transcription_title">From voice to text</string>
+
+    <!-- Voice commands on Home -->
+    <string name="voice_status_listening">Listening</string>
+    <string name="voice_status_off">Off</string>
+    <string name="voice_status_needs_setup">Needs setting up</string>
+    <string name="voice_summary_none">No wake word yet.</string>
+    <!-- %1$s: a wake word; %2$s: where its commands go -->
+    <string name="voice_summary_route" translatable="false">%1$s → %2$s</string>
+    <!-- %1$s: a wake word; %2$s: what keeps it from working -->
+    <string name="voice_summary_problem" translatable="false">%1$s: %2$s</string>
+    <string name="voice_summary_separator" translatable="false">" · "</string>
+</resources>

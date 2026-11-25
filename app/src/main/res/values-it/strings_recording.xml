@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Schermata Registrazioni -->
+    <string name="recording_screen_title">Registrazioni</string>
+    <string name="recording_dismiss">Chiudi</string>
+    <string name="recording_queue_title">Da inviare</string>
+    <string name="recording_untitled">Conversazione</string>
+
+    <!-- Avvio. %1$s: il nome del dispositivo indossabile, con l'articolo se serve -->
+    <string name="recording_start_title">Registra una conversazione</string>
+    <string name="recording_start_body_wearable">Registra con %1$s che porti addosso, anche a schermo spento, e invia la conversazione al tuo gateway Omnesis, che la trasforma in una trascrizione in cui cercare.</string>
+    <string name="recording_start_body_phone">Appoggia il telefono sul tavolo. Registra anche a schermo spento e invia la conversazione al tuo gateway Omnesis, che la trasforma in una trascrizione in cui cercare.</string>
+    <string name="recording_input_phone">Microfono del telefono</string>
+    <string name="recording_input_hint">Avvia usa la sorgente scelta qui. Toccando %1$s si registra sempre da %1$s.</string>
+    <string name="recording_title_field">Titolo (facoltativo)</string>
+    <string name="recording_wifi_only">Invia solo con Wi-Fi</string>
+    <string name="recording_wifi_only_hint">Si registra anche offline; le parti partono appena c\'è connessione.</string>
+    <string name="recording_mic_denied">Per registrare serve il microfono. Concedi l\'accesso e avvia di nuovo.</string>
+    <string name="recording_starting">Avvio in corso…</string>
+    <string name="recording_start">Avvia registrazione</string>
+    <string name="recording_consent_hint">Avvisa i presenti che stai registrando.</string>
+
+    <!-- Registrazione in corso -->
+    <string name="recording_paused">In pausa</string>
+    <string name="recording_ambient_with">Acquisizione delle conversazioni con %1$s</string>
+    <string name="recording_with">Registrazione con %1$s</string>
+    <string name="recording_in_progress">Registrazione in corso</string>
+    <string name="recording_wearable_fallback">il dispositivo indossabile</string>
+    <string name="recording_wearable_lost">%1$s non è collegato. La registrazione riprende quando torna.</string>
+    <string name="recording_mic_busy">Un\'altra app sta usando il microfono. Tocca Riprendi per riprovare.</string>
+    <string name="recording_ambient_hint">Questa conversazione continua finché nessuno parla per un minuto e mezzo; poi la successiva parte da sola. Tocca %1$s per segnare un momento.</string>
+    <plurals name="recording_parts_saved">
+        <item quantity="one">%d parte salvata · lo schermo può spegnersi</item>
+        <item quantity="other">%d parti salvate · lo schermo può spegnersi</item>
+        <item quantity="many">%d parti salvate · lo schermo può spegnersi</item>
+    </plurals>
+    <string name="recording_pause">Pausa</string>
+    <string name="recording_resume">Riprendi</string>
+    <string name="recording_stop">Interrompi</string>
+    <string name="recording_turn_off">Disattiva</string>
+
+    <!-- Registrazione non disponibile -->
+    <string name="recording_unavailable_title">Registrazione non disponibile</string>
+    <string name="recording_unavailable_transcription_off">Sul gateway la trascrizione è disattivata. Attivala nelle sue impostazioni per registrare le conversazioni.</string>
+    <string name="recording_unavailable_not_paired">Per registrare serve un gateway Omnesis a cui inviare le conversazioni. Collegane uno dalla schermata principale.</string>
+    <string name="recording_unavailable_gateway">Questo gateway non accetta registrazioni: servono la modalità sperimentale e un trascrittore assegnato.</string>
+
+    <!-- Registrazioni da inviare -->
+    <string name="recording_delete">Elimina registrazione</string>
+    <string name="recording_status_waiting">In attesa di invio</string>
+    <plurals name="recording_status_uploading">
+        <item quantity="one">%d parte ancora da inviare</item>
+        <item quantity="other">%d parti ancora da inviare</item>
+        <item quantity="many">%d parti ancora da inviare</item>
+    </plurals>
+    <string name="recording_status_refused">Non inviata: %1$s</string>
+    <string name="recording_delete_reconnect">Ricollegati al gateway per eliminare questa registrazione.</string>
+    <string name="recording_delete_failed">Non è stato possibile eliminare la registrazione. Riprova.</string>
+
+
+    <!-- Notifica. %1$s: il dispositivo indossabile o "il microfono", con l'articolo -->
+    <string name="recording_channel_name">Registrazione delle conversazioni</string>
+    <string name="recording_channel_description">Visibile mentre Manent registra una conversazione</string>
+    <string name="recording_notification_paused">Registrazione in pausa</string>
+    <string name="recording_notification_ambient">Acquisizione delle conversazioni</string>
+    <string name="recording_notification_active">Registrazione della conversazione</string>
+    <string name="recording_notification_wearable_lost">%1$s non è collegato. La registrazione riprende quando torna</string>
+    <string name="recording_notification_mic_busy">Il microfono è occupato altrove. Tocca Riprendi per riprovare</string>
+    <string name="recording_notification_paused_text">Tocca Riprendi per continuare</string>
+    <string name="recording_notification_ambient_text">Manent conserva ciò che sente %1$s. Tocca %1$s per segnare un momento</string>
+    <string name="recording_notification_active_text">Manent sta registrando con %1$s</string>
+    <string name="recording_microphone">il microfono</string>
+    <string name="recording_now_label">Adesso</string>
+    <string name="recording_new_label">Nuova</string>
+    <string name="recording_queue_label">Sul telefono</string>
+</resources>

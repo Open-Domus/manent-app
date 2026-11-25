@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Home Assistant on a home network usually answers on plain http
+  (http://homeassistant.local:8123), and a webhook may too, so plain traffic
+  is allowed. The Omnesis gateway client refuses anything but https itself.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

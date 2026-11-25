@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="omi_pendant">Omi pendant</string>
+
+    <!-- One-line status: card, recordings row, details title and notification -->
+    <string name="omi_status_not_paired">No pendant linked</string>
+    <string name="omi_status_disconnected">Omi not connected</string>
+    <string name="omi_status_connecting">Connecting to Omi…</string>
+    <string name="omi_status_connected">Omi connected</string>
+    <!-- %1$d: battery percentage -->
+    <string name="omi_status_connected_battery">Omi connected · %1$d%%</string>
+    <string name="omi_status_unsupported">Omi firmware not supported</string>
+
+    <!-- Link notification -->
+    <string name="omi_notification_text">Tap the pendant to start or stop recording</string>
+    <string name="omi_notification_channel_description">Shown while Manent keeps the pendant connected</string>
+
+    <!-- Pairing -->
+    <string name="omi_error_nearby_permission">Manent needs the Nearby devices permission to link the pendant.</string>
+    <string name="omi_intro">Record with an Omi worn around your neck. Tap the pendant once to start recording (one short buzz), tap again to stop (two buzzes).</string>
+    <string name="omi_intro_disconnect_app">First unlink the pendant from the Omi app. The pendant talks to one phone app at a time, and that app sends the audio to its own servers.</string>
+    <string name="omi_pairing_unsupported">This phone does not support linking companion devices</string>
+    <string name="omi_pairing_not_found">No pendant found</string>
+    <string name="omi_looking">Looking for the pendant…</string>
+    <string name="omi_link">Link an Omi</string>
+
+    <!-- Card -->
+    <string name="omi_capture_all_day">Capture all day</string>
+    <string name="omi_capture_all_day_description">Records each conversation the pendant hears as its own recording. Tap the pendant to keep a moment as a note: roughly the last 30 seconds plus whatever follows, until the next pause.</string>
+    <string name="omi_details">Details</string>
+    <string name="omi_forget">Forget this pendant</string>
+    <string name="omi_link_encrypted">Encrypted link</string>
+    <string name="omi_link_not_encrypted">Link not encrypted</string>
+    <string name="omi_detail_not_encrypted">Pairing did not finish, so the link is not encrypted. Forget the pendant and link it again.</string>
+    <string name="omi_detail_capturing">Capturing all day. Tap the pendant to mark a moment.</string>
+    <string name="omi_detail_tap_mute">Tap the pendant to start or stop recording. Its microphone stays off in between.</string>
+    <string name="omi_detail_tap_no_mute">Tap the pendant to start or stop recording. This firmware cannot turn the microphone off: near the phone the pendant throws away what it hears, but out of range it stores audio on itself. Update the firmware so the microphone switches off between recordings.</string>
+    <string name="omi_detail_connecting">Connecting to the pendant and checking it.</string>
+    <string name="omi_detail_disconnected">Turn the pendant on or move it closer. It reconnects by itself.</string>
+    <!-- %1$s: the firmware's audio codec number, or omi_codec_unknown -->
+    <string name="omi_detail_unsupported">The pendant\'s firmware sends audio in a format Manent cannot read (codec %1$s). Update the firmware.</string>
+    <string name="omi_codec_unknown">unknown</string>
+
+    <!-- Recordings row -->
+    <string name="omi_row_intro">Record with an Omi pendant you wear.</string>
+    <string name="omi_row_link_in_settings">Link on Home</string>
+    <string name="omi_row_manage">Manage</string>
+
+    <!-- Details panel -->
+    <string name="omi_details_reading">Reading the pendant\'s details…</string>
+    <string name="omi_details_when_connected">Details show up once the pendant is connected.</string>
+    <string name="omi_details_device">Device</string>
+    <string name="omi_details_name">Name</string>
+    <string name="omi_details_manufacturer">Manufacturer</string>
+    <string name="omi_details_model">Model</string>
+    <string name="omi_details_hardware">Hardware</string>
+    <string name="omi_details_firmware">Firmware</string>
+    <string name="omi_details_serial">Serial number</string>
+    <string name="omi_details_address">Bluetooth address</string>
+    <string name="omi_details_status">Status</string>
+    <string name="omi_details_battery">Battery</string>
+    <string name="omi_details_charging">Charging</string>
+    <string name="omi_details_yes">Yes</string>
+    <string name="omi_details_no">No</string>
+    <string name="omi_details_mute">Mic off between recordings</string>
+    <string name="omi_details_supported">Supported</string>
+    <string name="omi_details_mute_unsupported">Not in this firmware</string>
+    <string name="omi_details_link">Link</string>
+    <string name="omi_details_encryption">Encryption</string>
+    <string name="omi_details_encrypted">Paired and encrypted</string>
+    <string name="omi_details_not_encrypted">Not encrypted</string>
+    <string name="omi_details_signal">Signal</string>
+    <!-- %1$d: RSSI in dBm, %2$s: a word such as "good" -->
+    <string name="omi_details_signal_value">%1$d dBm · %2$s</string>
+    <string name="omi_signal_strong">strong</string>
+    <string name="omi_signal_good">good</string>
+    <string name="omi_signal_weak">weak</string>
+    <string name="omi_signal_very_weak">very weak</string>
+    <string name="omi_details_packet_size">Packet size</string>
+    <string name="omi_details_audio">Audio</string>
+    <string name="omi_details_audio_format" translatable="false">Opus, 16 kHz mono</string>
+    <string name="omi_details_frames_lost">Frames lost this recording</string>
+    <string name="omi_details_settings">Settings</string>
+    <string name="omi_details_led">LED brightness</string>
+    <string name="omi_details_mic_gain">Mic gain</string>
+    <!-- %1$d: gain level, 0 to 8 -->
+    <string name="omi_details_mic_gain_value">Level %1$d of 8</string>
+    <string name="omi_details_storage">Pendant storage</string>
+    <string name="omi_details_used">Used</string>
+    <string name="omi_details_free">Free</string>
+    <string name="omi_details_unread">Audio not read yet</string>
+    <string name="omi_details_clock">Clock</string>
+    <string name="omi_details_clock_set">Set</string>
+    <string name="omi_details_clock_not_set">Not set</string>
+    <string name="omi_details_storage_note">This is audio the pendant kept while out of the phone\'s range. Manent cannot download it yet.</string>
+    <string name="omi_details_features">Firmware features</string>
+    <string name="omi_details_nothing_reported">Nothing reported</string>
+    <string name="omi_details_find">Find the pendant (vibrate)</string>
+    <!-- Percentage value in the details panel; %1$d: 0 to 100 -->
+    <string name="omi_details_percent">%1$d%%</string>
+
+    <string name="omi_feature_speaker">Speaker</string>
+    <string name="omi_feature_accelerometer">Accelerometer</string>
+    <string name="omi_feature_button">Button</string>
+    <string name="omi_feature_battery">Battery</string>
+    <string name="omi_feature_usb">USB</string>
+    <string name="omi_feature_haptics">Vibration</string>
+    <string name="omi_feature_offline_storage">Offline storage</string>
+    <string name="omi_feature_led_dimming">LED dimming</string>
+    <string name="omi_feature_mic_gain">Mic gain</string>
+
+    <plurals name="omi_bytes">
+        <item quantity="one">%1$d byte</item>
+        <item quantity="other">%1$d bytes</item>
+    </plurals>
+    <plurals name="omi_packets">
+        <item quantity="one">%1$d packet</item>
+        <item quantity="other">%1$d packets</item>
+    </plurals>
+</resources>

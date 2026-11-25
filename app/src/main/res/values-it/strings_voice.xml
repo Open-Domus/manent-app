@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="voice_title">Comandi vocali</string>
+    <string name="voice_intro">Di\' una parola di attivazione e poi un comando: lo esegue la destinazione che hai scelto per quella parola. Il telefono ascolta il ciondolo solo per riconoscere le parole di attivazione, invia soltanto il comando che segue e non registra nulla. Due vibrazioni brevi significano che è fatto, una lunga che qualcosa non ha funzionato.</string>
+
+    <string name="voice_section_wake_words">Parole di attivazione</string>
+    <string name="voice_section_models">Modelli</string>
+    <string name="voice_section_phone_actions">Azioni sul telefono</string>
+    <string name="voice_section_transcription">Trascrizione</string>
+
+    <string name="voice_add_wake_word">Aggiungi una parola di attivazione</string>
+    <string name="voice_choose_word">Scegli una parola</string>
+    <string name="voice_word">“%1$s”</string>
+    <string name="voice_word_imported">“%1$s” · importata</string>
+    <string name="voice_remove_wake_word">Rimuovi questa parola di attivazione</string>
+    <string name="voice_destination_webhook">Webhook</string>
+    <string name="voice_destination_phone">Questo telefono</string>
+    <string name="voice_phone_hint">Timer, sveglie, indicazioni stradali, musica, chiamate e altro: trovi tutto più sotto, in Azioni sul telefono.</string>
+    <string name="voice_problem_word_gone">Questa parola di attivazione non è più disponibile: scegline un\'altra.</string>
+    <string name="voice_problem_import_missing">Il modello importato non c\'è più: importalo di nuovo.</string>
+    <string name="voice_problem_download">Il suo modello va ancora scaricato.</string>
+    <string name="voice_problem_home_assistant">Home Assistant non è ancora configurato.</string>
+    <string name="voice_problem_webhook">Aggiungi l\'indirizzo del webhook.</string>
+    <string name="voice_overlay_needed">Per eseguire le azioni sul telefono, Manent deve poter comparire sopra le altre app. Non mostra mai nulla sopra di esse.</string>
+    <string name="voice_allow">Consenti</string>
+    <string name="voice_save">Salva</string>
+
+    <string name="voice_webhook_address">Indirizzo del webhook</string>
+    <string name="voice_webhook_secret">Segreto Bearer (facoltativo)</string>
+    <string name="voice_webhook_secret_saved">Segreto Bearer salvato: scrivine uno nuovo per sostituirlo</string>
+    <string name="voice_webhook_hint">Il comando arriva come testo, in formato JSON.</string>
+
+    <string name="voice_models_ready">I modelli di tutte le parole di attivazione sono già sul telefono.</string>
+    <string name="voice_models_explained">I modelli non sono inclusi nell\'app: vengono scaricati sul telefono da dove li pubblicano i loro autori e controllati prima dell\'uso:</string>
+    <string name="voice_model_origin">• “%1$s”: %2$s</string>
+    <string name="voice_origin_openwakeword">progetto openWakeWord, solo per uso non commerciale (CC BY-NC-SA 4.0)</string>
+    <string name="voice_origin_community">raccolta di parole di attivazione della community di Home Assistant (MIT)</string>
+    <string name="voice_origin_imported">importata su questo telefono</string>
+    <string name="voice_download_models">Scarica i modelli</string>
+    <string name="voice_downloading">Download in corso…</string>
+    <string name="voice_models_custom_hint">Va bene anche qualsiasi modello openWakeWord, per esempio uno addestrato con il notebook di Home Assistant per le parole di attivazione o uno preso da una raccolta della community.</string>
+    <string name="voice_import_model">Importa un modello (.onnx)</string>
+
+    <string name="voice_home_assistant_hint">Home Assistant ascolta il comando direttamente, con l\'assistente che scegli.</string>
+    <string name="voice_home_assistant_address">Indirizzo di Home Assistant</string>
+    <string name="voice_home_assistant_token">Token di accesso a lunga durata</string>
+    <string name="voice_home_assistant_token_saved">Token di accesso salvato: scrivine uno nuovo per sostituirlo</string>
+    <string name="voice_home_assistant_token_placeholder">Lo crei nel tuo profilo di Home Assistant</string>
+    <string name="voice_save_and_test">Salva e verifica</string>
+    <string name="voice_check_ok">Connesso a Home Assistant.</string>
+    <string name="voice_check_ok_version">Connesso a Home Assistant %1$s.</string>
+    <string name="voice_check_bad_token">Home Assistant non ha accettato il token.</string>
+    <string name="voice_check_unreachable">Home Assistant non è raggiungibile (%1$s).</string>
+    <string name="voice_pipeline_label">Assistente</string>
+    <string name="voice_pipeline_preferred">Preferito</string>
+    <string name="voice_pipeline_preferred_named">Preferito (%1$s)</string>
+
+    <string name="voice_phone_actions_hint">Cosa possono fare le parole di attivazione rivolte al telefono, e con quale app. Le azioni che nessuna app del telefono gestisce non sono disponibili.</string>
+    <string name="voice_no_app">Nessuna app sul telefono</string>
+    <plurals name="voice_app_count">
+        <item quantity="one">%d app</item>
+        <item quantity="many">%d app</item>
+        <item quantity="other">%d app</item>
+    </plurals>
+    <string name="voice_choose_app">Scegli un\'app</string>
+    <string name="voice_choose_app_warning">Scegli l\'app che deve occuparsene.</string>
+    <string name="voice_calling_needed">Per chiamare le persone per nome, consenti l\'accesso a contatti e chiamate. Altrimenti un numero detto a voce apre il tastierino.</string>
+    <string name="voice_action_timer">Timer</string>
+    <string name="voice_action_alarm">Sveglie</string>
+    <string name="voice_action_navigate">Indicazioni stradali</string>
+    <string name="voice_action_music">Musica</string>
+    <string name="voice_action_open_app">Apertura di app</string>
+    <string name="voice_action_call">Chiamate</string>
+    <string name="voice_action_calendar">Eventi in calendario</string>
+    <string name="voice_action_share">Note ed elenchi</string>
+    <string name="voice_event_default_title">Evento</string>
+
+    <string name="voice_transcription_hint">I webhook e le azioni sul telefono ricevono il comando come testo, trascritto dal tuo gateway.</string>
+    <string name="voice_transcription_unavailable">Non disponibile: %1$s</string>
+    <string name="voice_timing">Ultimo comando: trascritto in %1$s da %2$s di audio.</string>
+    <string name="voice_timing_nothing_heard">Ultimo comando: %1$s per %2$s di audio, senza riconoscere nulla.</string>
+    <string name="voice_seconds">%1$.1f s</string>
+
+    <string name="voice_listen">Ascolta le parole di attivazione</string>
+    <string name="voice_listen_needs_setup">Prima completa la configurazione di almeno una parola di attivazione.</string>
+    <string name="voice_forget">Dimentica i comandi vocali</string>
+    <string name="voice_error_home_assistant_address">Inserisci l\'indirizzo di Home Assistant, che inizia con http:// o https://</string>
+    <string name="voice_error_webhook_address">Inserisci l\'indirizzo del webhook, che inizia con http:// o https://</string>
+    <string name="voice_error_download">Non è stato possibile scaricare i modelli delle parole di attivazione: %1$s</string>
+    <string name="voice_error_import">Il file non è stato importato: %1$s</string>
+    <string name="voice_error_unreadable">Non è stato possibile leggere il file.</string>
+    <string name="voice_import_not_onnx">scegli un file .onnx di openWakeWord</string>
+    <string name="voice_import_cannot_open">non si è riusciti ad aprirlo</string>
+    <string name="voice_import_no_name">il file non ha un nome</string>
+    <string name="voice_import_too_large">è troppo grande per essere un modello di parola di attivazione</string>
+    <string name="voice_import_exists">esiste già una parola di attivazione “%1$s”</string>
+    <string name="voice_import_not_classifier">non è un modello di parola di attivazione che il telefono può usare</string>
+    <string name="voice_words_title">Cosa dici, dove arriva</string>
+    <string name="voice_models_title">Riconosciute sul telefono</string>
+    <string name="voice_home_assistant_title">La tua casa</string>
+    <string name="voice_phone_actions_title">Cosa fa il telefono</string>
+    <string name="voice_transcription_title">Dalla voce al testo</string>
+
+    <string name="voice_status_listening">In ascolto</string>
+    <string name="voice_status_off">Spento</string>
+    <string name="voice_status_needs_setup">Da configurare</string>
+    <string name="voice_summary_none">Ancora nessuna parola di attivazione.</string>
+</resources>

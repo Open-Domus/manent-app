@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gateway_card_title">Gateway Omnesis</string>
+
+    <string name="gateway_pair_payload_hint">Incolla il JSON stampato dal comando.</string>
+    <string name="gateway_pairing">Associazione in corso…</string>
+    <string name="gateway_pair_failed">Associazione non riuscita: %1$s</string>
+
+    <string name="gateway_problem_not_json">Non è un contenuto di associazione: il JSON non è valido.</string>
+    <string name="gateway_problem_missing_version">Nel contenuto manca il campo di versione \"v\".</string>
+    <string name="gateway_problem_unsupported_version">La versione di associazione %1$s non è supportata. Aggiorna il gateway e riprova.</string>
+    <string name="gateway_problem_missing_field">Campo mancante: %1$s</string>
+    <string name="gateway_problem_missing_code">Inserisci il codice di associazione.</string>
+    <string name="gateway_problem_not_https">L\'URL del gateway deve iniziare con https://.</string>
+    <string name="gateway_problem_invalid_url">L\'URL del gateway non è valido.</string>
+    <string name="gateway_problem_system_origin">Con la fiducia di sistema l\'URL del gateway deve contenere solo https:// e l\'host, senza percorso.</string>
+    <string name="gateway_problem_invalid_fingerprint">L\'impronta deve essere di 64 caratteri esadecimali, senza due punti.</string>
+    <string name="gateway_problem_invalid_tls_mode">Il contenuto indica una modalità di fiducia TLS sconosciuta.</string>
+    <string name="gateway_problem_unsupported_tls_mode">Manent non supporta la modalità di fiducia TLS \"%1$s\".</string>
+
+    <string name="gateway_error_unauthorized">non autorizzato</string>
+    <string name="gateway_error_forbidden">accesso negato</string>
+    <string name="gateway_error_not_found">non trovato</string>
+    <string name="gateway_error_server">il gateway ha risposto %1$d</string>
+    <string name="gateway_error_decoding">risposta inattesa</string>
+    <string name="gateway_pair_payload_label">Dal gateway</string>
+    <string name="gateway_pair_payload_title">Un comando, poi incolla</string>
+    <string name="gateway_pair_manual_title">Indirizzo e codice</string>
+    <string name="gateway_pair_not_saved">Il gateway ha accettato il telefono, ma il telefono non è riuscito a conservare le credenziali in modo sicuro. Riprova; se continua a non funzionare, riavvia il telefono.</string>
+</resources>

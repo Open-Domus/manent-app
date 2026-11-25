@@ -1,0 +1,12 @@
+.gradle/
+.kotlin/
+build/
+captures/
+.idea/
+*.iml
+local.properties
+
+# The Play upload key never enters the repository.
+keystore.properties
+*.jks
+*.keystore

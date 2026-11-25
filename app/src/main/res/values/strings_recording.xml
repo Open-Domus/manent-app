@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Recordings screen -->
+    <string name="recording_screen_title">Recordings</string>
+    <string name="recording_dismiss">Dismiss</string>
+    <string name="recording_queue_title">Not sent yet</string>
+    <string name="recording_untitled">Conversation</string>
+
+    <!-- Start card. %1$s: the wearable's name -->
+    <string name="recording_start_title">Record a conversation</string>
+    <string name="recording_start_body_wearable">Records through the %1$s you wear, even with the phone\'s screen off, and sends the conversation to your Omnesis gateway, which turns it into a searchable transcript.</string>
+    <string name="recording_start_body_phone">Lay the phone on the table. It keeps recording with the screen off and sends the conversation to your Omnesis gateway, which turns it into a searchable transcript.</string>
+    <string name="recording_input_phone">Phone microphone</string>
+    <string name="recording_input_hint">Start uses the input picked here. Tapping the %1$s always records from the %1$s.</string>
+    <string name="recording_title_field">Title (optional)</string>
+    <string name="recording_wifi_only">Upload on Wi-Fi only</string>
+    <string name="recording_wifi_only_hint">Recording works offline; parts are sent once there is a connection.</string>
+    <string name="recording_mic_denied">Recording needs the microphone. Allow access, then start again.</string>
+    <string name="recording_starting">Starting…</string>
+    <string name="recording_start">Start recording</string>
+    <string name="recording_consent_hint">Tell everyone present that you are recording.</string>
+
+    <!-- Recorder card. %1$s: the wearable's name -->
+    <string name="recording_paused">Paused</string>
+    <string name="recording_ambient_with">Capturing conversations with the %1$s</string>
+    <string name="recording_with">Recording with the %1$s</string>
+    <string name="recording_in_progress">Recording</string>
+    <string name="recording_wearable_fallback">wearable</string>
+    <string name="recording_wearable_lost">The %1$s is not connected. Recording carries on once it is back.</string>
+    <string name="recording_mic_busy">Another app is using the microphone. Tap Resume to try again.</string>
+    <string name="recording_ambient_hint">This conversation runs until a minute and a half passes with nobody speaking, then the next one starts by itself. Tap the %1$s to mark a moment.</string>
+    <plurals name="recording_parts_saved">
+        <item quantity="one">%d part saved · the screen may turn off</item>
+        <item quantity="other">%d parts saved · the screen may turn off</item>
+    </plurals>
+    <string name="recording_pause">Pause</string>
+    <string name="recording_resume">Resume</string>
+    <string name="recording_stop">Stop</string>
+    <string name="recording_turn_off">Turn off</string>
+
+    <!-- Unavailable card -->
+    <string name="recording_unavailable_title">Recording is unavailable</string>
+    <string name="recording_unavailable_transcription_off">Transcription is switched off on the gateway. Switch it on in the gateway\'s settings to record conversations.</string>
+    <string name="recording_unavailable_not_paired">Recording needs an Omnesis gateway to send conversations to. Connect one from the home screen.</string>
+    <string name="recording_unavailable_gateway">This gateway does not accept recordings: it needs experimental mode and a transcriber assigned.</string>
+
+    <!-- Recordings waiting to be sent -->
+    <string name="recording_delete">Delete recording</string>
+    <string name="recording_status_waiting">Waiting to upload</string>
+    <plurals name="recording_status_uploading">
+        <item quantity="one">%d part still to send</item>
+        <item quantity="other">%d parts still to send</item>
+    </plurals>
+    <string name="recording_status_refused">Not sent: %1$s</string>
+    <string name="recording_delete_reconnect">Connect to the gateway again to delete this recording.</string>
+    <string name="recording_delete_failed">Could not delete the recording. Try again.</string>
+
+
+    <!-- Notification. %1$s: the wearable's name, or "microphone" -->
+    <string name="recording_channel_name">Conversation recording</string>
+    <string name="recording_channel_description">Shown while Manent records a conversation</string>
+    <string name="recording_notification_paused">Recording paused</string>
+    <string name="recording_notification_ambient">Capturing conversations</string>
+    <string name="recording_notification_active">Recording a conversation</string>
+    <string name="recording_notification_wearable_lost">The %1$s is not connected. Recording carries on once it is back</string>
+    <string name="recording_notification_mic_busy">The microphone is busy elsewhere. Tap Resume to try again</string>
+    <string name="recording_notification_paused_text">Tap Resume to carry on</string>
+    <string name="recording_notification_ambient_text">Manent keeps what the %1$s hears. Tap the %1$s to mark a moment</string>
+    <string name="recording_notification_active_text">Manent is recording with the %1$s</string>
+    <string name="recording_microphone">microphone</string>
+    <!-- Section labels on the Recordings screen -->
+    <string name="recording_now_label">Now</string>
+    <string name="recording_new_label">New</string>
+    <string name="recording_queue_label">On this phone</string>
+</resources>

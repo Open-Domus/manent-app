@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="omi_pendant">Ciondolo Omi</string>
+
+    <string name="omi_status_not_paired">Nessun ciondolo collegato</string>
+    <string name="omi_status_disconnected">Omi non connesso</string>
+    <string name="omi_status_connecting">Connessione a Omi…</string>
+    <string name="omi_status_connected">Omi connesso</string>
+    <string name="omi_status_connected_battery">Omi connesso · %1$d%%</string>
+    <string name="omi_status_unsupported">Firmware Omi non supportato</string>
+
+    <string name="omi_notification_text">Tocca il ciondolo per avviare o fermare la registrazione</string>
+    <string name="omi_notification_channel_description">Visibile mentre Manent tiene connesso il ciondolo</string>
+
+    <string name="omi_error_nearby_permission">Per collegare il ciondolo Manent ha bisogno del permesso Dispositivi nelle vicinanze.</string>
+    <string name="omi_intro">Registra con un Omi al collo. Un tocco sul ciondolo avvia la registrazione (una breve vibrazione), un altro la ferma (due vibrazioni).</string>
+    <string name="omi_intro_disconnect_app">Prima scollega il ciondolo dall\'app Omi. Il ciondolo parla con una sola app alla volta, e quell\'app manda l\'audio ai propri server.</string>
+    <string name="omi_pairing_unsupported">Questo telefono non supporta il collegamento di dispositivi companion</string>
+    <string name="omi_pairing_not_found">Nessun ciondolo trovato</string>
+    <string name="omi_looking">Ricerca del ciondolo…</string>
+    <string name="omi_link">Collega un Omi</string>
+
+    <string name="omi_capture_all_day">Registra tutto il giorno</string>
+    <string name="omi_capture_all_day_description">Ogni conversazione che il ciondolo sente diventa una registrazione a sé. Tocca il ciondolo per tenere un momento come nota: più o meno gli ultimi 30 secondi e quello che segue, fino alla pausa successiva.</string>
+    <string name="omi_details">Dettagli</string>
+    <string name="omi_forget">Dimentica questo ciondolo</string>
+    <string name="omi_link_encrypted">Collegamento cifrato</string>
+    <string name="omi_link_not_encrypted">Collegamento non cifrato</string>
+    <string name="omi_detail_not_encrypted">L\'associazione non si è conclusa, quindi il collegamento non è cifrato. Dimentica il ciondolo e collegalo di nuovo.</string>
+    <string name="omi_detail_capturing">Registrazione continua attiva. Tocca il ciondolo per segnare un momento.</string>
+    <string name="omi_detail_tap_mute">Tocca il ciondolo per avviare o fermare la registrazione. Nel frattempo il microfono resta spento.</string>
+    <string name="omi_detail_tap_no_mute">Tocca il ciondolo per avviare o fermare la registrazione. Questo firmware non sa spegnere il microfono: vicino al telefono il ciondolo scarta ciò che sente, ma fuori portata salva l\'audio nella sua memoria. Aggiorna il firmware perché il microfono si spenga tra una registrazione e l\'altra.</string>
+    <string name="omi_detail_connecting">Connessione al ciondolo e verifica in corso.</string>
+    <string name="omi_detail_disconnected">Accendi il ciondolo o avvicinalo: si ricollega da solo.</string>
+    <string name="omi_detail_unsupported">Il firmware del ciondolo invia l\'audio in un formato che Manent non sa leggere (codec %1$s). Aggiorna il firmware.</string>
+    <string name="omi_codec_unknown">sconosciuto</string>
+
+    <string name="omi_row_intro">Registra con un ciondolo Omi che indossi.</string>
+    <string name="omi_row_link_in_settings">Collega dalla Home</string>
+    <string name="omi_row_manage">Gestisci</string>
+
+    <string name="omi_details_reading">Lettura dei dettagli del ciondolo…</string>
+    <string name="omi_details_when_connected">I dettagli compaiono quando il ciondolo è connesso.</string>
+    <string name="omi_details_device">Dispositivo</string>
+    <string name="omi_details_name">Nome</string>
+    <string name="omi_details_manufacturer">Produttore</string>
+    <string name="omi_details_model">Modello</string>
+    <string name="omi_details_hardware">Hardware</string>
+    <string name="omi_details_firmware">Firmware</string>
+    <string name="omi_details_serial">Numero di serie</string>
+    <string name="omi_details_address">Indirizzo Bluetooth</string>
+    <string name="omi_details_status">Stato</string>
+    <string name="omi_details_battery">Batteria</string>
+    <string name="omi_details_charging">In carica</string>
+    <string name="omi_details_yes">Sì</string>
+    <string name="omi_details_no">No</string>
+    <string name="omi_details_mute">Microfono spento tra le registrazioni</string>
+    <string name="omi_details_supported">Supportato</string>
+    <string name="omi_details_mute_unsupported">Non presente in questo firmware</string>
+    <string name="omi_details_link">Collegamento</string>
+    <string name="omi_details_encryption">Cifratura</string>
+    <string name="omi_details_encrypted">Associato e cifrato</string>
+    <string name="omi_details_not_encrypted">Non cifrato</string>
+    <string name="omi_details_signal">Segnale</string>
+    <string name="omi_details_signal_value">%1$d dBm · %2$s</string>
+    <string name="omi_signal_strong">forte</string>
+    <string name="omi_signal_good">buono</string>
+    <string name="omi_signal_weak">debole</string>
+    <string name="omi_signal_very_weak">molto debole</string>
+    <string name="omi_details_packet_size">Dimensione pacchetto</string>
+    <string name="omi_details_audio">Audio</string>
+    <string name="omi_details_frames_lost">Frame persi in questa registrazione</string>
+    <string name="omi_details_settings">Impostazioni</string>
+    <string name="omi_details_led">Luminosità LED</string>
+    <string name="omi_details_mic_gain">Guadagno microfono</string>
+    <string name="omi_details_mic_gain_value">Livello %1$d su 8</string>
+    <string name="omi_details_storage">Memoria del ciondolo</string>
+    <string name="omi_details_used">Occupata</string>
+    <string name="omi_details_free">Libera</string>
+    <string name="omi_details_unread">Audio non ancora letto</string>
+    <string name="omi_details_clock">Orologio</string>
+    <string name="omi_details_clock_set">Impostato</string>
+    <string name="omi_details_clock_not_set">Non impostato</string>
+    <string name="omi_details_storage_note">È l\'audio che il ciondolo ha conservato fuori dalla portata del telefono. Manent non può ancora scaricarlo.</string>
+    <string name="omi_details_features">Funzioni del firmware</string>
+    <string name="omi_details_nothing_reported">Nessuna informazione</string>
+    <string name="omi_details_find">Trova il ciondolo (vibrazione)</string>
+    <string name="omi_details_percent">%1$d%%</string>
+
+    <string name="omi_feature_speaker">Altoparlante</string>
+    <string name="omi_feature_accelerometer">Accelerometro</string>
+    <string name="omi_feature_button">Pulsante</string>
+    <string name="omi_feature_battery">Batteria</string>
+    <string name="omi_feature_usb">USB</string>
+    <string name="omi_feature_haptics">Vibrazione</string>
+    <string name="omi_feature_offline_storage">Memoria offline</string>
+    <string name="omi_feature_led_dimming">Regolazione LED</string>
+    <string name="omi_feature_mic_gain">Guadagno microfono</string>
+
+    <plurals name="omi_bytes">
+        <item quantity="one">%1$d byte</item>
+        <item quantity="other">%1$d byte</item>
+        <item quantity="many">%1$d byte</item>
+    </plurals>
+    <plurals name="omi_packets">
+        <item quantity="one">%1$d pacchetto</item>
+        <item quantity="other">%1$d pacchetti</item>
+        <item quantity="many">%1$d pacchetti</item>
+    </plurals>
+</resources>

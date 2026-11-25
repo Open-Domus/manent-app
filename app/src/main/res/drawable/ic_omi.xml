@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A pendant on its cord: a short cord at the top, the ring, and the button in its middle. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M11,1h2v6h-2z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M12,7a7.5,7.5 0,1 1,0 15a7.5,7.5 0,1 1,0 -15zM12,9a5.5,5.5 0,1 0,0 11a5.5,5.5 0,1 0,0 -11z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,12.5a2,2 0,1 1,0 4a2,2 0,1 1,0 -4z" />
+</vector>
