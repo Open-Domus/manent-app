@@ -7,6 +7,7 @@ import it.manentlabs.app.audio.AacWriter
 import it.manentlabs.app.audio.AudioSink
 import it.manentlabs.app.audio.FrameSplitter
 import it.manentlabs.app.audio.OpusDecoder
+import it.manentlabs.app.audio.PcmDecoder
 import it.manentlabs.app.audio.PcmFormat
 import it.manentlabs.app.audio.PcmRing
 import it.manentlabs.app.audio.VoiceDetector
@@ -36,6 +37,7 @@ class WearableInput(
     private val events: InputEvents,
     private val detectors: VoiceDetectors,
     private val moments: Moments,
+    private val newDecoder: () -> PcmDecoder = ::OpusDecoder,
 ) : InputSource {
     /** Where marked-moment clips come from and go. */
     interface Moments {
@@ -51,7 +53,7 @@ class WearableInput(
     // Worker-thread state below.
     private var run = 0
     private var streaming = false
-    private var decoder: OpusDecoder? = null
+    private var decoder: PcmDecoder? = null
     private var detector: VoiceDetector? = null
     private var detectorBroken = false
     private val timeline = WearableTimeline()
@@ -68,7 +70,7 @@ class WearableInput(
         if (myRun == null) return false
         val started = stream.start(object : AudioSink {
             override fun onFrame(opus: ByteArray, receivedAtMs: Long) {
-                offer("A frame") { if (run == myRun) onFrame(opus, receivedAtMs) }
+                offer("A frame") { if (run == myRun) take(opus, receivedAtMs) }
             }
 
             override fun onLinkLost() {
@@ -144,7 +146,7 @@ class WearableInput(
 
     private fun beginRun(): Int? {
         val d = decoder ?: try {
-            OpusDecoder().also { decoder = it }
+            newDecoder().also { decoder = it }
         } catch (e: Exception) {
             Log.e(TAG, "No Opus decoder", e)
             return null
@@ -166,7 +168,7 @@ class WearableInput(
         endClip()
     }
 
-    private fun onFrame(opus: ByteArray, receivedAtMs: Long) {
+    private fun take(opus: ByteArray, receivedAtMs: Long) {
         when (val placement = timeline.place(receivedAtMs)) {
             is WearableTimeline.Placement.Open -> nextPartStartMs = placement.startMs
             is WearableTimeline.Placement.Gap -> {

@@ -9,6 +9,15 @@ import java.io.Closeable
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+/** Turns a wearable's packets into 16 kHz mono PCM; [OpusDecoder] on a device. */
+interface PcmDecoder : Closeable {
+    /** One packet's samples, possibly none; null when the packet was dropped. */
+    fun decode(opus: ByteArray): ShortArray?
+
+    /** Forgets the filter history, for audio that does not follow on from what came before. */
+    fun resetFilter()
+}
+
 /**
  * Turns a wearable's Opus packets into 16 kHz mono 16-bit PCM.
  *
@@ -19,7 +28,7 @@ import java.nio.ByteOrder
  * Nothing thrown while decoding leaves [decode]: it runs on the threads that
  * carry the wearable's audio, where an escaped exception ends the process.
  */
-class OpusDecoder : Closeable {
+class OpusDecoder : PcmDecoder {
     private var codec: MediaCodec? = newCodec()
     private var downsampler = Downsampler(DECODER_RATE / PcmFormat.SAMPLE_RATE)
     private var presentationUs = 0L
@@ -31,7 +40,7 @@ class OpusDecoder : Closeable {
      * packet is then dropped and logged. A decoder that failed for good is
      * replaced; if no new one can be made, every later packet is dropped.
      */
-    fun decode(opus: ByteArray): ShortArray? {
+    override fun decode(opus: ByteArray): ShortArray? {
         val c = codec ?: return null
         return try {
             queue(c, opus)
@@ -51,8 +60,7 @@ class OpusDecoder : Closeable {
         }
     }
 
-    /** Forgets the filter history, for audio that does not follow on from what came before. */
-    fun resetFilter() = downsampler.reset()
+    override fun resetFilter() = downsampler.reset()
 
     override fun close() {
         codec?.let(::releaseQuietly)
