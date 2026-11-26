@@ -19,6 +19,7 @@ object RouteCodec {
     private const val HOME_ASSISTANT = "home-assistant"
     private const val WEBHOOK = "webhook"
     private const val PHONE = "phone"
+    private const val HERMES = "hermes"
 
     @Serializable
     private data class StoredDestination(val type: String, val url: String? = null)
@@ -53,6 +54,7 @@ object RouteCodec {
                 HOME_ASSISTANT -> Destination.HomeAssistant
                 WEBHOOK -> Destination.Webhook(stored.destination.url.orEmpty())
                 PHONE -> Destination.Phone
+                HERMES -> Destination.Hermes
                 else -> return@mapNotNull null
             }
             Route(stored.id, stored.wakeWord, destination)
@@ -66,6 +68,7 @@ object RouteCodec {
                 Destination.HomeAssistant -> StoredDestination(HOME_ASSISTANT)
                 is Destination.Webhook -> StoredDestination(WEBHOOK, d.url)
                 Destination.Phone -> StoredDestination(PHONE)
+                Destination.Hermes -> StoredDestination(HERMES)
             }
             StoredRoute(route.id, route.wakeWord, destination)
         },

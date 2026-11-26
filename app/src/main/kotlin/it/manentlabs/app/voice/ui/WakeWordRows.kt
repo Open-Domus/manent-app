@@ -76,6 +76,7 @@ internal fun WakeWordRow(
         when (val destination = row.route.destination) {
             is Destination.Webhook -> WebhookFields(row.route.id, destination.url, row.secretSaved, onSaveWebhook)
             Destination.Phone -> Fine(stringResource(R.string.voice_phone_hint))
+            Destination.Hermes -> Fine(stringResource(R.string.voice_hermes_route_hint))
             Destination.HomeAssistant -> Unit
         }
         row.problem?.let { Fine(VoiceText.problem(it), color = Manent.colors.warning) }
@@ -115,4 +116,5 @@ internal fun choiceOf(destination: Destination) = when (destination) {
     Destination.HomeAssistant -> DestinationChoice.HOME_ASSISTANT
     is Destination.Webhook -> DestinationChoice.WEBHOOK
     Destination.Phone -> DestinationChoice.PHONE
+    Destination.Hermes -> DestinationChoice.HERMES
 }

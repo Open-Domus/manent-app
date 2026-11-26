@@ -3,6 +3,7 @@
 package it.manentlabs.app.voice.ui
 
 import it.manentlabs.app.gateway.TranscriberBlock
+import it.manentlabs.app.voice.hermes.HermesCheck
 import it.manentlabs.app.voice.homeassistant.ConnectionCheck
 import it.manentlabs.app.voice.phone.PhoneActionKind
 import it.manentlabs.app.voice.phone.PhoneApp
@@ -56,6 +57,7 @@ sealed interface VoiceError {
     data object Unreadable : VoiceError
     data object HomeAssistantAddress : VoiceError
     data object WebhookAddress : VoiceError
+    data object HermesAddress : VoiceError
 }
 
 /** The Home Assistant test, while it runs and once it answered. */
@@ -65,5 +67,12 @@ sealed interface HomeAssistantTest {
     data class Done(val check: ConnectionCheck) : HomeAssistantTest
 }
 
+/** The Hermes Agent test, while it runs and once it answered. */
+sealed interface HermesTest {
+    data object Idle : HermesTest
+    data object Running : HermesTest
+    data class Done(val check: HermesCheck) : HermesTest
+}
+
 /** The destinations a route can be switched to. */
-enum class DestinationChoice { HOME_ASSISTANT, WEBHOOK, PHONE }
+enum class DestinationChoice { HOME_ASSISTANT, WEBHOOK, PHONE, HERMES }

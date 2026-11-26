@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.manentlabs.app.gateway.Gateway
 import it.manentlabs.app.gateway.TranscriberBlock
+import it.manentlabs.app.voice.hermes.HermesClient
 import it.manentlabs.app.voice.homeassistant.HomeAssistantAddress
 import it.manentlabs.app.voice.homeassistant.HomeAssistantClient
 import it.manentlabs.app.voice.phone.AppPick
@@ -42,7 +43,7 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import javax.inject.Inject
 
-/** The voice-commands card: routes, models, Home Assistant, phone actions and the switch. */
+/** The voice-commands card: routes, models, Home Assistant, Hermes Agent, phone actions and the switch. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class VoiceCommandsViewModel @Inject constructor(
@@ -51,6 +52,7 @@ class VoiceCommandsViewModel @Inject constructor(
     private val permissions: PhonePermissions,
     private val apps: PhoneApps,
     private val homeAssistant: HomeAssistantClient,
+    private val hermes: HermesClient,
     gateway: Gateway,
     transcriber: CommandTranscriber,
 ) : ViewModel() {
@@ -79,6 +81,9 @@ class VoiceCommandsViewModel @Inject constructor(
     private val _test = MutableStateFlow<HomeAssistantTest>(HomeAssistantTest.Idle)
     val test: StateFlow<HomeAssistantTest> = _test.asStateFlow()
 
+    private val _hermesTest = MutableStateFlow<HermesTest>(HermesTest.Idle)
+    val hermesTest: StateFlow<HermesTest> = _hermesTest.asStateFlow()
+
     private val _error = MutableStateFlow<VoiceError?>(null)
     val error: StateFlow<VoiceError?> = _error.asStateFlow()
 
@@ -104,6 +109,7 @@ class VoiceCommandsViewModel @Inject constructor(
                     DestinationChoice.HOME_ASSISTANT -> Destination.HomeAssistant
                     DestinationChoice.WEBHOOK -> Destination.Webhook("")
                     DestinationChoice.PHONE -> Destination.Phone
+                    DestinationChoice.HERMES -> Destination.Hermes
                 },
             )
         }
@@ -189,6 +195,23 @@ class VoiceCommandsViewModel @Inject constructor(
         }
     }
 
+    /** Saves Hermes Agent's address (and the API key, if typed) and tests them. */
+    fun saveHermes(address: String, key: String) {
+        if (HermesClient.endpoint(address, "models") == null) {
+            _error.value = VoiceError.HermesAddress
+            return
+        }
+        _error.value = null
+        _hermesTest.value = HermesTest.Running
+        viewModelScope.launch {
+            val check = withContext(Dispatchers.IO) {
+                settings.saveHermes(address, key.takeIf { it.isNotBlank() })
+                hermes.test(address.trim(), settings.hermesKey().orEmpty())
+            }
+            _hermesTest.value = HermesTest.Done(check)
+        }
+    }
+
     fun setPipeline(id: String?) = settings.setPipeline(id)
 
     fun setPhoneApp(kind: PhoneActionKind, packageName: String) = settings.setPhoneApp(kind, packageName)
@@ -197,6 +220,7 @@ class VoiceCommandsViewModel @Inject constructor(
     fun forget() {
         _error.value = null
         _test.value = HomeAssistantTest.Idle
+        _hermesTest.value = HermesTest.Idle
         viewModelScope.launch(Dispatchers.IO) {
             settings.forget()
             models.forget()
@@ -219,7 +243,7 @@ class VoiceCommandsViewModel @Inject constructor(
                 route = route,
                 word = word,
                 choices = words.filter { it.id == route.wakeWord || it.id !in used },
-                problem = RouteStatus.problem(route, word, installed, config.homeAssistantReady),
+                problem = RouteStatus.problem(route, word, installed, config.homeAssistantReady, config.hermesReady),
                 secretSaved = route.id in config.webhookSecrets,
             )
         }
@@ -241,6 +265,7 @@ class VoiceCommandsViewModel @Inject constructor(
                 else -> TranscriptionLine.Ready
             },
             showForget = config.homeAssistantUrl.isNotBlank() || config.hasToken ||
+                config.hermesUrl.isNotBlank() || config.hasHermesKey ||
                 rows.any { it.word != null && models.isInstalled(it.word) } || config.routes != Route.DEFAULTS,
         )
     }

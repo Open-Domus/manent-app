@@ -14,6 +14,8 @@
     <string name="voice_webhook_placeholder" translatable="false">https://automation.example.com/hook</string>
     <string name="voice_home_assistant_placeholder" translatable="false">http://homeassistant.local:8123</string>
     <string name="voice_route_arrow" translatable="false">→</string>
+    <string name="voice_hermes" translatable="false">Hermes Agent</string>
+    <string name="voice_hermes_placeholder" translatable="false">http://192.168.1.20:8642</string>
 
     <!-- Wake words and where they go -->
     <string name="voice_add_wake_word">Add a wake word</string>
@@ -31,6 +33,8 @@
     <string name="voice_problem_download">Its model still needs downloading.</string>
     <string name="voice_problem_home_assistant">Home Assistant is not set up yet.</string>
     <string name="voice_problem_webhook">Add the webhook address.</string>
+    <string name="voice_problem_hermes">Hermes Agent is not set up yet.</string>
+    <string name="voice_hermes_route_hint">The agent gets the command as text and its answer is read aloud.</string>
     <string name="voice_overlay_needed">To carry out phone actions, Manent needs permission to display over other apps. It never shows anything on top of them.</string>
     <string name="voice_allow">Allow</string>
     <string name="voice_save">Save</string>
@@ -105,7 +109,7 @@
     <string name="voice_event_default_title">Event</string>
 
     <!-- Transcription -->
-    <string name="voice_transcription_hint">Webhooks and phone actions get the command as text, transcribed by your gateway.</string>
+    <string name="voice_transcription_hint">Webhooks, Hermes Agent and phone actions get the command as text, transcribed by your gateway.</string>
     <!-- %1$s: why the gateway cannot transcribe now -->
     <string name="voice_transcription_unavailable">Unavailable: %1$s</string>
     <!-- %1$s: time taken; %2$s: length of the audio -->
@@ -113,12 +117,28 @@
     <string name="voice_timing_nothing_heard">Last command: %1$s for %2$s of audio, and nothing was recognised.</string>
     <string name="voice_seconds">%1$.1f s</string>
 
+    <!-- Hermes Agent -->
+    <string name="voice_hermes_title">Your agent</string>
+    <string name="voice_hermes_hint">Hermes Agent gets the command as text through its API server, may use its tools, and its answer is read aloud.</string>
+    <string name="voice_hermes_address">API server address</string>
+    <string name="voice_hermes_key">API key</string>
+    <string name="voice_hermes_key_saved">API key saved; type a new one to replace it</string>
+    <string name="voice_hermes_key_placeholder">The API_SERVER_KEY you set</string>
+    <string name="voice_hermes_setup">In ~/.hermes/.env set API_SERVER_ENABLED=true and an API_SERVER_KEY, and API_SERVER_HOST=0.0.0.0 so the phone can reach it, then run hermes gateway. The key gives full access to the agent\'s tools: use it only on your own network or behind HTTPS.</string>
+    <string name="voice_hermes_check_ok">Connected to Hermes Agent.</string>
+    <!-- %1$s: the model name the server advertises, e.g. hermes-agent -->
+    <string name="voice_hermes_check_ok_model">Connected to Hermes Agent (%1$s).</string>
+    <string name="voice_hermes_check_bad_key">Hermes Agent did not accept the key.</string>
+    <!-- %1$s: a short technical reason, e.g. unreachable -->
+    <string name="voice_hermes_check_unreachable">Could not reach Hermes Agent (%1$s).</string>
+
     <!-- Switch and errors -->
     <string name="voice_listen">Listen for wake words</string>
     <string name="voice_listen_needs_setup">Finish setting up at least one wake word first.</string>
     <string name="voice_forget">Forget voice commands</string>
     <string name="voice_error_home_assistant_address">Enter the Home Assistant address starting with http:// or https://</string>
     <string name="voice_error_webhook_address">Enter the webhook address starting with http:// or https://</string>
+    <string name="voice_error_hermes_address">Enter the Hermes Agent address starting with http:// or https://</string>
     <!-- %1$s: technical reason, e.g. "melspectrogram.onnx: HTTP 404" -->
     <string name="voice_error_download">The wake-word models could not be downloaded: %1$s</string>
     <!-- %1$s: why, one of the voice_import_* texts or a technical message -->

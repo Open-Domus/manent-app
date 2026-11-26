@@ -21,6 +21,8 @@
     <string name="voice_problem_download">Il suo modello va ancora scaricato.</string>
     <string name="voice_problem_home_assistant">Home Assistant non è ancora configurato.</string>
     <string name="voice_problem_webhook">Aggiungi l\'indirizzo del webhook.</string>
+    <string name="voice_problem_hermes">Hermes Agent non è ancora configurato.</string>
+    <string name="voice_hermes_route_hint">L\'agente riceve il comando come testo e la sua risposta viene letta ad alta voce.</string>
     <string name="voice_overlay_needed">Per eseguire le azioni sul telefono, Manent deve poter comparire sopra le altre app. Non mostra mai nulla sopra di esse.</string>
     <string name="voice_allow">Consenti</string>
     <string name="voice_save">Salva</string>
@@ -75,7 +77,7 @@
     <string name="voice_action_share">Note ed elenchi</string>
     <string name="voice_event_default_title">Evento</string>
 
-    <string name="voice_transcription_hint">I webhook e le azioni sul telefono ricevono il comando come testo, trascritto dal tuo gateway.</string>
+    <string name="voice_transcription_hint">I webhook, Hermes Agent e le azioni sul telefono ricevono il comando come testo, trascritto dal tuo gateway.</string>
     <string name="voice_transcription_unavailable">Non disponibile: %1$s</string>
     <string name="voice_timing">Ultimo comando: trascritto in %1$s da %2$s di audio.</string>
     <string name="voice_timing_nothing_heard">Ultimo comando: %1$s per %2$s di audio, senza riconoscere nulla.</string>
@@ -85,6 +87,18 @@
     <string name="voice_listen_needs_setup">Prima completa la configurazione di almeno una parola di attivazione.</string>
     <string name="voice_forget">Dimentica i comandi vocali</string>
     <string name="voice_error_home_assistant_address">Inserisci l\'indirizzo di Home Assistant, che inizia con http:// o https://</string>
+    <string name="voice_error_hermes_address">Inserisci l\'indirizzo di Hermes Agent, che inizia con http:// o https://</string>
+    <string name="voice_hermes_title">Il tuo agente</string>
+    <string name="voice_hermes_hint">Hermes Agent riceve il comando come testo dal suo API server, può usare i suoi strumenti e la sua risposta viene letta ad alta voce.</string>
+    <string name="voice_hermes_address">Indirizzo dell\'API server</string>
+    <string name="voice_hermes_key">Chiave API</string>
+    <string name="voice_hermes_key_saved">Chiave API salvata: scrivine una nuova per sostituirla</string>
+    <string name="voice_hermes_key_placeholder">La API_SERVER_KEY che hai impostato</string>
+    <string name="voice_hermes_setup">In ~/.hermes/.env imposta API_SERVER_ENABLED=true, una API_SERVER_KEY e API_SERVER_HOST=0.0.0.0 perché il telefono lo raggiunga, poi avvia hermes gateway. La chiave dà pieno accesso agli strumenti dell\'agente: usala solo sulla tua rete o dietro HTTPS.</string>
+    <string name="voice_hermes_check_ok">Connesso a Hermes Agent.</string>
+    <string name="voice_hermes_check_ok_model">Connesso a Hermes Agent (%1$s).</string>
+    <string name="voice_hermes_check_bad_key">Hermes Agent non ha accettato la chiave.</string>
+    <string name="voice_hermes_check_unreachable">Hermes Agent non è raggiungibile (%1$s).</string>
     <string name="voice_error_webhook_address">Inserisci l\'indirizzo del webhook, che inizia con http:// o https://</string>
     <string name="voice_error_download">Non è stato possibile scaricare i modelli delle parole di attivazione: %1$s</string>
     <string name="voice_error_import">Il file non è stato importato: %1$s</string>

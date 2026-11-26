@@ -64,7 +64,7 @@ class VoiceCommands @Inject constructor(
         val armed = config.routes.mapNotNull { route ->
             val word = models.word(route.wakeWord)
             val installed = word != null && models.isInstalled(word)
-            val problem = RouteStatus.problem(route, word, installed, config.homeAssistantReady)
+            val problem = RouteStatus.problem(route, word, installed, config.homeAssistantReady, config.hermesReady)
             if (word == null || !RouteStatus.isActive(problem, route, overlayAllowed)) return@mapNotNull null
             ListenPlan.Armed(route.id, word.id, models.classifierFile(word))
         }

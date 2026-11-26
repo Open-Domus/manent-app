@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import it.manentlabs.app.R
 import it.manentlabs.app.gateway.TranscriberBlock
+import it.manentlabs.app.voice.hermes.HermesCheck
 import it.manentlabs.app.voice.homeassistant.ConnectionCheck
 import it.manentlabs.app.voice.phone.PhoneActionKind
 import it.manentlabs.app.voice.routes.RouteProblem
@@ -33,6 +34,7 @@ internal object VoiceText {
         DestinationChoice.HOME_ASSISTANT -> stringResource(R.string.voice_home_assistant)
         DestinationChoice.WEBHOOK -> stringResource(R.string.voice_destination_webhook)
         DestinationChoice.PHONE -> stringResource(R.string.voice_destination_phone)
+        DestinationChoice.HERMES -> stringResource(R.string.voice_hermes)
     }
 
     @Composable
@@ -43,6 +45,7 @@ internal object VoiceText {
             RouteProblem.DOWNLOAD -> R.string.voice_problem_download
             RouteProblem.HOME_ASSISTANT -> R.string.voice_problem_home_assistant
             RouteProblem.WEBHOOK -> R.string.voice_problem_webhook
+            RouteProblem.HERMES -> R.string.voice_problem_hermes
         },
     )
 
@@ -83,6 +86,14 @@ internal object VoiceText {
     }
 
     @Composable
+    fun hermesCheck(check: HermesCheck): String = when (check) {
+        is HermesCheck.Ok -> check.model?.let { stringResource(R.string.voice_hermes_check_ok_model, it) }
+            ?: stringResource(R.string.voice_hermes_check_ok)
+        HermesCheck.BadKey -> stringResource(R.string.voice_hermes_check_bad_key)
+        is HermesCheck.Unreachable -> stringResource(R.string.voice_hermes_check_unreachable, check.reason)
+    }
+
+    @Composable
     fun block(block: TranscriberBlock): String = stringResource(
         when (block) {
             TranscriberBlock.NOT_PAIRED -> R.string.app_transcriber_not_paired
@@ -100,6 +111,7 @@ internal object VoiceText {
         VoiceError.Unreadable -> stringResource(R.string.voice_error_unreadable)
         VoiceError.HomeAssistantAddress -> stringResource(R.string.voice_error_home_assistant_address)
         VoiceError.WebhookAddress -> stringResource(R.string.voice_error_webhook_address)
+        VoiceError.HermesAddress -> stringResource(R.string.voice_error_hermes_address)
     }
 
     @Composable

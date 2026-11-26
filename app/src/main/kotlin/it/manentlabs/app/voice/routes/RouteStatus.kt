@@ -22,16 +22,26 @@ enum class RouteProblem {
 
     /** It goes to a webhook without a usable address. */
     WEBHOOK,
+
+    /** It goes to Hermes Agent, which is not set up. */
+    HERMES,
 }
 
 object RouteStatus {
     /** The first problem with [route]; [word] is its wake word if the app still knows it. */
-    fun problem(route: Route, word: WakeWord?, installed: Boolean, homeAssistantReady: Boolean): RouteProblem? = when {
+    fun problem(
+        route: Route,
+        word: WakeWord?,
+        installed: Boolean,
+        homeAssistantReady: Boolean,
+        hermesReady: Boolean,
+    ): RouteProblem? = when {
         word == null && route.wakeWord.startsWith(ImportedNames.ID_PREFIX) -> RouteProblem.IMPORT_MISSING
         word == null -> RouteProblem.WORD_GONE
         !installed -> RouteProblem.DOWNLOAD
         route.destination == Destination.HomeAssistant && !homeAssistantReady -> RouteProblem.HOME_ASSISTANT
         route.destination is Destination.Webhook && !WebhookUrl.isValid(route.destination.url) -> RouteProblem.WEBHOOK
+        route.destination == Destination.Hermes && !hermesReady -> RouteProblem.HERMES
         else -> null
     }
 

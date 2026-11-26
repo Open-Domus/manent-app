@@ -6,6 +6,7 @@ import android.util.Log
 import it.manentlabs.app.speech.AnswerSpeaker
 import it.manentlabs.app.speech.SpokenAnswerSettings
 import it.manentlabs.app.speech.spokenReply
+import it.manentlabs.app.voice.hermes.HermesClient
 import it.manentlabs.app.voice.homeassistant.HomeAssistantClient
 import it.manentlabs.app.voice.phone.PhoneActions
 import it.manentlabs.app.voice.phone.PhoneCommandParser
@@ -35,6 +36,7 @@ class CommandDispatcher @Inject constructor(
     private val settings: VoiceSettings,
     private val homeAssistant: HomeAssistantClient,
     private val webhooks: WebhookSender,
+    private val hermes: HermesClient,
     private val transcriber: CommandTranscriber,
     private val phone: PhoneActions,
     private val permissions: PhonePermissions,
@@ -85,6 +87,16 @@ class CommandDispatcher @Inject constructor(
                 action == null -> CommandOutcome.NotUnderstood("no phone action in it")
                 !permissions.refresh() -> CommandOutcome.Failed("display over other apps not allowed")
                 else -> phone.carryOut(action)
+            }
+        }
+        Destination.Hermes -> {
+            val address = settings.state.value.hermesUrl
+            val key = settings.hermesKey()
+            val text = if (address.isBlank() || key == null) null else transcriber.transcribe(pcm)
+            when {
+                address.isBlank() || key == null -> CommandOutcome.Failed("Hermes not set up")
+                text == null -> CommandOutcome.NotUnderstood("nothing transcribed")
+                else -> hermes.ask(address, key, text, Locale.getDefault().toLanguageTag())
             }
         }
     }

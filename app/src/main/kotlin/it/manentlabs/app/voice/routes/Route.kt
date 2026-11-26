@@ -14,6 +14,9 @@ sealed interface Destination {
 
     /** The transcript is turned into an action on this phone. */
     data object Phone : Destination
+
+    /** The transcript is sent to a Hermes Agent, whose reply is read aloud. */
+    data object Hermes : Destination
 }
 
 /** One wake word and where its commands go. A word belongs to one route at most. */

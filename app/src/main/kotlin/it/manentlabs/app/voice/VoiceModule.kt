@@ -8,6 +8,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import it.manentlabs.app.voice.hermes.HermesClient
 import it.manentlabs.app.voice.homeassistant.HomeAssistantClient
 import it.manentlabs.app.voice.wakeword.ModelStore
 import it.manentlabs.app.voice.webhook.WebhookSender
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-/** The HTTP client for Home Assistant, webhooks and model downloads: the system's CAs, not the gateway's pinning. */
+/** The HTTP client for Home Assistant, Hermes Agent, webhooks and model downloads: the system's CAs, not the gateway's pinning. */
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class VoiceHttp
@@ -46,4 +47,8 @@ object VoiceModule {
     @Provides
     @Singleton
     fun webhooks(@VoiceHttp http: OkHttpClient): WebhookSender = WebhookSender(http)
+
+    @Provides
+    @Singleton
+    fun hermes(@VoiceHttp http: OkHttpClient): HermesClient = HermesClient(http)
 }

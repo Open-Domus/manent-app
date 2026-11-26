@@ -37,13 +37,14 @@ import it.manentlabs.app.voice.routes.Destination
 
 /**
  * Everything about voice commands: wake words and where they go, the models,
- * Home Assistant and its spoken replies, phone actions and transcription.
+ * Home Assistant, Hermes Agent and their spoken replies, phone actions and transcription.
  */
 @Composable
 fun VoiceCommandsScreen(onBack: () -> Unit, viewModel: VoiceCommandsViewModel = hiltViewModel()) {
     val card by viewModel.card.collectAsStateWithLifecycle()
     val downloading by viewModel.downloading.collectAsStateWithLifecycle()
     val test by viewModel.test.collectAsStateWithLifecycle()
+    val hermesTest by viewModel.hermesTest.collectAsStateWithLifecycle()
     val error by viewModel.error.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val calling = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { viewModel.onResume() }
@@ -102,6 +103,9 @@ fun VoiceCommandsScreen(onBack: () -> Unit, viewModel: VoiceCommandsViewModel = 
 
         if (c.config.routes.any { it.destination == Destination.HomeAssistant }) {
             HomeAssistantSection(++number, c.config, test, viewModel::saveHomeAssistant, viewModel::setPipeline)
+        }
+        if (c.config.routes.any { it.destination == Destination.Hermes }) {
+            HermesSection(++number, c.config, hermesTest, viewModel::saveHermes)
         }
         SpokenAnswersSection(++number)
         c.phoneRows?.let { rows ->

@@ -21,6 +21,7 @@ class RoutesTest {
         Route("home-assistant", "ok_home", Destination.HomeAssistant),
         Route("a1b2c3d4", "hey_jarvis", Destination.Webhook("https://n8n.example/hook")),
         Route("e5f6a7b8", "custom:hey_nova.onnx", Destination.Phone),
+        Route("c9d0e1f2", "hey_mycroft", Destination.Hermes),
     )
 
     @Test
@@ -40,6 +41,7 @@ class RoutesTest {
         assertEquals("webhook", webhook["type"]!!.jsonPrimitive.content)
         assertEquals("https://n8n.example/hook", webhook["url"]!!.jsonPrimitive.content)
         assertEquals("phone", stored[2].jsonObject["destination"]!!.jsonObject["type"]!!.jsonPrimitive.content)
+        assertEquals("hermes", stored[3].jsonObject["destination"]!!.jsonObject["type"]!!.jsonPrimitive.content)
     }
 
     @Test
@@ -96,23 +98,26 @@ class RoutesTest {
         val word = WakeWordCatalogue.WORDS.first()
         val ha = routes[0]
         val webhook = routes[1]
-        assertEquals(RouteProblem.WORD_GONE, RouteStatus.problem(ha.copy(wakeWord = "old"), null, false, true))
-        assertEquals(RouteProblem.IMPORT_MISSING, RouteStatus.problem(routes[2], null, false, true))
-        assertEquals(RouteProblem.DOWNLOAD, RouteStatus.problem(ha, word, installed = false, homeAssistantReady = false))
-        assertEquals(RouteProblem.HOME_ASSISTANT, RouteStatus.problem(ha, word, installed = true, homeAssistantReady = false))
-        assertNull(RouteStatus.problem(ha, word, installed = true, homeAssistantReady = true))
+        assertEquals(RouteProblem.WORD_GONE, RouteStatus.problem(ha.copy(wakeWord = "old"), null, false, true, false))
+        assertEquals(RouteProblem.IMPORT_MISSING, RouteStatus.problem(routes[2], null, false, true, false))
+        assertEquals(RouteProblem.DOWNLOAD, RouteStatus.problem(ha, word, installed = false, homeAssistantReady = false, hermesReady = false))
+        assertEquals(RouteProblem.HOME_ASSISTANT, RouteStatus.problem(ha, word, installed = true, homeAssistantReady = false, hermesReady = false))
+        assertNull(RouteStatus.problem(ha, word, installed = true, homeAssistantReady = true, hermesReady = false))
         assertEquals(
             RouteProblem.WEBHOOK,
-            RouteStatus.problem(webhook.copy(destination = Destination.Webhook("nope")), word, installed = true, homeAssistantReady = false),
+            RouteStatus.problem(webhook.copy(destination = Destination.Webhook("nope")), word, installed = true, homeAssistantReady = false, hermesReady = false),
         )
-        assertNull(RouteStatus.problem(webhook, word, installed = true, homeAssistantReady = false))
+        assertNull(RouteStatus.problem(webhook, word, installed = true, homeAssistantReady = false, hermesReady = false))
+        val hermes = Route("h", "alexa", Destination.Hermes)
+        assertEquals(RouteProblem.HERMES, RouteStatus.problem(hermes, word, installed = true, homeAssistantReady = true, hermesReady = false))
+        assertNull(RouteStatus.problem(hermes, word, installed = true, homeAssistantReady = false, hermesReady = true))
     }
 
     @Test
     fun `a phone route is active only with the overlay permission`() {
         val phone = routes[2]
         val word = ImportedNames.word("hey_nova.onnx")
-        val problem = RouteStatus.problem(phone, word, installed = true, homeAssistantReady = false)
+        val problem = RouteStatus.problem(phone, word, installed = true, homeAssistantReady = false, hermesReady = false)
         assertNull(problem)
         assertFalse(RouteStatus.isActive(problem, phone, overlayAllowed = false))
         assertTrue(RouteStatus.isActive(problem, phone, overlayAllowed = true))

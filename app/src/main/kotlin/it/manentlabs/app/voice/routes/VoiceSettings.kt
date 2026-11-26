@@ -25,14 +25,19 @@ data class VoiceConfig(
     /** Ids of the routes with a webhook secret saved. */
     val webhookSecrets: Set<String>,
     val phoneApps: Map<PhoneActionKind, String>,
+    val hermesUrl: String = "",
+    /** A Hermes API key is stored, whether or not it still opens. */
+    val hasHermesKey: Boolean = false,
+    val hermesKeyUsable: Boolean = false,
 ) {
     val homeAssistantReady: Boolean get() = homeAssistantUrl.isNotBlank() && tokenUsable
+    val hermesReady: Boolean get() = hermesUrl.isNotBlank() && hermesKeyUsable
 }
 
 /**
  * The voice-command settings, in the preferences file earlier releases used
- * (`omnesis_assist`), so an update keeps them. The Home Assistant token and
- * webhook secrets are sealed with [SecretBox].
+ * (`omnesis_assist`), so an update keeps them. The Home Assistant token, the
+ * Hermes API key and webhook secrets are sealed with [SecretBox].
  */
 @Singleton
 class VoiceSettings @Inject constructor(@ApplicationContext context: Context) {
@@ -46,6 +51,12 @@ class VoiceSettings @Inject constructor(@ApplicationContext context: Context) {
     fun saveHomeAssistant(url: String, token: String?) = edit {
         putString(KEY_BASE_URL, url.trim())
         if (!token.isNullOrBlank()) putString(KEY_TOKEN, SecretBox.seal(token.trim()))
+    }
+
+    /** Saves Hermes Agent's address, trimmed, and its API key when one is given; a null key keeps the stored one. */
+    fun saveHermes(url: String, key: String?) = edit {
+        putString(KEY_HERMES_URL, url.trim())
+        if (!key.isNullOrBlank()) putString(KEY_HERMES_KEY, SecretBox.seal(key.trim()))
     }
 
     /** The assistant to run; null or blank for the one Home Assistant prefers. */
@@ -75,6 +86,8 @@ class VoiceSettings @Inject constructor(@ApplicationContext context: Context) {
 
     fun homeAssistantToken(): String? = SecretBox.open(prefs.getString(KEY_TOKEN, null))
 
+    fun hermesKey(): String? = SecretBox.open(prefs.getString(KEY_HERMES_KEY, null))
+
     fun webhookSecret(routeId: String): String? = SecretBox.open(prefs.getString(SECRET_PREFIX + routeId, null))
 
     /** Clears every voice-command setting, which also stops listening. */
@@ -89,6 +102,7 @@ class VoiceSettings @Inject constructor(@ApplicationContext context: Context) {
 
     private fun read(): VoiceConfig {
         val token = prefs.getString(KEY_TOKEN, null)
+        val hermesKey = prefs.getString(KEY_HERMES_KEY, null)
         return VoiceConfig(
             enabled = prefs.getBoolean(KEY_ENABLED, false),
             homeAssistantUrl = prefs.getString(KEY_BASE_URL, null).orEmpty(),
@@ -100,6 +114,9 @@ class VoiceSettings @Inject constructor(@ApplicationContext context: Context) {
             phoneApps = PhoneActionKind.entries.mapNotNull { kind ->
                 prefs.getString(APP_PREFIX + kind.name, null)?.let { kind to it }
             }.toMap(),
+            hermesUrl = prefs.getString(KEY_HERMES_URL, null).orEmpty(),
+            hasHermesKey = hermesKey != null,
+            hermesKeyUsable = SecretBox.open(hermesKey) != null,
         )
     }
 
@@ -112,5 +129,7 @@ class VoiceSettings @Inject constructor(@ApplicationContext context: Context) {
         const val KEY_ROUTES = "routes"
         const val SECRET_PREFIX = "webhook_secret:"
         const val APP_PREFIX = "phone_app:"
+        const val KEY_HERMES_URL = "hermes_url"
+        const val KEY_HERMES_KEY = "hermes_key"
     }
 }
