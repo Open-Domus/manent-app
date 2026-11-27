@@ -14,6 +14,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import kotlinx.serialization.json.putJsonObject
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
@@ -105,10 +106,17 @@ class HermesClient(http: OkHttpClient) {
             return "$base/v1/$path".toHttpUrlOrNull()
         }
 
-        /** The request: a short instruction that the reply will be heard, not read, then the command. */
+        /**
+         * The request: a short instruction that the reply will be heard, not read, then the command.
+         * Reasoning is off: on a local thinking model it can add hundreds of tokens, and seconds,
+         * before a one-sentence spoken reply.
+         */
         fun body(text: String, locale: String): String = buildJsonObject {
             put("model", MODEL)
             put("stream", false)
+            putJsonObject("model_options") {
+                putJsonObject("reasoning") { put("enabled", false) }
+            }
             putJsonArray("messages") {
                 addJsonObject {
                     put("role", "system")

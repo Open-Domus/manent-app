@@ -39,6 +39,8 @@ class HermesClientTest {
         val messages = body["messages"]!!.jsonArray
         assertEquals("system", messages[0].jsonObject["role"]!!.jsonPrimitive.content)
         assertEquals("che tempo fa domani", messages[1].jsonObject["content"]!!.jsonPrimitive.content)
+        val reasoning = body["model_options"]!!.jsonObject["reasoning"]!!.jsonObject
+        assertEquals("false", reasoning["enabled"]!!.jsonPrimitive.content)
     }
 
     @Test
